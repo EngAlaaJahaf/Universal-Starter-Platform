@@ -908,5 +908,13 @@ $router->post('/admin/cron/resume', 'CronController@resume');
 $router->get('/admin/cron/status-json', 'CronController@statusJson');
 $router->post('/admin/cron/stop', 'CronController@stop');
 
+// Traffic & Bot Radar: start measuring response time, then record the hit
+// (visitor / spider / AI crawler) once the response completes — even on
+// redirects/exit() because it runs as a shutdown function.
+TrafficRadar::startTimer();
+register_shutdown_function(function () {
+    TrafficRadar::recordHit();
+});
+
 // Dispatch incoming HTTP Request
 $router->dispatch();

@@ -4,7 +4,7 @@
  <p class="text-muted mb-0">رصد لحظي فائق الدقة لكافة عناكب محركات البحث، زواحف الذكاء الاصطناعي، والزوار في المنصة.</p>
  </div>
  <div class="d-flex gap-2 flex-wrap">
- <a href="<?= admin_e(app_url('admin/traffic-radar/export/csv')) ?>" class="btn btn-outline-success btn-sm fw-bold shadow-sm">
+ <a href="<?= admin_e(app_url('admin/traffic-radar/export-csv')) ?>" class="btn btn-outline-success btn-sm fw-bold shadow-sm">
  <i class="bi bi-file-earmark-spreadsheet me-1"></i> تصدير سجل الزيارات CSV
  </a>
  <button type="button" class="btn btn-outline-danger btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#purgeTrafficModal">

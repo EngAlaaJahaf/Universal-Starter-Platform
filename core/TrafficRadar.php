@@ -12,18 +12,44 @@ class TrafficRadar
     /**
      * Inspect and record every hit, crawler, bot, and visitor
      */
-    public static function recordHit($statusCode = 200)
+    public static function recordHit($statusCode = null)
     {
         try {
+            if (PHP_SAPI === 'cli') return;
+
             $uri = $_SERVER['REQUEST_URI'] ?? '/';
-            
+            $path = parse_url($uri, PHP_URL_PATH) ?? '';
+
             // Skip static assets (CSS, JS, images) from cluttering logs
-            if (preg_match('/\.(css|js|jpg|jpeg|png|gif|webp|svg|ico|woff|woff2|ttf|map)$/i', parse_url($uri, PHP_URL_PATH) ?? '')) {
+            if (preg_match('/\.(css|js|jpg|jpeg|png|gif|webp|svg|ico|woff|woff2|ttf|map)$/i', $path)) {
                 return;
             }
 
+            // Skip the admin panel: the radar measures public visitors & crawlers.
+            if (strpos('/' . ltrim($path, '/'), '/admin') === 0) {
+                return;
+            }
+
+            if ($statusCode === null) {
+                $code = http_response_code();
+                $statusCode = ($code === false || $code <= 0) ? 200 : (int) $code;
+            }
+            $statusCode = (int) $statusCode;
+
             $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+            // Prefer the real client IP when the host sits behind a proxy/CDN.
             $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+            foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR'] as $h) {
+                if (!empty($_SERVER[$h])) {
+                    $candidate = trim(explode(',', (string) $_SERVER[$h])[0]);
+                    if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                        $ipAddress = $candidate;
+                        break;
+                    }
+                }
+            }
+
             $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
             $referer = $_SERVER['HTTP_REFERER'] ?? null;
             $sessionId = session_id() ?: (Session::get('session_token') ?: null);
