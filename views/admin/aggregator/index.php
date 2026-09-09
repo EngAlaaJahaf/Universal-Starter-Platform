@@ -615,7 +615,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
  <div class="d-flex gap-1 flex-wrap">
  <!-- 1. Translate & Publish Form (For Foreign News) -->
- <form method="post" action="<?= admin_e(app_url('admin/news-feeds/translate-publish')) ?>" class="d-inline">
+ <form method="post" action="<?= admin_e(app_url('admin/news-feeds/translate-publish')) ?>" class="d-inline publish-ajax-form" data-action="translate">
  <?= CSRF::field() ?>
  <input type="hidden" name="title" value="<?= admin_e($item['title']) ?>">
  <input type="hidden" name="excerpt" value="<?= admin_e($item['excerpt']) ?>">
@@ -629,7 +629,7 @@ document.addEventListener('DOMContentLoaded', function () {
  </form>
 
  <!-- 2. Direct Instant Publish Form (For Arabic/Direct News - No Translation) -->
- <form method="post" action="<?= admin_e(app_url('admin/news-feeds/fast-publish')) ?>" class="d-inline">
+ <form method="post" action="<?= admin_e(app_url('admin/news-feeds/fast-publish')) ?>" class="d-inline publish-ajax-form" data-action="fast">
  <?= CSRF::field() ?>
  <input type="hidden" name="title" value="<?= admin_e($item['title']) ?>">
  <input type="hidden" name="excerpt" value="<?= admin_e($item['excerpt']) ?>">
@@ -643,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function () {
  </form>
 
  <!-- 3. Draft in Full Editor -->
- <form method="post" action="<?= admin_e(app_url('admin/news-feeds/draft-article')) ?>" class="d-inline">
+ <form method="post" action="<?= admin_e(app_url('admin/news-feeds/draft-article')) ?>" class="d-inline publish-ajax-form" data-action="draft">
  <?= CSRF::field() ?>
  <input type="hidden" name="title" value="<?= admin_e($item['title']) ?>">
  <input type="hidden" name="excerpt" value="<?= admin_e($item['excerpt']) ?>">
@@ -663,3 +663,90 @@ document.addEventListener('DOMContentLoaded', function () {
  <?php endforeach; ?>
  </div>
 <?php endif; ?>
+
+<script>
+// ================= AJAX PUBLISH: نشر بدون إعادة تحميل الصفحة =================
+(function () {
+ const forms = document.querySelectorAll('.publish-ajax-form');
+ if (!forms.length) return;
+
+ let toast = document.getElementById('aggregatorToastBox');
+ if (!toast) {
+  toast = document.createElement('div');
+  toast.id = 'aggregatorToastBox';
+  toast.style.cssText = 'position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:1080;max-width:680px;width:calc(100% - 32px)';
+  document.body.appendChild(toast);
+ }
+ function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+   return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+ }
+ function showToast(html, isError) {
+  toast.innerHTML = '<div class="alert alert-' + (isError ? 'danger' : 'success') + ' alert-dismissible fade show shadow-lg small mb-0">' + html + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(function () { toast.innerHTML = ''; }, 7000);
+ }
+
+ forms.forEach(function (form) {
+  form.addEventListener('submit', function (e) {
+   e.preventDefault();
+   const btn = form.querySelector('button[type=submit]');
+   if (!btn || btn.disabled) return;
+   const originalHtml = btn.innerHTML;
+   const action = form.getAttribute('data-action') || 'publish';
+   btn.disabled = true;
+   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> جارٍ النشر...';
+
+   fetch(form.action, {
+    method: 'POST',
+    body: new FormData(form),
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    credentials: 'same-origin'
+   })
+   .then(function (res) {
+    return res.text().then(function (t) { return { ok: res.ok, status: res.status, text: t }; });
+   })
+   .then(function (r) {
+    if (!r.text || !r.text.trim()) throw new Error('استجابة الخادم فارغة. حاول مرة أخرى (ربما انتهت مهلة الاستضافة).');
+    let data;
+    try {
+     data = JSON.parse(r.text);
+    } catch (e) {
+     throw new Error('استجابة غير صالحة من الخادم (HTTP ' + r.status + ').');
+    }
+    if (!data || !data.success) throw new Error((data && data.error) || 'فشل النشر.');
+
+    if (action === 'draft' && data.edit_url) {
+     showToast('<i class="bi bi-check-circle-fill me-1"></i> تم إنشاء المسودة. جارٍ فتح المحرر...');
+     window.location.href = data.edit_url;
+     return;
+    }
+    showToast('<i class="bi bi-check-circle-fill me-1"></i> ' + esc(data.message || 'تم النشر بنجاح.'));
+
+    const bar = form.closest('.d-flex.gap-1.flex-wrap');
+    if (bar) {
+     let link = '';
+     if (data.edit_url) link = ' <a class="text-white fw-bold me-2" href="' + esc(data.edit_url) + '">فتح المقال</a>';
+     bar.innerHTML = '<span class="badge bg-success px-3 py-2 shadow-sm"><i class="bi bi-check-circle-fill me-1"></i> تم النشر</span>' + link;
+    }
+
+    const card = form.closest('.news-item-col');
+    const statusBadge = card ? card.querySelector('.badge.position-absolute.top-0.end-0') : null;
+    if (statusBadge) {
+     statusBadge.className = 'badge bg-success position-absolute top-0 end-0 m-2 shadow-sm';
+     statusBadge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> منشور للعامة';
+     card.setAttribute('data-news-status', 'published');
+     filterNewsLive();
+    }
+    if (btn && btn.isConnected) { btn.disabled = false; btn.innerHTML = originalHtml; }
+   })
+   .catch(function (err) {
+    showToast('<i class="bi bi-exclamation-triangle-fill me-1"></i> ' + esc(err.message), true);
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+   });
+  });
+ });
+})();
+</script>

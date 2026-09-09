@@ -311,33 +311,82 @@ return date('Y-m-d', $ts);
    '<span class="text-muted">' + rate + '% نسبة النجاح</span>';
  }
 
+ function fetchJsonSafe(url) {
+  return fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+   .then(function (res) {
+    return res.text().then(function (t) {
+     var trimmed = (t || '').trim();
+     if (!trimmed) {
+      throw new Error('استجابة فارغة من الخادم — غالباً انتهت مهلة التنفيذ في الاستضافة قبل إتمام الفحص. حاول مرة أخرى أو افحص المصادر واحداً تلو الآخر.');
+     }
+     if (trimmed.charAt(0) !== '{' && trimmed.charAt(0) !== '[') {
+      throw new Error('استجابة غير متوقعة (HTML/نص) برمز HTTP ' + res.status + ' — غالباً انتهت مهلة التنفيذ في الاستضافة. جرّب الفحص للمصادر واحداً تلو الآخر.');
+     }
+     var data;
+     try { data = JSON.parse(trimmed); }
+     catch (e) { throw new Error('تعذّرت قراءة استجابة الخادم (JSON غير صالح) برمز HTTP ' + res.status + '.'); }
+     return data;
+    });
+   });
+ }
+
  function run(url, btn, originalHtml) {
+  var isSingle = url.indexOf('id=') !== -1;
+  var BATCH = 3;
+  var allResults = [];
+  var allOk = 0;
+  var allFailed = 0;
+  var totalSources = 0;
+
   panel.classList.remove('d-none');
   progressWrap.classList.remove('d-none');
-  progressBar.style.width = '25%';
-  resultsBox.innerHTML = '<div class="text-center text-muted py-3"><span class="spinner-border spinner-border-sm me-2"></span>جارٍ فحص الخلاصات مباشرة... قد يستغرق حتى دقيقة.</div>';
+  progressBar.style.width = '5%';
+  resultsBox.innerHTML = '<div class="text-center text-muted py-3"><span class="spinner-border spinner-border-sm me-2"></span>جارٍ فحص الخلاصات مباشرة...</div>';
   summaryEl.textContent = '';
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   var tick = setInterval(function () {
-   var w = parseInt(progressBar.style.width) || 25;
-   if (w < 90) progressBar.style.width = (w + 5) + '%';
-  }, 700);
+   var w = parseInt(progressBar.style.width) || 5;
+   if (w < 95) progressBar.style.width = (w + 1) + '%';
+  }, 500);
 
-  fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
-   .then(function (res) { return res.json(); })
-   .then(function (data) {
-    clearInterval(tick);
+  function renderAccumulated() {
+   render({ results: allResults, total: allResults.length, ok: allOk, failed: allFailed });
+  }
+
+  function step(batchUrl) {
+   return fetchJsonSafe(batchUrl).then(function (data) {
+    if (!data || !data.results) throw new Error('استجابة غير صالحة من الخادم.');
+    allResults = allResults.concat(data.results);
+    allOk += data.ok || 0;
+    allFailed += data.failed || 0;
+    totalSources = data.sourceCount || ((data.offset || 0) + data.results.length);
+    if (!data.done) {
+     resultsBox.innerHTML = '<div class="text-center text-muted py-3"><span class="spinner-border spinner-border-sm me-2"></span>جارٍ الفحص... تم فحص ' + allResults.length + ' من ' + (totalSources || '?') + ' مصدر</div>';
+     return step(url.split('?')[0] + '?offset=' + (data.offset || 0) + '&limit=' + BATCH);
+    }
     progressBar.style.width = '100%';
-    setTimeout(function () { progressWrap.classList.add('d-none'); }, 500);
-    if (!data || !data.results) throw new Error('استجابة غير صالحة');
-    render(data);
-   })
-   .catch(function (err) {
     clearInterval(tick);
-    progressWrap.classList.add('d-none');
-    resultsBox.innerHTML = '<div class="alert alert-danger mb-0 small">تعذر إجراء الفحص: ' + esc(err.message) + '</div>';
-   })
+    setTimeout(function () { progressWrap.classList.add('d-none'); }, 500);
+    renderAccumulated();
+   });
+  }
+
+  function fail(err) {
+   clearInterval(tick);
+   progressWrap.classList.add('d-none');
+   resultsBox.innerHTML = '<div class="alert alert-danger mb-0 small">تعذر إجراء الفحص: ' + esc(err.message) + '</div>';
+  }
+
+  var firstUrl;
+  if (isSingle) {
+   firstUrl = url;
+  } else {
+   firstUrl = url + (url.indexOf('?') === -1 ? '?' : '&') + 'offset=0&limit=' + BATCH;
+  }
+
+  step(firstUrl)
+   .catch(fail)
    .finally(function () {
     if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
    });

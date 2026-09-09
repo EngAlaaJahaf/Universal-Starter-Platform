@@ -37,6 +37,21 @@ class AggregatorController extends AdminController
  return get_default_category_id($db);
  }
 
+ /**
+  * يردّ JSON عندما يكون الطلب قادماً من واجهة AJAX (نشر بدون إعادة تحميل الصفحة)،
+  * ويعيد false ليتابع المُحدِّث مسار الـ redirect المعتاد في المتصفح العادي.
+  */
+ private function ajaxOut(array $payload)
+ {
+ if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+ && strtolower((string) $_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+ header('Content-Type: application/json; charset=utf-8');
+ echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+ exit;
+ }
+ return false;
+ }
+
  public function index()
  {
  $this->guardAdmin();
@@ -142,6 +157,7 @@ class AggregatorController extends AdminController
  if (strlen($featuredImage) > 1000) $featuredImage = '';
 
  if (empty($title)) {
+ if ($this->ajaxOut(['success' => false, 'error' => 'عنوان المقال مطلوب للنشر.'])) return;
  Session::flash('error', 'عنوان المقال مطلوب للنشر.');
  return $this->redirect('admin/news-feeds');
  }
@@ -254,9 +270,18 @@ class AggregatorController extends AdminController
  }
  } catch (Throwable $e) {
  error_log('translatePublish error: ' . $e->getMessage());
+ if ($this->ajaxOut(['success' => false, 'error' => 'تعذر إتمام الترجمة والنشر: ' . $e->getMessage()])) return;
  Session::flash('error', 'تعذر إتمام الترجمة والنشر: ' . $e->getMessage());
  }
  
+ $okArticleId = (int) ($newId ?? $existing['id'] ?? 0);
+ if ($this->ajaxOut([
+ 'success' => true,
+ 'article_id' => $okArticleId,
+ 'edit_url' => app_url('admin/articles/' . $okArticleId . '/edit'),
+ 'message' => "تمت الترجمة والنشر بنجاح بعنوان: \"{$titleAr}\"!",
+ ])) return;
+
  $referer = $_SERVER['HTTP_REFERER'] ?? app_url('admin/news-feeds');
  header('Location: ' . $referer);
  exit;
@@ -281,6 +306,7 @@ class AggregatorController extends AdminController
  if (strlen($featuredImage) > 1000) $featuredImage = '';
 
  if (empty($title)) {
+ if ($this->ajaxOut(['success' => false, 'error' => 'عنوان المقال مطلوب للنشر.'])) return;
  Session::flash('error', 'عنوان المقال مطلوب للنشر.');
  return $this->redirect('admin/news-feeds');
  }
@@ -361,14 +387,22 @@ class AggregatorController extends AdminController
             ]);
 
             $newId = $db->lastInsertId();
-            $this->audit('direct_publish', 'article', $newId, null, ['source' => $sourceName, 'url' => $sourceUrl, 'title' => $title]);
-            Session::flash('success', "تم النشر الفوري المباشر بنجاح بدون ترجمة بعنوان: \"{$title}\"!");
-        }
-        
-        $referer = $_SERVER['HTTP_REFERER'] ?? app_url('admin/news-feeds');
-        header('Location: ' . $referer);
-        exit;
-    }
+$this->audit('direct_publish', 'article', $newId, null, ['source' => $sourceName, 'url' => $sourceUrl, 'title' => $title]);
+ Session::flash('success', "تم النشر الفوري المباشر بنجاح بدون ترجمة بعنوان: \"{$title}\"!");
+ }
+ 
+ $okArticleId = (int) ($newId ?? $existing['id'] ?? 0);
+ if ($this->ajaxOut([
+ 'success' => true,
+ 'article_id' => $okArticleId,
+ 'edit_url' => app_url('admin/articles/' . $okArticleId . '/edit'),
+ 'message' => "تم النشر الفوري المباشر بنجاح بعنوان: \"{$title}\"!",
+ ])) return;
+
+ $referer = $_SERVER['HTTP_REFERER'] ?? app_url('admin/news-feeds');
+ header('Location: ' . $referer);
+ exit;
+ }
 
     /**
      * POST /admin/news-feeds/draft-article
@@ -388,20 +422,23 @@ class AggregatorController extends AdminController
         // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
         if (strlen($featuredImage) > 1000) $featuredImage = '';
 
-        if (empty($title)) {
-            Session::flash('error', 'عنوان المقال مطلوب.');
-            return $this->redirect('admin/news-feeds');
-        }
+if (empty($title)) {
+ if ($this->ajaxOut(['success' => false, 'error' => 'عنوان المقال مطلوب.'])) return;
+ Session::flash('error', 'عنوان المقال مطلوب.');
+ return $this->redirect('admin/news-feeds');
+ }
 
-        $db = new Database();
+ $db = new Database();
 
-        // Check if this source_url is already in articles
-        if (!empty($sourceUrl)) {
-            $existing = $db->fetch("SELECT id FROM articles WHERE source_url = :url", [':url' => $sourceUrl]);
-            if ($existing) {
-                return $this->redirect('admin/articles/' . (int) $existing['id'] . '/edit');
-            }
-        }
+ // Check if this source_url is already in articles
+ if (!empty($sourceUrl)) {
+ $existing = $db->fetch("SELECT id FROM articles WHERE source_url = :url", [':url' => $sourceUrl]);
+ if ($existing) {
+ $editUrl = app_url('admin/articles/' . (int) $existing['id'] . '/edit');
+ if ($this->ajaxOut(['success' => true, 'article_id' => (int) $existing['id'], 'edit_url' => $editUrl, 'redirect' => (int) $existing['id']])) return;
+ return $this->redirect('admin/articles/' . (int) $existing['id'] . '/edit');
+ }
+ }
 
         // Validate category
         $categoryId = $this->resolveCategoryId($db, $title, ($data['title_ar'] ?? $title), $excerpt, $sourceName, $sourceUrl, 0);
@@ -441,6 +478,12 @@ class AggregatorController extends AdminController
  $newId = $db->lastInsertId();
  $this->audit('draft_article', 'article', $newId, null, ['source' => $sourceName, 'url' => $sourceUrl]);
  Session::flash('success', "تم استيراد الخبر كمسودة بنجاح! يمكنك الآن مراجعته وصياغته ونشره.");
+ if ($this->ajaxOut([
+ 'success' => true,
+ 'article_id' => (int) $newId,
+ 'edit_url' => app_url('admin/articles/' . (int) $newId . '/edit'),
+ 'redirect' => (int) $newId,
+ ])) return;
  return $this->redirect('admin/articles/' . (int) $newId . '/edit');
  }
 
@@ -486,13 +529,26 @@ class AggregatorController extends AdminController
  $this->guardAdmin();
  @set_time_limit(300); // فحص 31 مصدراً قد يستغرق دقائق
 
- $db = new Database();
+$db = new Database();
  $singleId = isset($_GET['id']) ? (int) $_GET['id'] : (isset($_POST['id']) ? (int) $_POST['id'] : 0);
 
+ // Batching: shared hosting caps max_execution_time (30–60s), so the full
+ // 31-source scan is split into small requests the frontend chains together.
+ $offset = max(0, (int) ($_GET['offset'] ?? 0));
+ $limit  = max(0, (int) ($_GET['limit'] ?? 0));
+
  if ($singleId > 0) {
- $sources = $db->fetchAll('SELECT id, name, url FROM rss_sources WHERE id = :id', [':id' => $singleId]);
+  $sources = $db->fetchAll('SELECT id, name, url FROM rss_sources WHERE id = :id', [':id' => $singleId]);
+  $sourceCount = count($sources);
+  $done = true;
  } else {
- $sources = $db->fetchAll('SELECT id, name, url FROM rss_sources ORDER BY id');
+  $sourceCount = (int) ($db->fetch('SELECT COUNT(*) as c FROM rss_sources')['c'] ?? 0);
+  if ($limit > 0) {
+  $sources = $db->fetchAll('SELECT id, name, url FROM rss_sources ORDER BY id LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset);
+  } else {
+  $sources = $db->fetchAll('SELECT id, name, url FROM rss_sources ORDER BY id');
+  }
+  $done = ($offset + count($sources)) >= $sourceCount;
  }
 
  $results = [];
@@ -500,8 +556,8 @@ class AggregatorController extends AdminController
  $failCount = 0;
 
  foreach ($sources as $s) {
- // الفحص الجماعي: وضع سريع بمهلة 10 ثوانٍ للمصدر الواحد لضمان إنهاء الفحص كاملاً
- $fetch = FeedFetcher::fetchRaw($s['url'], $singleId > 0 ? false : true, $singleId > 0 ? 0 : 10000);
+  // الفحص الجماعي: وضع سريع بمهلة قصيرة لكل مصدر لضمان إنهاء الفحص ضمن مهلة الاستضافة
+  $fetch = FeedFetcher::fetchRaw($s['url'], $singleId > 0 ? false : true, $singleId > 0 ? 0 : 6000);
 
  $itemCount = 0;
  $sampleTitle = '';
@@ -584,14 +640,17 @@ class AggregatorController extends AdminController
  ];
  }
 
- header('Content-Type: application/json; charset=utf-8');
+header('Content-Type: application/json; charset=utf-8');
  echo json_encode([
- 'success' => true,
- 'total' => count($results),
- 'ok' => $okCount,
- 'failed' => $failCount,
- 'results' => $results,
- ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+  'success' => true,
+  'total' => count($results),
+  'ok' => $okCount,
+  'failed' => $failCount,
+  'results' => $results,
+  'sourceCount' => $sourceCount,
+  'offset' => $offset + count($results),
+  'done' => $done,
+  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
  exit;
  }
 

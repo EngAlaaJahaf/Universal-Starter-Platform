@@ -54,11 +54,14 @@ class FeedFetcher
      *
      * @return array{success:bool, body:string, http_code:int, error:string, ua:string}
      */
-    public static function fetchRaw(string $url, bool $fast = false, int $maxMs = 0): array
+    public static function fetchRaw(string $url, bool $fast = false, int $maxMs = 0, ?int $connectTimeout = null, ?int $timeoutS = null): array
     {
         self::$lastError     = null;
         self::$lastHttpCode  = null;
         self::$lastSuccessUa = null;
+
+        if ($connectTimeout === null) $connectTimeout = $fast ? 5 : 8;
+        if ($timeoutS === null)       $timeoutS       = $fast ? 8 : 18;
 
         $url = trim($url);
         if ($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) {
@@ -83,7 +86,7 @@ class FeedFetcher
                     break 2;
                 }
 
-                $res = self::singleRequest($url, $ua);
+                $res = self::singleRequest($url, $ua, $connectTimeout, $timeoutS);
 
                 $code = $res['http_code'];
                 $body = $res['body'];
@@ -152,7 +155,7 @@ class FeedFetcher
      *
      * @return array{body:string, http_code:int, error:string, retry_after:int, effective_url:string}
      */
-    private static function singleRequest(string $url, string $ua): array
+    private static function singleRequest(string $url, string $ua, int $connectTimeout = 8, int $timeoutS = 18): array
     {
         $ch = curl_init($url);
 
@@ -161,8 +164,8 @@ class FeedFetcher
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => false, // نتعامل مع التحويل يدوياً لكشف النطاقات الميتة
-            CURLOPT_TIMEOUT        => 18,
-            CURLOPT_CONNECTTIMEOUT => 8,
+            CURLOPT_TIMEOUT        => $timeoutS,
+            CURLOPT_CONNECTTIMEOUT => $connectTimeout,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
             // gzip/deflate فقط — brotli يسبب "Unrecognized content encoding type" في libcurl القديم
@@ -217,8 +220,8 @@ class FeedFetcher
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_FOLLOWLOCATION => false,
-                CURLOPT_TIMEOUT        => 18,
-                CURLOPT_CONNECTTIMEOUT => 8,
+                CURLOPT_TIMEOUT        => $timeoutS,
+                CURLOPT_CONNECTTIMEOUT => $connectTimeout,
                 CURLOPT_SSL_VERIFYPEER => false,
                 CURLOPT_SSL_VERIFYHOST => false,
                 CURLOPT_ENCODING       => 'gzip, deflate',
