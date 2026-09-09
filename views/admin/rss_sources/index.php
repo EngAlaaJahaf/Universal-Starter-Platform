@@ -1,3 +1,33 @@
+<?php
+// Relative "ago" formatter for the per-feed fresh-news signal.
+if (!function_exists('rss_new_ago')) {
+function rss_new_ago($dt) {
+$ts = is_numeric($dt) ? (int) $dt : strtotime((string) $dt);
+if (!$ts) return '';
+$d = max(0, time() - $ts);
+if ($d < 60) return 'الآن';
+$m = (int) floor($d / 60);
+if ($m < 60) {
+if ($m === 1) return 'قبل دقيقة';
+if ($m === 2) return 'قبل دقيقتين';
+if ($m <= 10) return 'قبل ' . $m . ' دقائق';
+return 'قبل ' . $m . ' دقيقة';
+}
+$h = (int) floor($m / 60);
+if ($h < 24) {
+if ($h === 1) return 'قبل ساعة';
+if ($h === 2) return 'قبل ساعتين';
+if ($h <= 10) return 'قبل ' . $h . ' ساعات';
+return 'قبل ' . $h . ' ساعة';
+}
+$days = (int) floor($h / 24);
+if ($days === 1) return 'قبل يوم';
+if ($days === 2) return 'قبل يومين';
+if ($days <= 10) return 'قبل ' . $days . ' أيام';
+return date('Y-m-d', $ts);
+}
+}
+?>
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
  <div>
  <h2 class="h3 fw-bold mb-1"><i class="bi bi-rss-fill text-warning me-2"></i>إدارة مصادر خلاصات الأخبار (RSS Sources)</h2>
@@ -100,15 +130,18 @@
  <th>اسم المصدر</th>
  <th>رابط خلاصة الـ RSS</th>
  <th>القسم المسند</th>
- <th>الحالة</th>
- <th style="width:150px">صحة الخلاصة</th>
- <th class="text-end" style="width:180px">الإجراءات</th>
+  <th>الحالة</th>
+  <th style="width:150px">صحة الخلاصة</th>
+  <th style="width:140px" title="عدد المقالات الواردة من هذا المصدر خلال آخر <?= (int) ($newWindowHours ?? 24) ?> ساعة — اضغط الشارة لعرضها">
+  <i class="bi bi-bell-fill text-success me-1"></i>الجديد
+  </th>
+  <th class="text-end" style="width:180px">الإجراءات</th>
  </tr>
  </thead>
  <tbody>
  <?php if (empty($sources)): ?>
  <tr>
- <td colspan="7" class="text-center py-5 text-muted">
+  <td colspan="8" class="text-center py-5 text-muted">
  <i class="bi bi-rss d-block mb-2" style="font-size:2rem"></i>
  لا توجد مصادر مطابقة لبحثك.
  </td>
@@ -166,9 +199,29 @@
  <span class="badge bg-light text-muted border">
  <i class="bi bi-dash-circle me-1"></i>لم يُفحص
  </span>
- <?php endif; ?>
- </td>
- <td class="text-end">
+  <?php endif; ?>
+  </td>
+  <td>
+  <?php
+  $feedStat = ($newMap ?? [])[$s['name']] ?? null;
+  $feedNew = (int) ($feedStat['new_count'] ?? 0);
+  $feedLatest = $feedStat['latest_at'] ?? null;
+  ?>
+  <?php if ($feedNew > 0): ?>
+  <a href="<?= admin_e(app_url('admin/news-feeds?source_id=' . $s['id'])) ?>" class="text-decoration-none"
+  title="عرض أحدث أخبار هذا المصدر في الاستوديو">
+  <span class="badge bg-success text-white border shadow-sm">
+  <i class="bi bi-bell-fill me-1"></i>+<?= $feedNew ?> <?= $feedNew === 1 ? 'خبر جديد' : ($feedNew === 2 ? 'خبران جديدان' : 'أخبار جديدة') ?>
+  </span>
+  </a>
+  <?php if (!empty($feedLatest)): ?>
+  <div class="small text-muted mt-1">آخرها <?= admin_e(rss_new_ago($feedLatest)) ?></div>
+  <?php endif; ?>
+  <?php else: ?>
+  <span class="text-muted small">—</span>
+  <?php endif; ?>
+  </td>
+  <td class="text-end">
  <div class="d-inline-flex gap-1">
  <button type="button" class="btn-action-icon btn-action-view btn-check-one-feed"
  data-id="<?= (int) $s['id'] ?>" title="فحص صحة هذه الخلاصة الآن">

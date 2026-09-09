@@ -29,15 +29,36 @@ class RssSourcesController extends AdminController
  {$whereSql} 
  ORDER BY s.id ASC";
  
- $sources = $db->fetchAll($sql, $params);
- $categories = $db->fetchAll('SELECT id, name FROM categories ORDER BY name ASC');
+  $sources = $db->fetchAll($sql, $params);
+  $categories = $db->fetchAll('SELECT id, name FROM categories ORDER BY name ASC');
 
- $this->view('admin/rss_sources/index', [
- 'sources' => $sources,
- 'categories' => $categories,
- 'q' => $q,
- 'catId' => $catId
- ]);
+  // New-articles signal per feed (last 24h), matched by stored source_name.
+  // Lets admins spot at a glance which feeds actually delivered fresh news.
+  $newWindowHours = 24;
+  $newMap = [];
+  try {
+  $newRows = $db->fetchAll("
+  SELECT source_name, COUNT(*) AS new_count, MAX(created_at) AS latest_at
+  FROM articles
+  WHERE source_name IS NOT NULL AND source_name <> ''
+  AND created_at >= DATE_SUB(NOW(), INTERVAL " . (int) $newWindowHours . " HOUR)
+  GROUP BY source_name
+  ");
+  foreach ($newRows as $row) {
+  $newMap[(string) $row['source_name']] = $row;
+  }
+  } catch (Throwable $e) {
+  $newMap = [];
+  }
+
+  $this->view('admin/rss_sources/index', [
+  'sources' => $sources,
+  'categories' => $categories,
+  'q' => $q,
+  'catId' => $catId,
+  'newMap' => $newMap,
+  'newWindowHours' => $newWindowHours
+  ]);
  }
 
  public function create()
