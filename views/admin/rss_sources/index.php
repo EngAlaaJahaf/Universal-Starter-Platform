@@ -331,13 +331,15 @@ return date('Y-m-d', $ts);
    });
  }
 
- function run(url, btn, originalHtml) {
-  var isSingle = url.indexOf('id=') !== -1;
-  var BATCH = 3;
-  var allResults = [];
-  var allOk = 0;
-  var allFailed = 0;
-  var totalSources = 0;
+function run(url, btn, originalHtml) {
+   var isSingle = url.indexOf('id=') !== -1;
+   var BATCH = 3;
+   var allResults = [];
+   var allOk = 0;
+   var allFailed = 0;
+   var totalSources = 0;
+   var attempts = 0;
+   var MAX_ATTEMPTS = 40;
 
   panel.classList.remove('d-none');
   progressWrap.classList.remove('d-none');
@@ -356,6 +358,10 @@ return date('Y-m-d', $ts);
   }
 
   function step(batchUrl) {
+   attempts++;
+   if (attempts > MAX_ATTEMPTS) {
+    return Promise.reject(new Error('توقّف الفحص بعد عدد كبير من المراحل — جرّب الفحص للمصادر واحداً تلو الآخر.'));
+   }
    return fetchJsonSafe(batchUrl).then(function (data) {
     if (!data || !data.results) throw new Error('استجابة غير صالحة من الخادم.');
     allResults = allResults.concat(data.results);

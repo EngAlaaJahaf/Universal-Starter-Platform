@@ -543,12 +543,18 @@ if (empty($title)) {
  * فحص صحة كل مصادر RSS المسجلة (أو مصدر واحد) وتخزين النتيجة في قاعدة البيانات.
  * يُرجع JSON لاستهلاكه من واجهة لوحة التحكم.
  */
- public function healthCheck()
+public function healthCheck()
  {
  $this->guardAdmin();
- @set_time_limit(300); // فحص 31 مصدراً قد يستغرق دقائق
 
-$db = new Database();
+ // ميزانية زمنية ثابتة لكل طلب: بغضّ النظر عن بطء الخلاصات نضمن إرجاع استجابة
+ // كاملة قبل مهلة الاستضافة القصوى (~30 ث)، عبر تقسيم الفحص إلى دفعات صغيرة
+ // تُتابعها الواجهة (offset/limit). كل طلب يعالج مصدراً واحداً على الأقل.
+ $started = microtime(true);
+ $budget = 10; // ثوانٍ كحدّ أقصى لمعالجة طلب واحد
+ @set_time_limit($budget + 20);
+
+ $db = new Database();
  $singleId = isset($_GET['id']) ? (int) $_GET['id'] : (isset($_POST['id']) ? (int) $_POST['id'] : 0);
 
  // Batching: shared hosting caps max_execution_time (30–60s), so the full
@@ -559,7 +565,6 @@ $db = new Database();
  if ($singleId > 0) {
   $sources = $db->fetchAll('SELECT id, name, url FROM rss_sources WHERE id = :id', [':id' => $singleId]);
   $sourceCount = count($sources);
-  $done = true;
  } else {
   $sourceCount = (int) ($db->fetch('SELECT COUNT(*) as c FROM rss_sources')['c'] ?? 0);
   if ($limit > 0) {
@@ -567,16 +572,25 @@ $db = new Database();
   } else {
   $sources = $db->fetchAll('SELECT id, name, url FROM rss_sources ORDER BY id');
   }
-  $done = ($offset + count($sources)) >= $sourceCount;
  }
 
  $results = [];
  $okCount = 0;
  $failCount = 0;
+ $didWork = false;
 
  foreach ($sources as $s) {
-  // الفحص الجماعي: وضع سريع بمهلة قصيرة لكل مصدر لضمان إنهاء الفحص ضمن مهلة الاستضافة
-  $fetch = FeedFetcher::fetchRaw($s['url'], $singleId > 0 ? false : true, $singleId > 0 ? 0 : 6000);
+  // نضمن معالجة مصدر واحد على الأقل، ثم نتوقف عند اقتراب الميزانية
+  // لترك الدفعة التالية (done=false) تكمل الباقي قبل وصول PHP للمهلة.
+  if ($didWork && (microtime(true) - $started) >= $budget) {
+  break;
+  }
+  $didWork = true;
+
+  // الفحص الجماعي: وضع سريع مع تقليص مهلة هذا المصدر بما تبقّى من الميزانية؛
+  // الفحص المفرد: مهلة عليا 15 ث حتى لا تتجاوز مهلة الاستضافة.
+  $remainingMs = (int) (($budget - (microtime(true) - $started)) * 1000);
+  $fetch = FeedFetcher::fetchRaw($s['url'], $singleId > 0 ? false : true, $singleId > 0 ? 15000 : max(1000, min(6000, $remainingMs)));
 
  $itemCount = 0;
  $sampleTitle = '';
@@ -614,10 +628,12 @@ $db = new Database();
  }
  }
 
- $suggestions = [];
- if ($status !== 'ok') {
- $suggestions = array_slice(FeedFetcher::suggestAlternatives($s['url']), 0, 4);
- }
+$suggestions = [];
+  if ($status !== 'ok' && $singleId > 0 && (microtime(true) - $started) < 6) {
+  // اقتراحات البدائل تحتاج طلبات شبكة إضافية؛ تُنفَّذ فقط في الفحص المفرد،
+  // وفقط إذا بقي من الميزانية متّسع، حتى لا تطلق المهلة على الاستضافة.
+  $suggestions = array_slice(FeedFetcher::suggestAlternatives($s['url']), 0, 4);
+  }
 
  if ($status === 'ok') {
  $okCount++;
@@ -659,18 +675,22 @@ $db = new Database();
  ];
  }
 
-header('Content-Type: application/json; charset=utf-8');
- echo json_encode([
-  'success' => true,
-  'total' => count($results),
-  'ok' => $okCount,
-  'failed' => $failCount,
-  'results' => $results,
-  'sourceCount' => $sourceCount,
-  'offset' => $offset + count($results),
-  'done' => $done,
-  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
- exit;
+// done صحيح فقط عند استكمال كل المصادر (أو انتهاء الدفعة بلا بقيّة)؛
+  // أما إذا توقفنا بسبب الميزانية فتُكمّل الواجهة من offset الناتج.
+  $done = ($offset + count($results)) >= $sourceCount;
+
+ header('Content-Type: application/json; charset=utf-8');
+  echo json_encode([
+   'success' => true,
+   'total' => count($results),
+   'ok' => $okCount,
+   'failed' => $failCount,
+   'results' => $results,
+   'sourceCount' => $sourceCount,
+   'offset' => $offset + count($results),
+   'done' => $done,
+   ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+  exit;
  }
 
  /** تسمية مقروءة لوكيل المستخدم الذي نجح في الجلب */
