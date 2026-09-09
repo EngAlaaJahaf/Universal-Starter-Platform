@@ -420,6 +420,8 @@ img {
   font-size: 0.76rem;
   padding: 2px 6px;
   border-radius: 4px;
+  font-family: var(--font-numbers);
+}
 
 /* ====================================================================
    BREAKING HEADLINES TOPBAR (AITnews style) + SOCIAL ICONS
@@ -593,8 +595,6 @@ img {
   .breaking-item {
     transition: none;
   }
-}
-  font-family: var(--font-numbers);
 }
 
 .change.up {
