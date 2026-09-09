@@ -30,8 +30,20 @@ if (empty($ogImage)) {
     $ogImage = app_url('uploads/brand/og_share.png');
 }
 $twitterHandle      = Settings::get('twitter_site_handle', '@TechNewsAr');
-$googleVerification = Settings::get('google_site_verification');
-$bingVerification   = Settings::get('bing_site_verification');
+// Verification codes are forgiving: accept the bare token OR a full pasted
+// <meta ... content="TOKEN" ...> tag (Search Console's copy button copies the
+// whole tag). Normalize to the token so output is always a clean single tag.
+$normalizeVerification = function ($v) {
+    $v = trim((string) $v);
+    if ($v === '') return '';
+    if (stripos($v, '<meta') !== false && preg_match('/content\s*=\s*["\']([^"\']+)["\']/i', $v, $m)) {
+        $v = trim($m[1]);
+    }
+    $v = trim(strip_tags(html_entity_decode($v, ENT_QUOTES, 'UTF-8')));
+    return $v;
+};
+$googleVerification = $normalizeVerification(Settings::get('google_site_verification'));
+$bingVerification   = $normalizeVerification(Settings::get('bing_site_verification'));
 $ga4Id              = Settings::get('google_analytics_id');
 ?>
 <!doctype html>
