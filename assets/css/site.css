@@ -420,6 +420,180 @@ img {
   font-size: 0.76rem;
   padding: 2px 6px;
   border-radius: 4px;
+
+/* ====================================================================
+   BREAKING HEADLINES TOPBAR (AITnews style) + SOCIAL ICONS
+   ==================================================================== */
+.breaking-topbar {
+  background: var(--bg-surface-elevated, #0f172a);
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+  z-index: 90;
+}
+
+.breaking-topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  min-height: 40px;
+}
+
+.breaking-news {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.breaking-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: var(--accent-primary, #00f2fe);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.breaking-label .ui-icon {
+  filter: drop-shadow(0 0 5px var(--accent-glow));
+}
+
+.breaking-viewport {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 1.6em;
+  overflow: hidden;
+}
+
+.breaking-item {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.breaking-item.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.breaking-item a {
+  color: var(--text-main);
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.breaking-item a:hover {
+  color: var(--accent-primary, #00f2fe);
+}
+
+.breaking-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.breaking-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0 0 2px;
+  transition: all 0.18s ease;
+}
+
+.breaking-btn:hover {
+  color: var(--accent-primary, #00f2fe);
+  border-color: var(--accent-primary, #00f2fe);
+}
+
+.breaking-social {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.breaking-social-link {
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.breaking-social-link:hover {
+  color: #fff;
+  background: var(--grad-primary);
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.screen-reader-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 768px) {
+  .breaking-social {
+    display: none;
+  }
+  .breaking-label-text {
+    display: none;
+  }
+  .breaking-topbar-inner {
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breaking-item {
+    transition: none;
+  }
+}
   font-family: var(--font-numbers);
 }
 

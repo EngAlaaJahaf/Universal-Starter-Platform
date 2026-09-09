@@ -161,6 +161,70 @@ $ga4Id              = Settings::get('google_analytics_id');
 </head>
 <body>
 
+<!-- Breaking Headlines + Social Topbar (AITnews style) -->
+<?php
+$breakingNews = [];
+if (Settings::get('breaking_ticker_enabled', '1') !== '0' && class_exists('Database')) {
+    try {
+        $breakingDb = new Database();
+        $breakingNews = $breakingDb->fetchAll("SELECT title, title_ar, slug FROM articles WHERE status = 'published' ORDER BY published_at DESC, id DESC LIMIT 8");
+    } catch (Throwable $e) { $breakingNews = []; }
+}
+$breakingSocials = [
+    ['key' => 'social_facebook',  'icon' => 'facebook',  'label' => 'فيسبوك'],
+    ['key' => 'social_x',         'icon' => 'twitter-x', 'label' => 'منصة X'],
+    ['key' => 'social_linkedin',  'icon' => 'linkedin',  'label' => 'لينكدإن'],
+    ['key' => 'social_youtube',   'icon' => 'youtube',   'label' => 'يوتيوب'],
+    ['key' => 'social_instagram', 'icon' => 'instagram', 'label' => 'انستقرام'],
+    ['key' => 'social_telegram',  'icon' => 'telegram',  'label' => 'تيلجرام'],
+    ['key' => 'social_tiktok',    'icon' => 'tiktok',    'label' => 'تيك توك'],
+    ['key' => 'social_whatsapp',  'icon' => 'whatsapp',  'label' => 'واتساب'],
+];
+$breakingSocialLinks = [];
+foreach ($breakingSocials as $net) {
+    $u = trim((string) Settings::get($net['key'], ''));
+    if ($u !== '') { $net['url'] = $u; $breakingSocialLinks[] = $net; }
+}
+?>
+<?php if (!empty($breakingNews) || !empty($breakingSocialLinks)): ?>
+<div class="breaking-topbar">
+    <div class="container breaking-topbar-inner">
+        <?php if (!empty($breakingNews)): ?>
+        <div class="breaking-news" role="marquee" aria-label="أحدث المستجدات التقنية">
+            <span class="breaking-label">
+                <?= ui_icon('bolt', '', 14) ?>
+                <span class="breaking-label-text">أحدث المستجدات التقنية:</span>
+            </span>
+            <div class="breaking-viewport" id="breaking-viewport">
+                <?php foreach ($breakingNews as $bi => $bart): ?>
+                <?php $bTitle = trim((string) ($bart['title'] ?? '')) !== '' ? $bart['title'] : ($bart['title_ar'] ?? ''); ?>
+                <p class="breaking-item<?= $bi === 0 ? ' active' : '' ?>">
+                    <a href="<?= view_e(app_url('article/' . $bart['slug'])) ?>"><?= view_e(mb_strimwidth($bTitle, 0, 140, '…', 'UTF-8')) ?></a>
+                </p>
+                <?php endforeach; ?>
+            </div>
+            <div class="breaking-controls" role="group" aria-label="التنقل بين المستجدات">
+                <button type="button" class="breaking-btn" id="breaking-prev" aria-label="الخبر السابق">‹</button>
+                <button type="button" class="breaking-btn" id="breaking-next" aria-label="الخبر التالي">›</button>
+            </div>
+        </div>
+        <?php endif; ?>
+        <?php if (!empty($breakingSocialLinks)): ?>
+        <ul class="breaking-social">
+            <?php foreach ($breakingSocialLinks as $net): ?>
+            <li>
+                <a class="breaking-social-link" href="<?= view_e($net['url']) ?>" target="_blank" rel="external noopener nofollow" title="<?= view_e($net['label']) ?>" aria-label="<?= view_e($net['label']) ?>">
+                    <?= ui_icon($net['icon'], '', 15) ?>
+                    <span class="screen-reader-text"><?= view_e($net['label']) ?></span>
+                </a>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+        <?php endif; ?>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- Live Tech Pulse & Financials Ticker -->
 <?php 
 $showTicker = Settings::get('enable_ticker');

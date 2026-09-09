@@ -129,6 +129,40 @@
   }
   initTicker();
 
+  // --- 3b. Breaking Headlines Rotator (topbar) ---
+  (function initBreakingRotator() {
+    const viewport = document.getElementById('breaking-viewport');
+    if (!viewport) return;
+    const items = Array.prototype.slice.call(viewport.querySelectorAll('.breaking-item'));
+    if (items.length < 2) return;
+    const prevBtn = document.getElementById('breaking-prev');
+    const nextBtn = document.getElementById('breaking-next');
+    let idx = 0;
+    let timer = null;
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function show(n) {
+      idx = (n + items.length) % items.length;
+      items.forEach((el, i) => el.classList.toggle('active', i === idx));
+    }
+    function start() {
+      if (reduceMotion || timer) return;
+      timer = setInterval(() => show(idx + 1), 5000);
+    }
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+    if (prevBtn) prevBtn.addEventListener('click', () => { stop(); show(idx - 1); start(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { stop(); show(idx + 1); start(); });
+    const bar = viewport.closest('.breaking-news');
+    if (bar) {
+      bar.addEventListener('mouseenter', stop);
+      bar.addEventListener('mouseleave', start);
+    }
+    show(0);
+    start();
+  })();
+
   // --- 4. Bookmarks & Reading List Drawer ---
   const bookmarkKey = 'tech-platform-bookmarks';
 
