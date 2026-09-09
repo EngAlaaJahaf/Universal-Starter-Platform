@@ -28,6 +28,9 @@ require_once $root . '/core/AiTranslator.php';
 require_once $root . '/core/CategoryClassifier.php';
 require_once $root . '/core/FeedFetcher.php';
 
+// Datetimes stored/compared in UTC (see Database.php); keep PHP parsing consistent.
+date_default_timezone_set('UTC');
+
 if (!defined('CRON_SECRET')) {
     $cronSecretEnv = getenv('CRON_SECRET');
     define('CRON_SECRET', ($cronSecretEnv !== false && $cronSecretEnv !== '') ? $cronSecretEnv : 'cron_tnp_2026_secure_key');

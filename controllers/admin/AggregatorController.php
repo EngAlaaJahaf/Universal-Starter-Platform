@@ -2,6 +2,41 @@
 
 class AggregatorController extends AdminController
 {
+ /**
+  * تصنيف تلقائي ذكي للمقال المنشور عبر لوحة المجمّع مع مراعاة المصدر
+  * والمحتوى ورابط المقال (نفس محرك التصنيف المستخدم في الـ Cron).
+  * يقع على المصدر المسجل أو الفئة الافتراضية إن تعذّر التصنيف.
+  */
+ private function resolveCategoryId($db, $titleEn, $titleAr, $content, $sourceName, $sourceUrl, $fallbackCatId)
+ {
+ require_once __DIR__ . '/../../core/CategoryClassifier.php';
+
+ $srcCatId = 0;
+ if (!empty($sourceName)) {
+ $src = $db->fetch("SELECT category_id FROM rss_sources WHERE name = :name LIMIT 1", [':name' => $sourceName]);
+ $srcCatId = (int) ($src['category_id'] ?? 0);
+ }
+
+ $catSlugMap = [];
+ foreach ($db->fetchAll('SELECT id, slug FROM categories ORDER BY id ASC') as $c) {
+ $catSlugMap[$c['slug']] = (int) $c['id'];
+ }
+
+ try {
+ $cat = (int) CategoryClassifier::classify($titleEn, (string) $content, (string) $titleAr, $srcCatId, $catSlugMap, (string) $sourceName, (string) $sourceUrl);
+ if ($cat > 0 && in_array($cat, $catSlugMap, true)) {
+ return $cat;
+ }
+ } catch (Throwable $e) {
+ // fall back to the requested/default category below
+ }
+
+ if ($fallbackCatId > 0) {
+ return $fallbackCatId;
+ }
+ return get_default_category_id($db);
+ }
+
  public function index()
  {
  $this->guardAdmin();
@@ -121,10 +156,8 @@ class AggregatorController extends AdminController
 
  $db = new Database();
 
- $categoryId = (int) ($data['category_id'] ?? 0);
- if ($categoryId <= 0) {
- $categoryId = get_default_category_id($db);
- }
+ $requestedCategoryId = (int) ($data['category_id'] ?? 0);
+ $categoryId = $this->resolveCategoryId($db, $title, $titleAr, $content ?: $excerpt, $sourceName, $sourceUrl, $requestedCategoryId);
  
  // Smart Deduplication Check: Check if article was already published from this source URL or title
  $existing = null;
@@ -254,10 +287,8 @@ class AggregatorController extends AdminController
 
  $db = new Database();
 
- $categoryId = (int) ($data['category_id'] ?? 0);
- if ($categoryId <= 0) {
- $categoryId = get_default_category_id($db);
- }
+ $requestedCategoryId = (int) ($data['category_id'] ?? 0);
+ $categoryId = $this->resolveCategoryId($db, $title, ($data['title_ar'] ?? $title), $content ?: $excerpt, $sourceName, $sourceUrl, $requestedCategoryId);
  
  // Smart Deduplication Check
  $existing = null;
@@ -373,7 +404,7 @@ class AggregatorController extends AdminController
         }
 
         // Validate category
-        $categoryId = get_default_category_id($db);
+        $categoryId = $this->resolveCategoryId($db, $title, ($data['title_ar'] ?? $title), $excerpt, $sourceName, $sourceUrl, 0);
 
         // Generate unique slug
         $slug = strtolower(trim(preg_replace('/[^\p{L}\p{N}]+/u', '-', (string) $title), '-'));

@@ -3,6 +3,11 @@
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
+// Datetimes are stored/compared in UTC (see Database.php); display helpers
+// convert to the site timezone setting. Pin PHP's default so strtotime/date
+// parse stored UTC strings consistently on any host.
+date_default_timezone_set('UTC');
+
 define('APP_ROOT', __DIR__);
 require_once APP_ROOT . '/config/database.php';
 
@@ -62,14 +67,105 @@ if (!function_exists('app_url')) {
     }
 }
 
+if (!function_exists('site_timezone')) {
+    function site_timezone()
+    {
+        static $tz = null;
+        if ($tz === null) {
+            $tz = (string) Settings::get('timezone', 'Asia/Riyadh');
+            if ($tz === '' || !in_array($tz, timezone_identifiers_list(DateTimeZone::ALL_WITH_BC), true)) {
+                $tz = 'Asia/Riyadh';
+            }
+        }
+        return $tz;
+    }
+}
+
+/**
+ * تحويل طابع زمني مخزَّن (UTC) إلى وقت الموقع المحلي (حسب إعداد المنطقة الزمنية).
+ */
+if (!function_exists('site_dt')) {
+    function site_dt($dateStr)
+    {
+        if (empty($dateStr)) return null;
+        $dt = new DateTime((string) $dateStr, new DateTimeZone('UTC'));
+        $dt->setTimezone(new DateTimeZone(site_timezone()));
+        return $dt;
+    }
+}
+
 if (!function_exists('fmt_date')) {
     function fmt_date($dateStr, $fallback = '-')
     {
         if (empty($dateStr)) return $fallback;
-        $ts = strtotime((string) $dateStr);
-        if ($ts === false || $ts === 0) return $fallback;
-        $fmt = Settings::get('date_format', 'Y-m-d H:i');
-        return date($fmt, $ts);
+        try {
+            $dt = site_dt($dateStr);
+            if (!$dt) return $fallback;
+            $fmt = Settings::get('date_format', 'Y-m-d H:i');
+            if (!is_string($fmt) || $fmt === '') $fmt = 'Y-m-d H:i';
+            return $dt->format($fmt);
+        } catch (Throwable $e) {
+            return $fallback;
+        }
+    }
+}
+
+/**
+ * وقت نسبي بالصيغة العادية (H:i / H:i:s) بمنطقة الموقع المحلية،
+ * للاستخدام في الساعات المباشرة والتعليقات وغيرها.
+ */
+if (!function_exists('fmt_time_site')) {
+    function fmt_time_site($dateStr, $format = 'H:i:s')
+    {
+        if (empty($dateStr)) return '';
+        try {
+            $dt = site_dt($dateStr);
+            return $dt ? $dt->format($format) : '';
+        } catch (Throwable $e) {
+            return '';
+        }
+    }
+}
+
+/**
+ * قيمة حقل <input type="datetime-local"> في لوحة التحكم: من UTC المخزَّن إلى وقت الموقع.
+ */
+if (!function_exists('form_datetime_local')) {
+    function form_datetime_local($dateStr)
+    {
+        $dt = site_dt($dateStr);
+        return $dt ? $dt->format('Y-m-d\TH:i') : '';
+    }
+}
+
+/**
+ * تحويل قيمة حقل الوقت من نموذج اللوحة (بوقت الموقع) إلى UTC قبل الحفظ في قاعدة البيانات.
+ */
+if (!function_exists('storage_datetime')) {
+    function storage_datetime($value)
+    {
+        $value = trim((string) $value);
+        if ($value === '') return null;
+        try {
+            $dt = new DateTime($value, new DateTimeZone(site_timezone()));
+            $dt->setTimezone(new DateTimeZone('UTC'));
+            return $dt->format('Y-m-d H:i:s');
+        } catch (Throwable $e) {
+            if (preg_match('/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2})?$/', $value)) {
+                return preg_replace('/T/', ' ', $value);
+            }
+            return null;
+        }
+    }
+}
+
+/**
+ * تاريخ اليوم الحالي بمنطقة الموقع المحلية (بدون التوقيت).
+ */
+if (!function_exists('site_today')) {
+    function site_today($format = 'l, F j, Y')
+    {
+        return (new DateTime('now', new DateTimeZone(site_timezone())))->format($format);
     }
 }
 

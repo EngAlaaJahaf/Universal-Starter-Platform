@@ -18,6 +18,11 @@ class Database
         );
 
         $this->pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+
+        // Normalize: every connection stores/treats timestamps as UTC regardless of
+        // the MySQL server's own timezone (local XAMPP vs. shared hosting differ).
+        // Display-side helpers (fmt_date / site_dt) convert UTC to the site timezone.
+        $this->pdo->exec("SET time_zone = '+00:00'");
     }
 
     public static function getInstance()

@@ -469,7 +469,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                                         </div>
                                         <strong style="color:var(--accent-primary);font-size:0.95rem"><?= article_e($comm['username'] ?: $comm['guest_name'] ?: 'قارئ تقني') ?></strong>
                                     </div>
-                                    <small style="color:var(--text-dim);font-size:0.8rem"><?= article_e(date('Y-m-d H:i', strtotime($comm['created_at']))) ?></small>
+                                    <small style="color:var(--text-dim);font-size:0.8rem"><?= article_e(fmt_date($comm['created_at'])) ?></small>
                                 </div>
                                 <p style="color:var(--text-main);font-size:0.95rem;line-height:1.7;margin:0"><?= nl2br(article_e($comm['content'])) ?></p>
                             </div>

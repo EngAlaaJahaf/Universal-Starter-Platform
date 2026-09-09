@@ -313,7 +313,7 @@ require_once APP_ROOT . '/views/partials/header.php';
         <section class="broadsheet-header-banner" style="margin-top:20px;margin-bottom:30px;padding-bottom:16px;border-bottom:3px double var(--border-medium)">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span style="font-size:0.85rem;color:var(--text-muted);font-weight:700">🗞️ النشرة الرقمية الموثوقة</span>
-                <span class="text-muted small"><?= date('l, F j, Y') ?> · <?= e(Settings::get('site_name_ar', 'منصة الأخبار التقنية')) ?></span>
+                <span class="text-muted small"><?= site_today() ?> · <?= e(Settings::get('site_name_ar', 'منصة الأخبار التقنية')) ?></span>
                 <span style="font-size:0.85rem;color:var(--accent-primary);font-weight:700">تغطية مباشرة 24/7</span>
             </div>
         </section>

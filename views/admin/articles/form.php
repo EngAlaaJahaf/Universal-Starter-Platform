@@ -154,7 +154,7 @@ $defFeaturedImage = $article['featured_image'] ?? ($_GET['q_img'] ?? '');
 
  <div class="mb-3">
  <label class="form-label small fw-semibold" for="published_at">تاريخ ووقت النشر</label>
- <input type="datetime-local" class="form-control" id="published_at" name="published_at" value="<?= !empty($article['published_at']) ? date('Y-m-d\TH:i', strtotime($article['published_at'])) : '' ?>">
+ <input type="datetime-local" class="form-control" id="published_at" name="published_at" value="<?= !empty($article['published_at']) ? admin_e(form_datetime_local($article['published_at'])) : '' ?>">
  </div>
 
  <hr class="my-3">

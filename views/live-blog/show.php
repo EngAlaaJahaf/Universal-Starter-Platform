@@ -21,7 +21,7 @@ $currentUser = Auth::user();
                     <?= ui_icon('live', 'me-1') ?>
                     <span id="live-status-text"><?= $blog['status'] === 'active' ? 'بث حي ومباشر الآن' : 'تغطية مؤرشفة ومنتهية' ?></span>
                 </span>
-                <span style="font-size:0.8rem;color:var(--text-dim)">بدأت التغطية: <?= view_e(date('Y-m-d H:i', strtotime($blog['created_at']))) ?></span>
+                <span style="font-size:0.8rem;color:var(--text-dim)">بدأت التغطية: <?= view_e(fmt_date($blog['created_at'])) ?></span>
             </div>
 
             <!-- Auto-Update & Sort Controls -->
@@ -86,7 +86,7 @@ $currentUser = Auth::user();
                                 <span class="badge-tag" style="background:var(--accent-primary);color:#050d1a;font-weight:800">
                                     📌 أهم أحداث وإعلانات البث
                                 </span>
-                                <span style="font-size:0.8rem;color:var(--text-dim)"><?= view_e(date('H:i:s', strtotime($entry['created_at']))) ?></span>
+                                <span style="font-size:0.8rem;color:var(--text-dim)"><?= view_e(fmt_time_site($entry['created_at'])) ?></span>
                             </div>
                             <div class="entry-content-box" style="font-size:1.12rem;font-weight:700;line-height:1.8;color:var(--text-main)">
                                 <?= nl2br(view_e($entry['content_ar'])) ?>
@@ -144,7 +144,7 @@ $currentUser = Auth::user();
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:0.84rem;color:var(--text-dim);flex-wrap:wrap;gap:8px">
                                 <span style="color:var(--accent-primary);font-weight:800;font-family:var(--font-numbers);display:inline-flex;align-items:center;gap:4px">
                                     <?= ui_icon('clock', '', 14) ?>
-                                    <span><?= view_e(date('H:i:s', strtotime($entry['created_at']))) ?></span>
+                                    <span><?= view_e(fmt_time_site($entry['created_at'])) ?></span>
                                 </span>
                                 <span>بواسطة: <strong style="color:var(--text-main)"><?= view_e($entry['author_name'] ?: 'فريق التحرير المباشر') ?></strong></span>
                             </div>
@@ -219,7 +219,7 @@ $currentUser = Auth::user();
                             <div style="flex:1;background:var(--bg-surface-elevated);padding:8px 12px;border-radius:10px;border:1px solid var(--border-subtle)">
                                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
                                     <strong style="font-size:0.82rem;color:var(--accent-primary)"><?= htmlspecialchars($c['sender_name']) ?></strong>
-                                    <small style="font-size:0.7rem;color:var(--text-dim)"><?= date('H:i', strtotime($c['created_at'])) ?></small>
+                                    <small style="font-size:0.7rem;color:var(--text-dim)"><?= view_e(fmt_time_site($c['created_at'], 'H:i')) ?></small>
                                 </div>
 
                                 <?php if (!empty($c['entry_id']) && !empty($c['reply_snippet'])): ?>
