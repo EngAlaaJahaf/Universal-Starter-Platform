@@ -27,6 +27,17 @@ if (strpos($articleContent, '<p') === false && strpos($articleContent, '<h') ===
     $articleContent = strip_tags($articleContent, $allowedArticleTags);
 }
 
+// Detect if the lead/excerpt simply repeats the beginning of the article body.
+// When the body already starts with the excerpt text, rendering a separate lead
+// box would duplicate the news (AITnews style has no separate excerpt box).
+$leadIsBodyStart = false;
+$leadPlain = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($lead), ENT_QUOTES, 'UTF-8')));
+$bodyPlain = trim(strip_tags($articleContent));
+$bodyStartPlain = trim(preg_replace('/\s+/u', ' ', html_entity_decode(mb_substr($bodyPlain, 0, 160), ENT_QUOTES, 'UTF-8')));
+if ($leadPlain !== '' && $bodyStartPlain !== '' && mb_strpos($bodyStartPlain, mb_substr($leadPlain, 0, 60)) === 0) {
+    $leadIsBodyStart = true;
+}
+
 // Strip any legacy embedded source alert boxes so only the modern designated source card renders
 $articleContent = preg_replace('/<hr\s*\/?>\s*<div class=[\'"]alert alert-light border my-3[\'"]>.*?<\/div>/si', '', $articleContent);
 $articleContent = preg_replace('/<div class=[\'"]alert alert-light border my-3[\'"]>.*?<\/div>/si', '', $articleContent);
@@ -179,10 +190,12 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <?= article_e($article['title']) ?>
             </h1>
 
-            <!-- Executive Lead Highlight -->
+            <!-- Executive Lead Highlight (hidden when it duplicates the article body start) -->
+            <?php if ($leadIsBodyStart !== true): ?>
             <div class="article-lead-box">
                 <?= article_e($lead) ?>
             </div>
+            <?php endif; ?>
 
             <!-- Meta Information Ribbon -->
             <div class="article-meta-ribbon">

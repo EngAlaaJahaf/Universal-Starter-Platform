@@ -2178,17 +2178,21 @@ img {
 }
 
 .reader-article-content {
-  font-size: 1.24rem;
-  line-height: 2.3;
+  font-size: 21px;
+  line-height: 2;
   color: var(--text-body, #cbd5e1);
   letter-spacing: 0;
   word-break: break-word;
   overflow-wrap: break-word;
 }
 
+[data-theme="light"] .reader-article-content {
+  color: #2c2f34;
+}
+
 .reader-article-content p {
   margin-bottom: 32px;
-  line-height: 2.3;
+  line-height: 2;
   letter-spacing: 0;
   text-align: justify;
   text-justify: inter-word;
@@ -2196,8 +2200,8 @@ img {
 }
 
 .reader-article-content p:first-of-type {
-  font-size: 1.3rem;
-  line-height: 2.25;
+  font-size: 21px;
+  line-height: 2;
   font-weight: 500;
   color: var(--text-main, #f8fafc);
 }
@@ -2207,7 +2211,7 @@ img {
 .reader-article-content h4 {
   font-family: var(--font-heading, 'Tajawal', sans-serif);
   font-weight: 800;
-  color: var(--text-main);
+  color: #c40000;
   line-height: 1.5;
   letter-spacing: 0;
 }
