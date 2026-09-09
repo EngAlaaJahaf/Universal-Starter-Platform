@@ -1,0 +1,64 @@
+<?php
+
+class Database
+{
+    private static $instance = null;
+    private $pdo;
+
+    public function __construct()
+    {
+        $charset = defined('DB_CHARSET') ? DB_CHARSET : 'utf8mb4';
+        $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . $charset;
+
+        $options = array(
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => true,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+        );
+
+        $this->pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+    }
+
+    public static function getInstance()
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public function getPdo()
+    {
+        return $this->pdo;
+    }
+
+    public function prepare($sql)
+    {
+        return $this->pdo->prepare($sql);
+    }
+
+    public function query($sql, array $params = array())
+    {
+        $statement = $this->prepare($sql);
+        $statement->execute($params);
+        return $statement;
+    }
+
+    public function fetch($sql, array $params = array())
+    {
+        $statement = $this->query($sql, $params);
+        $result = $statement->fetch();
+        return $result === false ? null : $result;
+    }
+
+    public function fetchAll($sql, array $params = array())
+    {
+        return $this->query($sql, $params)->fetchAll();
+    }
+
+    public function lastInsertId()
+    {
+        return $this->pdo->lastInsertId();
+    }
+}

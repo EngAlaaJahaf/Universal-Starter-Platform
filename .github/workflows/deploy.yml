@@ -1,0 +1,92 @@
+# ==============================================================================
+# Deploy to InfinityFree (or any shared FTP hosting) on every push to main.
+#
+# Required GitHub Secrets (Repo → Settings → Secrets and variables → Actions):
+#   FTP_SERVER    e.g. ftpupload.net  (from the hosting panel → FTP Details)
+#   FTP_USERNAME  e.g. epiz_XXXXXX
+#   FTP_PASSWORD  your hosting/FTP password
+#   FTP_SERVER_DIR  e.g. /htdocs/  (or /your-domain.com/htdocs/ for addon domains)
+#
+# Notes:
+#   - Only changed files are uploaded (differential sync).
+#   - Server-side files are NEVER deleted (safe for uploads/ + hosting.php).
+#   - config/hosting.php + uploads/* + runtime data are excluded below.
+#   - Database schema changes are NOT deployed: apply them manually via phpMyAdmin.
+# ==============================================================================
+
+name: Deploy to InfinityFree
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: infinityfree-deploy
+  cancel-in-progress: false
+
+jobs:
+  lint:
+    name: PHP syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Lint all PHP files
+        run: find . -name '*.php' -print0 | xargs -0 -n1 php -l
+
+  deploy:
+    name: FTP deploy
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          protocol: ftp
+          exclude: |
+            **/.git*
+            **/.github/**
+            .env
+            config/hosting.php
+            check_db.php
+            health_check.php
+            diagnostics_*.php
+            dev-router.php
+            router_local.php
+            run-windows.bat
+            run-windows.ps1
+            run.sh
+            run.txt
+            *.md
+            *.txt
+            tech_concept_preview.html
+            tech_sources.txt
+            1300
+            *.sql
+            *.zip
+            tech_platform_*.json
+            storage/logs/*
+            storage/sessions/*
+            storage/cache/rate_login_*
+            storage/cron_status.json
+            scratch/
+            uploads/articles/
+            uploads/avatars/
+            uploads/brand/
+            uploads/live-blog/
+            uploads/media/
+            docs/

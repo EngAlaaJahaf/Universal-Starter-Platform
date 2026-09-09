@@ -1,0 +1,1 @@
+document.addEventListener('scroll',function(){var bar=document.querySelector('[data-reading-progress]');if(!bar)return;var h=document.documentElement.scrollHeight-window.innerHeight;bar.style.width=(h>0?(window.scrollY/h)*100:0)+'%';});

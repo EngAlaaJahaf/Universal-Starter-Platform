@@ -1,0 +1,307 @@
+{
+    "the hacker news (أمن سيبراني واختراق)": {
+        "mode": "strict",
+        "target_slug": "cybersecurity",
+        "weight": 10
+    },
+    "the hacker news": {
+        "mode": "strict",
+        "target_slug": "cybersecurity",
+        "weight": 10
+    },
+    "techcrunch (استثمارات وشركات ناشئة)": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "techcrunch": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "the verge (أجهزة وثقافة رقمية)": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "the verge": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "ars technica (تحليلات تقنية وعلمية)": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "ars technica": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "wired (مستقبل التكنولوجيا والذكاء)": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "wired": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "engadget (إلكترونيات وهواتف)": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "engadget": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "venturebeat (ذكاء اصطناعي وألعاب)": {
+        "mode": "smart",
+        "target_slug": "artificial-intelligence",
+        "weight": 7
+    },
+    "venturebeat": {
+        "mode": "smart",
+        "target_slug": "artificial-intelligence",
+        "weight": 7
+    },
+    "9to5mac (أخبار وتسريبات آبل)": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "9to5mac": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "9to5google (أخبار أندرويد وجوجل)": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "9to5google": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "mit technology review (أبحاث ثورية)": {
+        "mode": "smart",
+        "target_slug": "artificial-intelligence",
+        "weight": 7
+    },
+    "mit technology review": {
+        "mode": "smart",
+        "target_slug": "artificial-intelligence",
+        "weight": 7
+    },
+    "marktechpost (ملخصات أبحاث ai)": {
+        "mode": "strict",
+        "target_slug": "artificial-intelligence",
+        "weight": 10
+    },
+    "marktechpost": {
+        "mode": "strict",
+        "target_slug": "artificial-intelligence",
+        "weight": 10
+    },
+    "bleepingcomputer (حماية وثغرات)": {
+        "mode": "strict",
+        "target_slug": "cybersecurity",
+        "weight": 10
+    },
+    "bleepingcomputer": {
+        "mode": "strict",
+        "target_slug": "cybersecurity",
+        "weight": 10
+    },
+    "krebs on security (تحقيقات قرصنة)": {
+        "mode": "strict",
+        "target_slug": "cybersecurity",
+        "weight": 10
+    },
+    "krebs on security": {
+        "mode": "strict",
+        "target_slug": "cybersecurity",
+        "weight": 10
+    },
+    "dark reading (أمن المؤسسات)": {
+        "mode": "strict",
+        "target_slug": "cybersecurity",
+        "weight": 10
+    },
+    "dark reading": {
+        "mode": "strict",
+        "target_slug": "cybersecurity",
+        "weight": 10
+    },
+    "securityweek (أخبار الدفاع السيبراني)": {
+        "mode": "strict",
+        "target_slug": "cybersecurity",
+        "weight": 10
+    },
+    "securityweek": {
+        "mode": "strict",
+        "target_slug": "cybersecurity",
+        "weight": 10
+    },
+    "hacker news yc (مجتمع التقنيين)": {
+        "mode": "smart",
+        "target_slug": "software-development",
+        "weight": 7
+    },
+    "hacker news yc": {
+        "mode": "smart",
+        "target_slug": "software-development",
+        "weight": 7
+    },
+    "dev.to (تجارب برمجية ومطورين)": {
+        "mode": "strict",
+        "target_slug": "software-development",
+        "weight": 10
+    },
+    "dev.to": {
+        "mode": "strict",
+        "target_slug": "software-development",
+        "weight": 10
+    },
+    "github blog (أدوات المصادر المفتوحة)": {
+        "mode": "strict",
+        "target_slug": "software-development",
+        "weight": 10
+    },
+    "github blog": {
+        "mode": "strict",
+        "target_slug": "software-development",
+        "weight": 10
+    },
+    "smashing magazine (تصميم وويب حديث)": {
+        "mode": "smart",
+        "target_slug": "software-development",
+        "weight": 7
+    },
+    "smashing magazine": {
+        "mode": "smart",
+        "target_slug": "software-development",
+        "weight": 7
+    },
+    "infoq (عمارة البرمجيات والسحابة)": {
+        "mode": "smart",
+        "target_slug": "software-development",
+        "weight": 7
+    },
+    "infoq": {
+        "mode": "smart",
+        "target_slug": "software-development",
+        "weight": 7
+    },
+    "tom's hardware (عتاد وحواسيب)": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "tom's hardware": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "gsmarena (مواصفات الهواتف)": {
+        "mode": "strict",
+        "target_slug": "hardware-devices",
+        "weight": 10
+    },
+    "gsmarena": {
+        "mode": "strict",
+        "target_slug": "hardware-devices",
+        "weight": 10
+    },
+    "wccftech (رقائق وأشباه موصلات)": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "wccftech": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "عالم التقنية (أخبار ومقالات عربية)": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "عالم التقنية": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "التقنية بلا حدود (أجهزة ومؤتمرات)": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "التقنية بلا حدود": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "البوابة العربية للأخبار التقنية": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "أخبار التطبيقات (تطبيقات وشروحات)": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "أخبار التطبيقات": {
+        "mode": "smart",
+        "target_slug": "hardware-devices",
+        "weight": 7
+    },
+    "google the keyword (أخبار جوجل)": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "google the keyword": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "microsoft stories (أخبار مايكروسوفت)": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "microsoft stories": {
+        "mode": "smart",
+        "target_slug": "general-tech",
+        "weight": 3
+    },
+    "aws news blog (سحابة أمازون)": {
+        "mode": "smart",
+        "target_slug": "software-development",
+        "weight": 7
+    },
+    "aws news blog": {
+        "mode": "smart",
+        "target_slug": "software-development",
+        "weight": 7
+    },
+    "nvidia blog (معالجات وذكاء اصطناعي)": {
+        "mode": "smart",
+        "target_slug": "artificial-intelligence",
+        "weight": 7
+    },
+    "nvidia blog": {
+        "mode": "smart",
+        "target_slug": "artificial-intelligence",
+        "weight": 7
+    }
+}

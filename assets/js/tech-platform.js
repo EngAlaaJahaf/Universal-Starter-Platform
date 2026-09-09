@@ -1,0 +1,1159 @@
+/**
+ * Tech News Platform - Next-Gen Interactive Engine
+ * Command Palette, Audio Player, Reactions, Bookmarks Drawer, Live Ticker, Polls & Zen Mode
+ */
+
+(function () {
+  'use strict';
+
+  // --- 1. Global Utilities & Toast Notifications ---
+  function showToast(message, icon = '⚡') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toast-container';
+      container.className = 'toast-container';
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      toast.style.transition = 'all 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 3200);
+  }
+
+  window.showToast = showToast;
+
+  // --- 2. Theme Management (Dark / Light) ---
+  const themeKey = 'tech-platform-theme';
+  const root = document.documentElement;
+  const themeBtn = document.getElementById('theme-toggle');
+
+  const sunSvg = `<svg class="ui-icon ui-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`;
+  const moonSvg = `<svg class="ui-icon ui-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+
+  function initTheme() {
+    const saved = localStorage.getItem(themeKey) || root.getAttribute('data-theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+    updateThemeIcon(saved);
+  }
+
+  function toggleTheme() {
+    const current = root.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try {
+      localStorage.setItem(themeKey, next);
+      document.cookie = "site_theme=" + next + ";path=/;max-age=31536000;SameSite=Lax";
+    } catch(e) {}
+    updateThemeIcon(next);
+    showToast(next === 'dark' ? 'تم تفعيل الوضع الليلي' : 'تم تفعيل الوضع النهاري', next === 'dark' ? moonSvg : sunSvg);
+  }
+
+  function updateThemeIcon(theme) {
+    if (themeBtn) {
+      themeBtn.innerHTML = theme === 'dark' ? sunSvg : moonSvg;
+      themeBtn.setAttribute('title', theme === 'dark' ? 'التبديل إلى الوضع النهاري' : 'التبديل إلى الوضع الليلي');
+    }
+  }
+
+  if (themeBtn) {
+    themeBtn.addEventListener('click', toggleTheme);
+  }
+  initTheme();
+
+  // --- 3. Live Tech Pulse & Financials Stream ---
+  const defaultTickerData = [
+    { s: 'NVDA', v: '$225.16', c: '+3.4%', up: true },
+    { s: 'AAPL', v: '$305.93', c: '+1.1%', up: true },
+    { s: 'MSFT', v: '$495.40', c: '-0.3%', up: false },
+    { s: 'GOOGL', v: '$345.90', c: '+2.2%', up: true },
+    { s: 'BTC', v: '$62,980', c: '+4.8%', up: true },
+    { s: 'ETH', v: '$1,880', c: '+2.9%', up: true },
+    { s: 'AI_INDEX', v: '3,850.5', c: '+5.1%', up: true }
+  ];
+
+  function renderTickerItems(items) {
+    const track = document.getElementById('pulse-ticker-track');
+    if (!track || !Array.isArray(items) || items.length === 0) return;
+    const itemsHtml = items.map(item => `
+      <div class="ticker-item" title="${item.name || item.s}">
+        <span class="symbol">${item.s}</span>
+        <span class="val">${item.v}</span>
+        <span class="change ${item.up ? 'up' : 'down'}">${item.c}</span>
+      </div>
+    `).join('');
+    // Duplicate track for seamless infinite scroll animation
+    track.innerHTML = itemsHtml + itemsHtml;
+  }
+
+  function initTicker() {
+    const track = document.getElementById('pulse-ticker-track');
+    if (!track) return;
+
+    // 1. Render immediate cached or default data to avoid delay
+    let cached = null;
+    try {
+      cached = JSON.parse(sessionStorage.getItem('tech_live_market_pulse'));
+    } catch(e) {}
+
+    if (cached && Array.isArray(cached.data)) {
+      renderTickerItems(cached.data);
+    } else {
+      renderTickerItems(defaultTickerData);
+    }
+
+    // 2. Fetch fresh live market data asynchronously
+    const baseUrl = window.APP_BASE_URL || '';
+    fetch(baseUrl + '/api/v1/market-pulse')
+      .then(res => res.json())
+      .then(res => {
+        if (res && res.ok && Array.isArray(res.data) && res.data.length > 0) {
+          renderTickerItems(res.data);
+          try {
+            sessionStorage.setItem('tech_live_market_pulse', JSON.stringify({
+              time: Date.now(),
+              data: res.data
+            }));
+          } catch(e) {}
+        }
+      })
+      .catch(err => {
+        console.debug('Market pulse live fetch fallback active:', err);
+      });
+  }
+  initTicker();
+
+  // --- 4. Bookmarks & Reading List Drawer ---
+  const bookmarkKey = 'tech-platform-bookmarks';
+
+  function getBookmarks() {
+    try {
+      return JSON.parse(localStorage.getItem(bookmarkKey)) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveBookmarks(list) {
+    localStorage.setItem(bookmarkKey, JSON.stringify(list));
+    updateBookmarkBadge();
+    renderBookmarksList();
+  }
+
+  function updateBookmarkBadge() {
+    const badges = document.querySelectorAll('.bookmark-badge-count');
+    const count = getBookmarks().length;
+    badges.forEach(b => {
+      b.textContent = count;
+      b.style.display = count > 0 ? 'grid' : 'none';
+    });
+  }
+
+  function toggleBookmark(article) {
+    let list = getBookmarks();
+    const index = list.findIndex(item => item.id == article.id);
+    if (index > -1) {
+      list.splice(index, 1);
+      showToast('تمت إزالة المقال من قائمة القراءة', '🗑️');
+    } else {
+      list.unshift(article);
+      showToast('تم حفظ المقال في قائمة القراءة للمتابعة لاحقاً', '🔖');
+    }
+    saveBookmarks(list);
+    updateBookmarkButtons();
+  }
+
+  function updateBookmarkButtons() {
+    const list = getBookmarks();
+    document.querySelectorAll('.card-bookmark-btn, .bookmark-toggle-btn').forEach(btn => {
+      const id = btn.getAttribute('data-article-id');
+      const isSaved = list.some(item => item.id == id);
+      if (isSaved) {
+        btn.classList.add('saved');
+        btn.innerHTML = '★';
+      } else {
+        btn.classList.remove('saved');
+        btn.innerHTML = '☆';
+      }
+    });
+  }
+
+  function renderBookmarksList() {
+    const container = document.getElementById('drawer-bookmarks-list');
+    if (!container) return;
+    const list = getBookmarks();
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:40px 10px;color:var(--text-muted)">
+          <div style="font-size:2.5rem;margin-bottom:10px">🔖</div>
+          <p>قائمة القراءة فارغة حالياً.</p>
+          <small>انقر على علامة النجمة في أي مقال لحفظه وقراءته لاحقاً.</small>
+        </div>
+      `;
+      return;
+    }
+    container.innerHTML = list.map(item => `
+      <div class="trending-card" style="margin-bottom:10px;background:var(--bg-surface-elevated);position:relative">
+        <div class="trending-info" style="flex-grow:1">
+          <a href="${item.url}" style="font-weight:700;font-size:0.92rem;display:block;margin-bottom:4px">${item.title}</a>
+          <span style="color:var(--cyan);font-size:0.75rem">${item.category || 'تقنية'}</span>
+        </div>
+        <button class="remove-bookmark-btn" data-id="${item.id}" style="color:var(--rose);cursor:pointer;padding:4px 8px;font-size:1.1rem" title="حذف">×</button>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.remove-bookmark-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        let list = getBookmarks().filter(i => i.id != id);
+        saveBookmarks(list);
+        updateBookmarkButtons();
+        updateBookmarkBadge();
+        renderBookmarksList();
+        showToast('تم الحذف من القائمة', '🗑️');
+      });
+    });
+  }
+
+  // Drawer Open/Close with direct & delegated click handlers
+  window.openBookmarksDrawer = function() {
+    const backdrop = document.getElementById('bookmarks-drawer-backdrop');
+    if (backdrop) {
+      backdrop.classList.add('open');
+      renderBookmarksList();
+    }
+  };
+
+  window.closeBookmarksDrawer = function() {
+    const backdrop = document.getElementById('bookmarks-drawer-backdrop');
+    if (backdrop) {
+      backdrop.classList.remove('open');
+    }
+  };
+
+  document.addEventListener('click', (e) => {
+    const openBtn = e.target.closest('.open-bookmarks-drawer');
+    if (openBtn) {
+      e.preventDefault();
+      window.openBookmarksDrawer();
+      return;
+    }
+    const closeBtn = e.target.closest('#close-bookmarks-drawer, .close-bookmarks-drawer');
+    if (closeBtn) {
+      e.preventDefault();
+      window.closeBookmarksDrawer();
+      return;
+    }
+    const backdrop = document.getElementById('bookmarks-drawer-backdrop');
+    if (backdrop && e.target === backdrop) {
+      window.closeBookmarksDrawer();
+    }
+  });
+
+  // Bind Bookmark Click Events
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.card-bookmark-btn, .bookmark-toggle-btn');
+    if (btn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const article = {
+        id: btn.getAttribute('data-article-id'),
+        title: btn.getAttribute('data-title'),
+        url: btn.getAttribute('data-url'),
+        category: btn.getAttribute('data-category')
+      };
+      toggleBookmark(article);
+    }
+  });
+
+  updateBookmarkBadge();
+  updateBookmarkButtons();
+
+  // --- 5. Command Palette (Spotlight Search Modal - Ctrl+K) ---
+  const cmdModal = document.getElementById('cmd-modal-backdrop');
+  const cmdInput = document.getElementById('cmd-search-input');
+  const cmdResults = document.getElementById('cmd-results-list');
+  const cmdTriggers = document.querySelectorAll('.cmd-search-trigger, .open-cmd-palette');
+
+  function openCommandPalette() {
+    if (!cmdModal) return;
+    cmdModal.classList.add('open');
+    if (cmdInput) {
+      cmdInput.value = '';
+      cmdInput.focus();
+      renderDefaultCmdItems();
+    }
+  }
+
+  function closeCommandPalette() {
+    if (cmdModal) cmdModal.classList.remove('open');
+  }
+
+  function renderDefaultCmdItems() {
+    if (!cmdResults) return;
+    cmdResults.innerHTML = `
+      <div style="font-size:0.75rem;font-weight:700;color:var(--text-dim);margin:8px 12px;text-transform:uppercase">أوامر سريعة وتصنيفات</div>
+      <a class="cmd-item" href="${window.APP_BASE_URL || '/'}">
+        <span>🏠 الصفحة الرئيسية</span>
+        <kbd>↵</kbd>
+      </a>
+      <a class="cmd-item" href="${window.APP_BASE_URL || '/'}search?q=ذكاء+اصطناعي">
+        <span>🤖 أخبار الذكاء الاصطناعي (AI)</span>
+        <span style="font-size:0.75rem;color:var(--cyan)">تريند</span>
+      </a>
+      <a class="cmd-item" href="${window.APP_BASE_URL || '/'}search?q=أمن+سيبراني">
+        <span>🛡️ الأمن السيبراني والحماية</span>
+        <span style="font-size:0.75rem;color:var(--purple)">حماية</span>
+      </a>
+      <a class="cmd-item" href="${window.APP_BASE_URL || '/'}search?q=هواتف">
+        <span>📱 الهواتف والأجهزة الذكية</span>
+        <span style="font-size:0.75rem;color:var(--amber)">مراجعات</span>
+      </a>
+    `;
+  }
+
+  cmdTriggers.forEach(t => t.addEventListener('click', (e) => {
+    e.preventDefault();
+    openCommandPalette();
+  }));
+
+  if (cmdModal) {
+    cmdModal.addEventListener('click', (e) => {
+      if (e.target === cmdModal) closeCommandPalette();
+    });
+  }
+
+  // Keyboard shortcut Ctrl+K / Cmd+K / Esc (Supporting Arabic & English keyboard layouts)
+  document.addEventListener('keydown', (e) => {
+    const isK = e.code === 'KeyK' || e.key.toLowerCase() === 'k' || e.key === 'ك' || e.keyCode === 75;
+    if ((e.ctrlKey || e.metaKey) && isK) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (cmdModal && cmdModal.classList.contains('open')) {
+        closeCommandPalette();
+      } else {
+        openCommandPalette();
+      }
+    } else if (e.key === 'Escape' && cmdModal && cmdModal.classList.contains('open')) {
+      e.preventDefault();
+      closeCommandPalette();
+    }
+  });
+
+  // Real-time search in Command Palette
+  let searchTimeout = null;
+  if (cmdInput) {
+    cmdInput.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      const query = cmdInput.value.trim();
+      if (!query) {
+        renderDefaultCmdItems();
+        return;
+      }
+      searchTimeout = setTimeout(() => {
+        // Fetch or filter articles
+        fetch((window.APP_BASE_URL || '/') + 'search?q=' + encodeURIComponent(query))
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const items = doc.querySelectorAll('.news-card, .trending-card, .item');
+            if (items.length === 0) {
+              cmdResults.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-muted)">لا توجد نتائج مطابقة لـ "${query}"</div>`;
+              return;
+            }
+            let out = `<div style="font-size:0.75rem;font-weight:700;color:var(--cyan);margin:8px 12px">نتائج البحث الفوري (${items.length})</div>`;
+            items.forEach((it, idx) => {
+              if (idx > 5) return;
+              const link = it.querySelector('a') ? it.querySelector('a').getAttribute('href') : '#';
+              const title = it.querySelector('h2, h3, h4, strong') ? it.querySelector('h2, h3, h4, strong').textContent.trim() : query;
+              out += `
+                <a class="cmd-item" href="${link}">
+                  <span style="font-weight:600">${title}</span>
+                  <span style="font-size:0.75rem;color:var(--text-dim)">قراءة ↗</span>
+                </a>
+              `;
+            });
+            cmdResults.innerHTML = out;
+          })
+          .catch(() => {
+            cmdResults.innerHTML = `
+              <a class="cmd-item" href="${(window.APP_BASE_URL || '/')}search?q=${encodeURIComponent(query)}">
+                <span>بحث كامل عن: "${query}"</span>
+                <kbd>↵</kbd>
+              </a>
+            `;
+          });
+      }, 250);
+    });
+  }
+
+  // --- 6. Smart Audio Player Widget (Speech Synthesis + Waveform Animation) ---
+  const audioWidget = document.getElementById('smart-audio-player');
+  if (audioWidget) {
+    const playBtn = document.getElementById('audio-play-btn');
+    const speedBtn = document.getElementById('audio-speed-btn');
+    const speeds = [1, 1.25, 1.5];
+    let currentSpeedIndex = 0;
+    let isPlaying = false;
+    let synth = window.speechSynthesis;
+    let utterance = null;
+
+    function getArticleText() {
+      const contentEl = document.querySelector('.reader-content') || document.querySelector('.article-content');
+      return contentEl ? contentEl.innerText : '';
+    }
+
+    function togglePlay() {
+      if (!synth) {
+        showToast('القارئ الصوتي غير مدعوم في متصفحك', '⚠️');
+        return;
+      }
+      if (isPlaying) {
+        synth.cancel();
+        isPlaying = false;
+        audioWidget.classList.remove('playing');
+        if (playBtn) playBtn.innerHTML = '▶';
+        showToast('تم إيقاف القراءة الصوتية', '⏸️');
+      } else {
+        const text = getArticleText();
+        if (!text) return;
+        synth.cancel();
+        utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ar-SA';
+        utterance.rate = speeds[currentSpeedIndex];
+
+        utterance.onend = () => {
+          isPlaying = false;
+          audioWidget.classList.remove('playing');
+          if (playBtn) playBtn.innerHTML = '▶';
+        };
+
+        utterance.onerror = () => {
+          isPlaying = false;
+          audioWidget.classList.remove('playing');
+          if (playBtn) playBtn.innerHTML = '▶';
+        };
+
+        synth.speak(utterance);
+        isPlaying = true;
+        audioWidget.classList.add('playing');
+        if (playBtn) playBtn.innerHTML = '⏸';
+        showToast('جارِ قراءة المقال صوتياً بصوت الذكاء الاصطناعي...', '🎙️');
+      }
+    }
+
+    if (playBtn) playBtn.addEventListener('click', togglePlay);
+
+    if (speedBtn) {
+      speedBtn.addEventListener('click', () => {
+        currentSpeedIndex = (currentSpeedIndex + 1) % speeds.length;
+        const newSpeed = speeds[currentSpeedIndex];
+        speedBtn.textContent = newSpeed + 'x';
+        if (isPlaying && utterance) {
+          togglePlay();
+          togglePlay();
+        }
+        showToast(`تم تغيير سرعة القارئ إلى ${newSpeed}x`, '⚡');
+      });
+    }
+  }
+
+  // --- 7. Live Micro-Reactions System (Real Database Persistence) ---
+  document.querySelectorAll('.reaction-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const countEl = this.querySelector('.count');
+      const type = this.getAttribute('data-reaction');
+      const articleId = this.getAttribute('data-article-id');
+
+      if (!articleId || !type) return;
+
+      const wasActive = this.classList.contains('active');
+      this.classList.toggle('active');
+
+      if (!wasActive) {
+        showToast('شكراً لتفاعلك ومشاركتك!', '✨');
+        createParticleEffect(this);
+      }
+
+      fetch(`/api/reaction/${articleId}/${type}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.ok) {
+          countEl.textContent = data.count;
+          if (data.reacted) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback local update
+        let current = parseInt(countEl.textContent, 10) || 0;
+        countEl.textContent = wasActive ? Math.max(0, current - 1) : current + 1;
+      });
+    });
+  });
+
+  function createParticleEffect(element) {
+    const rect = element.getBoundingClientRect();
+    for (let i = 0; i < 6; i++) {
+      const particle = document.createElement('div');
+      particle.textContent = '✨';
+      particle.style.position = 'fixed';
+      particle.style.left = `${rect.left + rect.width / 2}px`;
+      particle.style.top = `${rect.top}px`;
+      particle.style.pointerEvents = 'none';
+      particle.style.fontSize = '1.2rem';
+      particle.style.zIndex = '9999';
+      particle.style.transition = 'all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)';
+      document.body.appendChild(particle);
+
+      const angle = (Math.PI / 3) * i;
+      const dist = 40 + Math.random() * 30;
+      setTimeout(() => {
+        particle.style.transform = `translate(${Math.cos(angle) * dist}px, ${-Math.sin(angle) * dist - 20}px) scale(0.2)`;
+        particle.style.opacity = '0';
+      }, 20);
+
+      setTimeout(() => particle.remove(), 700);
+    }
+  }
+
+  // --- 8. Interactive Live Tech Poll ---
+  const pollContainer = document.getElementById('interactive-tech-poll');
+  if (pollContainer) {
+    const pollId = pollContainer.getAttribute('data-poll-id') || 'poll_1';
+    const votedKey = `poll_voted_${pollId}`;
+    const opts = pollContainer.querySelectorAll('.poll-opt');
+
+    function applyVotePercentages(selectedIdx) {
+      const total = 1420 + (selectedIdx !== undefined ? 1 : 0);
+      const baseVotes = [650, 480, 290];
+      if (selectedIdx !== undefined) baseVotes[selectedIdx]++;
+
+      opts.forEach((opt, idx) => {
+        const percent = Math.round((baseVotes[idx] / total) * 100);
+        const bar = opt.querySelector('.poll-bar');
+        const percentSpan = opt.querySelector('.poll-percent');
+        if (bar) bar.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = percent + '%';
+      });
+    }
+
+    if (localStorage.getItem(votedKey)) {
+      pollContainer.classList.add('voted');
+      applyVotePercentages();
+    }
+
+    opts.forEach((opt, idx) => {
+      opt.addEventListener('click', () => {
+        if (localStorage.getItem(votedKey)) {
+          showToast('لقد قمت بالتصويت بالفعل!', 'ℹ️');
+          return;
+        }
+        localStorage.setItem(votedKey, idx);
+        pollContainer.classList.add('voted');
+        applyVotePercentages(idx);
+        showToast('تم تسجيل صوتك بنجاح! شكراً لمشاركتك 📊', '✅');
+      });
+    });
+  }
+
+  // --- 9. Zen / Focus Reader Mode ---
+  const zenToggle = document.getElementById('zen-mode-toggle');
+  if (zenToggle) {
+    zenToggle.addEventListener('click', () => {
+      document.body.classList.toggle('zen-mode-active');
+      const active = document.body.classList.contains('zen-mode-active');
+      showToast(active ? 'تم تفعيل نمط القراءة الهادئ (بدون مشتتات) 📖' : 'تم الخروج من نمط القراءة الهادئ', '👁️');
+    });
+  }
+
+  // --- 10. Reading Progress Bar ---
+  const progressEl = document.getElementById('reading-progress');
+  if (progressEl) {
+    window.addEventListener('scroll', () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = max > 0 ? (window.scrollY / max) : 0;
+      progressEl.style.transform = `scaleX(${progress})`;
+    }, { passive: true });
+  }
+
+  // --- 12. User Profile Dropdown Menu ---
+  window.toggleSiteUserMenu = function(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const btn = e.currentTarget;
+    const dropdown = btn ? btn.closest('.site-user-dropdown') : null;
+    const menu = dropdown ? dropdown.querySelector('.site-user-menu-box') : null;
+    if (!menu) return;
+    const isShown = menu.style.display === 'block';
+    document.querySelectorAll('.site-user-menu-box').forEach(m => m.style.display = 'none');
+    menu.style.display = isShown ? 'none' : 'block';
+  };
+
+  // --- 13. Smart Floating Scroll Navigation (Top & Bottom) ---
+  const btnScrollTop = document.getElementById('btnScrollTop');
+  const btnScrollBottom = document.getElementById('btnScrollBottom');
+
+  function updateScrollButtons() {
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+    const clientHeight = window.innerHeight || document.documentElement.clientHeight;
+    const maxScroll = scrollHeight - clientHeight;
+
+    if (btnScrollTop) {
+      if (scrollY > 150) {
+        btnScrollTop.classList.add('visible');
+      } else {
+        btnScrollTop.classList.remove('visible');
+      }
+    }
+
+    if (btnScrollBottom) {
+      if (maxScroll > 150 && (maxScroll - scrollY) > 80) {
+        btnScrollBottom.classList.add('visible');
+      } else {
+        btnScrollBottom.classList.remove('visible');
+      }
+    }
+  }
+
+  if (btnScrollTop) {
+    btnScrollTop.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  if (btnScrollBottom) {
+    btnScrollBottom.addEventListener('click', (e) => {
+      e.preventDefault();
+      const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+      window.scrollTo({ top: scrollHeight, behavior: 'smooth' });
+    });
+  }
+
+  window.addEventListener('scroll', updateScrollButtons, { passive: true });
+  window.addEventListener('resize', updateScrollButtons, { passive: true });
+  window.addEventListener('load', updateScrollButtons, { passive: true });
+  document.addEventListener('DOMContentLoaded', updateScrollButtons);
+  setTimeout(updateScrollButtons, 150);
+  setTimeout(updateScrollButtons, 600);
+
+  // --- 8. Interactive Tech Poll Handler (AJAX & Real Database Persistence) ---
+  const pollSection = document.getElementById('interactive-tech-poll');
+  if (pollSection) {
+    const pollId = pollSection.getAttribute('data-poll-id');
+    const pollKey = 'voted_poll_' + pollId;
+    const opts = pollSection.querySelectorAll('.poll-opt');
+    const statusMsg = document.getElementById('poll-status-msg');
+    const totalCountEl = document.getElementById('poll-total-count');
+
+    let isSubmitting = false;
+    let localVotedId = localStorage.getItem(pollKey) || (pollSection.getAttribute('data-has-voted') === '1' ? pollSection.getAttribute('data-voted-id') : null);
+
+    if (localVotedId) {
+      if (statusMsg) statusMsg.innerHTML = '<span style="color:var(--accent-primary)">✔️ تم تسجيل صوتك بنجاح</span>';
+      opts.forEach(opt => {
+        if (opt.getAttribute('data-opt-id') === String(localVotedId)) {
+          opt.classList.add('voted');
+        }
+      });
+    }
+
+    opts.forEach(opt => {
+      opt.addEventListener('click', function () {
+        if (isSubmitting) return;
+
+        const optId = this.getAttribute('data-opt-id');
+        if (localVotedId) {
+          if (window.showToast) showToast('لقد قمت بالتصويت في هذا الاستطلاع مسبقاً!', '📊');
+          return;
+        }
+
+        isSubmitting = true;
+        this.style.opacity = '0.7';
+
+        const formData = new FormData();
+        formData.append('poll_id', pollId);
+        formData.append('option_id', optId);
+
+        const baseUrl = window.APP_BASE_URL || '/';
+        fetch(baseUrl.replace(/\/$/, '') + '/poll/vote', {
+          method: 'POST',
+          body: formData
+        })
+          .then(res => res.json())
+          .then(data => {
+            isSubmitting = false;
+            opt.style.opacity = '1';
+
+            if (data.success) {
+              localVotedId = optId;
+              localStorage.setItem(pollKey, optId);
+
+              if (statusMsg) statusMsg.innerHTML = '<span style="color:var(--accent-primary)">✔️ تم تسجيل صوتك بنجاح</span>';
+              if (totalCountEl) totalCountEl.textContent = `إجمالي الأصوات: ${Number(data.total_votes).toLocaleString()} مشاركاً`;
+
+              // Update all bars and percentages live
+              if (Array.isArray(data.options)) {
+                data.options.forEach(o => {
+                  const el = pollSection.querySelector(`.poll-opt[data-opt-id="${o.id}"]`);
+                  if (el) {
+                    const bar = el.querySelector('.poll-bar');
+                    const percentEl = el.querySelector('.poll-percent');
+                    if (bar) bar.style.width = `${o.percent}%`;
+                    if (percentEl) percentEl.textContent = `${o.percent}%`;
+                    if (String(o.id) === String(optId)) {
+                      el.classList.add('voted');
+                    } else {
+                      el.classList.remove('voted');
+                    }
+                  }
+                });
+              }
+
+              if (window.showToast) {
+                showToast('شكراً لمشاركتك! تم تسجيل صوتك بنجاح.', '🎉');
+              }
+            } else {
+              if (window.showToast) {
+                showToast(data.error || 'حدث خطأ أثناء تسجيل الصوت.', '⚠️');
+              }
+            }
+          })
+          .catch(err => {
+            isSubmitting = false;
+            opt.style.opacity = '1';
+            console.error('Poll vote error:', err);
+          });
+      });
+    });
+  }
+
+  // --- 9. User Menu Dropdown Handler (Touch & Click Support) ---
+  const userDropdownWrap = document.querySelector('.user-dropdown-wrap');
+  const userAvatarBtn = document.querySelector('.user-avatar-btn');
+  if (userDropdownWrap && userAvatarBtn) {
+    userAvatarBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = !userDropdownWrap.classList.contains('is-open');
+      userDropdownWrap.classList.toggle('is-open', willOpen);
+      userAvatarBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!userDropdownWrap.contains(e.target)) {
+        userDropdownWrap.classList.remove('is-open');
+        userAvatarBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        userDropdownWrap.classList.remove('is-open');
+        userAvatarBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  // --- 10. Progressive Web App (PWA) Engine ---
+  let deferredPrompt = null;
+  const PWA_DISMISS_KEY = 'tech_pwa_prompt_dismissed';
+
+  // A. Auto-Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      const swUrl = (window.APP_BASE_URL || '/').replace(/\/$/, '') + '/sw.js';
+      navigator.serviceWorker.register(swUrl, { scope: '/' })
+        .then((reg) => {
+          reg.onupdatefound = () => {
+            const installingWorker = reg.installing;
+            if (installingWorker) {
+              installingWorker.onstatechange = () => {
+                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  if (window.showToast) {
+                    showToast('تم تحديث بيانات التطبيق، أعد التحميل للاطلاع على أحدث محتوى.', '🔄');
+                  }
+                }
+              };
+            }
+          };
+        })
+        .catch((err) => {
+          console.warn('[PWA] Service Worker registration failed:', err);
+        });
+    });
+  }
+
+  // B. Handle beforeinstallprompt Event & Show Smart Install Banner
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    const dismissedTime = localStorage.getItem(PWA_DISMISS_KEY);
+    if (dismissedTime && (Date.now() - parseInt(dismissedTime, 10)) < (7 * 24 * 60 * 60 * 1000)) {
+      return;
+    }
+
+    setTimeout(() => {
+      showPwaInstallBanner();
+    }, 3000);
+  });
+
+  function showPwaInstallBanner() {
+    if (!deferredPrompt || document.getElementById('pwa-install-banner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'pwa-install-banner';
+    banner.className = 'pwa-install-banner';
+    banner.setAttribute('role', 'dialog');
+    banner.setAttribute('aria-label', 'تثبيت تطبيق المنصة');
+
+    const iconUrl = (window.APP_BASE_URL || '/').replace(/\/$/, '') + '/assets/images/icons/icon-96x96.png';
+
+    banner.innerHTML = `
+      <div class="pwa-banner-header">
+        <img src="${iconUrl}" alt="أيقونة التطبيق" class="pwa-banner-icon" />
+        <div class="pwa-banner-info">
+          <div class="pwa-banner-title">
+            <span>تثبيت تطبيق الأخبار</span>
+            <span>📱</span>
+          </div>
+          <p class="pwa-banner-desc">ثبّت التطبيق على جهازك لتصفح فوري، إشعارات عاجلة، وقراءة دون إنترنت.</p>
+        </div>
+      </div>
+      <div class="pwa-banner-actions">
+        <button type="button" class="pwa-btn-install" id="pwa-btn-install-action">
+          <span>⚡</span>
+          <span>تثبيت الآن</span>
+        </button>
+        <button type="button" class="pwa-btn-dismiss" id="pwa-btn-dismiss-action">لاحقاً</button>
+      </div>
+    `;
+
+    document.body.appendChild(banner);
+
+    const installBtn = document.getElementById('pwa-btn-install-action');
+    const dismissBtn = document.getElementById('pwa-btn-dismiss-action');
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        banner.remove();
+        deferredPrompt.prompt();
+        const choiceResult = await deferredPrompt.userChoice;
+        if (choiceResult && choiceResult.outcome === 'accepted') {
+          if (window.showToast) showToast('جاري تثبيت التطبيق...', '🎉');
+        }
+        deferredPrompt = null;
+      });
+    }
+
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', () => {
+        banner.style.opacity = '0';
+        banner.style.transform = 'translateY(120%)';
+        setTimeout(() => banner.remove(), 300);
+        localStorage.setItem(PWA_DISMISS_KEY, Date.now().toString());
+      });
+    }
+  }
+
+  // C. Handle App Installed Event
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    const banner = document.getElementById('pwa-install-banner');
+    if (banner) banner.remove();
+    if (window.showToast) {
+      showToast('🎉 تهانينا! تم تثبيت تطبيق منصة الأخبار التقنية بنجاح.', '🚀');
+    }
+  });
+
+  // --- 11. Article Reader Comfort & Typography Controls ---
+  const readerContent = document.querySelector('.reader-article-content');
+  const btnFontInc = document.getElementById('btn-font-inc');
+  const btnFontDec = document.getElementById('btn-font-dec');
+  const btnFontReset = document.getElementById('btn-font-reset');
+  const btnZenMode = document.getElementById('btn-zen-mode');
+
+  if (readerContent) {
+    const FONT_STORAGE_KEY = 'reader_font_size_scale';
+    let currentScale = parseFloat(localStorage.getItem(FONT_STORAGE_KEY)) || 1.0;
+
+    function applyFontSize(scale) {
+      currentScale = Math.min(1.4, Math.max(0.85, scale));
+      readerContent.style.fontSize = (1.24 * currentScale) + 'rem';
+      readerContent.style.lineHeight = (2.3 * Math.min(1.15, Math.max(0.95, currentScale))).toString();
+      localStorage.setItem(FONT_STORAGE_KEY, currentScale.toString());
+    }
+
+    if (currentScale !== 1.0) {
+      applyFontSize(currentScale);
+    }
+
+    if (btnFontInc) {
+      btnFontInc.addEventListener('click', () => {
+        applyFontSize(currentScale + 0.08);
+        if (window.showToast) showToast('تم تكبير حجم خط القراءة', '🔠');
+      });
+    }
+
+    if (btnFontDec) {
+      btnFontDec.addEventListener('click', () => {
+        applyFontSize(currentScale - 0.08);
+        if (window.showToast) showToast('تم تصغير حجم خط القراءة', '🔠');
+      });
+    }
+
+    if (btnFontReset) {
+      btnFontReset.addEventListener('click', () => {
+        applyFontSize(1.0);
+        if (window.showToast) showToast('تمت استعادة حجم الخط القياسي', '✨');
+      });
+    }
+
+    if (btnZenMode) {
+      btnZenMode.addEventListener('click', () => {
+        const isZen = document.body.classList.toggle('zen-reading-mode');
+        btnZenMode.classList.toggle('active', isZen);
+        if (window.showToast) {
+          showToast(isZen ? 'تم تفعيل وضع القراءة الهادئ (Zen Mode) 📖' : 'تم العودة للمظهر الكامل للموقع', isZen ? '🧘' : '📰');
+        }
+      });
+    }
+  }
+
+  // --- 12. Global Password Visibility Toggle ---
+  function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId) || (btn ? btn.closest('.password-input-wrap')?.querySelector('input') : null);
+    if (!input) return;
+    const isPassword = input.getAttribute('type') === 'password';
+    input.setAttribute('type', isPassword ? 'text' : 'password');
+    const icon = btn.querySelector('i') || btn.querySelector('svg');
+    if (icon) {
+      if (icon.tagName.toLowerCase() === 'i') {
+        icon.className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+      } else if (icon.tagName.toLowerCase() === 'svg') {
+        if (isPassword) {
+          icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        } else {
+          icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        }
+      }
+    }
+  }
+  window.togglePasswordVisibility = togglePasswordVisibility;
+
+  // ====================================================================
+  // 13. Reader Read/Unread Tracker + Relative Time Engine
+  //     (Auto-only: articles are marked read on click/open. No user toggle.)
+  // ====================================================================
+  const readerCfg = window.TNP_READER || {};
+  const readerStorageKey = 'tnp_read_articles';
+  const readerState = (function () {
+    let ids = new Set();
+    try {
+      const raw = localStorage.getItem(readerStorageKey);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) ids = new Set(arr.map(Number));
+      }
+    } catch (e) { /* localStorage unavailable */ }
+    return {
+      has(id) { return id != null && ids.has(Number(id)); },
+      set(id, read) {
+        id = Number(id);
+        if (!id || !read) return;
+        ids.add(id);
+        try { localStorage.setItem(readerStorageKey, JSON.stringify(Array.from(ids))); } catch (e) {}
+        applyReadState();
+      }
+    };
+  })();
+
+  // --- Relative time formatters ---
+  function readerTimeAgo(ts) {
+    const diff = Math.max(0, Math.floor(Date.now() / 1000) - ts);
+    const units = [
+      [31536000, ['سنة', 'سنتين', 'سنوات']],
+      [2592000, ['شهر', 'شهرين', 'أشهر']],
+      [604800, ['أسبوع', 'أسبوعين', 'أسابيع']],
+      [86400, ['يوم', 'يومين', 'أيام']],
+      [3600, ['ساعة', 'ساعتين', 'ساعات']],
+      [60, ['دقيقة', 'دقيقتين', 'دقائق']]
+    ];
+    for (const [secs, labels] of units) {
+      if (diff >= secs) {
+        const n = Math.floor(diff / secs);
+        if (n === 1) return 'قبل ' + labels[0];
+        if (n === 2) return 'قبل ' + labels[1];
+        return 'قبل ' + n + ' ' + labels[2];
+      }
+    }
+    return 'الآن';
+  }
+
+  function readerAbsTime(ts) {
+    const d = new Date(ts * 1000);
+    const pad = (x) => String(x).padStart(2, '0');
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  // Live-update any rendered <time> element with relative text
+  function readerRefreshTimes() {
+    document.querySelectorAll('.news-time-ago-static, .news-time-holder time.news-time-ago').forEach((t) => {
+      const iso = t.getAttribute('datetime') || t.dataset.ts;
+      const ts = iso ? Math.floor(new Date(iso).getTime() / 1000) : 0;
+      if (!ts || ts > Date.now() / 1000 + 3600) return;
+      if (t.classList.contains('news-time-ago-static') && readerCfg.timeAgoMode === 'absolute') return;
+      t.textContent = readerTimeAgo(ts);
+    });
+  }
+
+  // --- Card rendering ---
+  function renderCardTime(card) {
+    if (!readerCfg.timeAgoEnabled) return;
+    const raw = card.getAttribute('data-published-at');
+    if (!raw) return;
+    const ts = parseInt(raw, 10) || 0;
+    if (!ts) return;
+
+    let holder = card.querySelector('.news-time-holder');
+    if (!holder) {
+      holder = document.createElement('span');
+      holder.className = 'news-time-holder';
+      if (card.classList.contains('related-story-item')) {
+        // Place the chip inline inside the meta line of the info column
+        const info = card.querySelector('.related-story-info');
+        (info || card).appendChild(holder);
+      } else {
+        const footer = card.querySelector('.card-footer');
+        const body = card.querySelector('.card-body');
+        const host = footer || body || card;
+        if (footer || body) host.insertBefore(holder, host.firstChild);
+        else host.appendChild(holder);
+      }
+    }
+    holder.innerHTML = '';
+    const timeEl = document.createElement('time');
+    timeEl.className = 'news-time-ago';
+    timeEl.setAttribute('datetime', new Date(ts * 1000).toISOString());
+    timeEl.dataset.ts = String(ts);
+    if (readerCfg.timeAgoMode === 'both') {
+      timeEl.title = readerAbsTime(ts);
+      timeEl.textContent = readerTimeAgo(ts);
+    } else if (readerCfg.timeAgoMode === 'absolute') {
+      timeEl.textContent = readerAbsTime(ts);
+    } else {
+      timeEl.textContent = readerTimeAgo(ts);
+    }
+    holder.appendChild(timeEl);
+  }
+
+  function ensureUnreadDot(card) {
+    if (card.querySelector('.tnp-unread-dot')) return;
+    const link = card.querySelector('h2 a, h3 a, h4 a, h5 a');
+    if (!link) return;
+    const dot = document.createElement('span');
+    dot.className = 'tnp-unread-dot';
+    dot.setAttribute('aria-hidden', 'true');
+    link.insertBefore(dot, link.firstChild);
+  }
+
+  function ensureNewBadge(card) {
+    if (card.querySelector('.news-new-badge')) return;
+    const raw = card.getAttribute('data-published-at');
+    const hours = parseInt(card.getAttribute('data-new-hours') || readerCfg.newHours || 24, 10) || 24;
+    const ts = raw ? parseInt(raw, 10) : 0;
+    if (!ts) return;
+    if ((Date.now() / 1000) - ts > hours * 3600) return;
+    const host = card.querySelector('.card-img-wrap, .related-story-thumb-wrap') || card;
+    const badge = document.createElement('span');
+    badge.className = 'news-new-badge';
+    badge.textContent = 'جديد';
+    host.insertBefore(badge, host.firstChild);
+  }
+
+  // Apply read/unread visual state (card class + dot + badge visibility)
+  function applyReadStateToCard(card) {
+    const raw = card.getAttribute('data-article-id');
+    if (!raw) return;
+    const read = readerState.has(raw);
+    card.classList.toggle('article-is-read', read);
+    card.classList.toggle('article-is-unread', !read);
+    // Hide the "new" badge once the article has been read
+    const badge = card.querySelector('.news-new-badge');
+    if (badge) badge.classList.toggle('is-read', read);
+  }
+
+  function applyReadState() {
+    document.querySelectorAll('[data-article-id]').forEach(applyReadStateToCard);
+  }
+
+  function processReaderTargets() {
+    document.querySelectorAll('[data-article-id]').forEach((el) => {
+      if (el.getAttribute('data-role') === 'article-page') return;
+      if (el.classList.contains('tny-processed')) { applyReadStateToCard(el); return; }
+      el.classList.add('tny-processed');
+      if (readerCfg.unreadEnabled !== false) {
+        ensureNewBadge(el);
+        ensureUnreadDot(el);
+      }
+      renderCardTime(el);
+      applyReadStateToCard(el);
+    });
+  }
+
+  // Article page: auto-mark read on open (fully automatic, no user toggle)
+  (function initArticlePage() {
+    const card = document.querySelector('[data-role="article-page"]');
+    if (!card) return;
+    const raw = card.getAttribute('data-article-id');
+    if (!raw) return;
+    if (readerCfg.unreadEnabled !== false && readerCfg.autoMark) {
+      readerState.set(raw, true);
+    }
+  })();
+
+  // Delegated: clicking any article link auto-marks it as read
+  if (readerCfg.unreadEnabled !== false && readerCfg.autoMark) {
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest('a[href*="/article/"]');
+      if (!link) return;
+      const card = link.closest('[data-article-id]');
+      const raw = card ? card.getAttribute('data-article-id') : null;
+      if (raw) readerState.set(raw, true);
+    });
+  }
+
+  // Kick off + periodic refresh
+  document.addEventListener('DOMContentLoaded', () => {
+    processReaderTargets();
+    readerRefreshTimes();
+  });
+  setTimeout(() => { processReaderTargets(); readerRefreshTimes(); }, 50);
+  setInterval(() => { processReaderTargets(); readerRefreshTimes(); }, 30000);
+
+})();
+
+
