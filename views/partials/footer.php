@@ -131,5 +131,6 @@ window.TNP_READER = <?= json_encode([
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 </script>
 <script src="<?= view_e(app_url('assets/js/tech-platform.js')) ?>"></script>
+<?= site_footer_injections() ?>
 </body>
 </html>
