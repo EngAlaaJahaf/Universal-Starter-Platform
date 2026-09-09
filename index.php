@@ -205,6 +205,8 @@ if (!function_exists('ui_icon')) {
                 return '<svg ' . $baseAttr . '><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
             case 'star':
                 return '<svg ' . $baseAttr . '><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+            case 'tags':
+                return '<svg ' . $baseAttr . '><path d="M2 2h8l10 10-8 8L2 10z"/><circle cx="6.5" cy="6.5" r="1.5"/></svg>';
             case 'poll':
             case 'bar-chart':
                 return '<svg ' . $baseAttr . '><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>';
@@ -443,6 +445,7 @@ $router = new Router();
 $router->get('/', 'HomeController@index');
 $router->get('/articles', 'ArticleController@index');
 $router->get('/article/{slug}', 'ArticleController@show');
+$router->get('/p/{id}', 'ArticleController@shortlink');
 $router->get('/category/{slug}', 'ArticleController@category');
 $router->get('/search', 'SearchController@index');
 

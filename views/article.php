@@ -288,6 +288,47 @@ require_once APP_ROOT . '/views/partials/header.php';
             <?= inject_in_article_ad($articleContent) ?>
         </div>
 
+        <!-- Post Bottom Meta: Tags Cloud (AITnews style) -->
+        <?php if (!empty($article['tags']) && is_array($article['tags'])): ?>
+            <div class="post-bottom-meta post-bottom-tags">
+                <div class="post-bottom-meta-title">
+                    <span class="post-tags-icon" aria-hidden="true"><?= ui_icon('tags', '', 15) ?></span>
+                    <span>الوسوم</span>
+                </div>
+                <span class="tagcloud">
+                    <?php foreach ($article['tags'] as $postTag): ?>
+                        <a href="<?= article_e(app_url('search?q=' . rawurlencode($postTag['name']))) ?>" rel="tag"><?= article_e($postTag['name']) ?></a>
+                    <?php endforeach; ?>
+                </span>
+            </div>
+        <?php endif; ?>
+
+        <!-- Shortlink Copy Box (AITnews style) -->
+        <div class="post-shortlink">
+            <input type="text" id="short-post-url" value="<?= article_e(app_url('p/' . (int) $article['id'])) ?>" data-url="<?= article_e(app_url('p/' . (int) $article['id'])) ?>" readonly>
+            <button type="button" id="copy-post-url" class="button">نسخ الرابط</button>
+            <span id="copy-post-url-msg" style="display:none;">تم نسخ الرابط</span>
+        </div>
+        <script>
+        (function() {
+            var copyBtn = document.getElementById('copy-post-url');
+            if (!copyBtn) return;
+            copyBtn.addEventListener('click', function() {
+                var copyText = document.getElementById('short-post-url');
+                var msg = document.getElementById('copy-post-url-msg');
+                if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                    copyText.select();
+                    try { document.execCommand('copy'); } catch (e) {}
+                    if (msg) { msg.style.display = 'block'; }
+                    return;
+                }
+                navigator.clipboard.writeText(copyText.getAttribute('data-url') || copyText.value).then(function() {
+                    if (msg) { msg.style.display = 'block'; }
+                });
+            });
+        })();
+        </script>
+
         <!-- Source Attribution Button (If exists) -->
         <?php if (!empty($article['source_url'])): ?>
             <div style="margin:28px 0;padding-top:20px;border-top:1px solid var(--border-subtle)">

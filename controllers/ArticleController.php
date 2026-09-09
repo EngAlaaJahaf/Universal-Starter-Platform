@@ -134,6 +134,24 @@ class ArticleController extends Controller
     }
 
     /**
+     * Short-link friendly URL: /p/{id} -> canonical /article/{slug}
+     * Mimics the classic "?p=123" short links used by news platforms.
+     */
+    public function shortlink($id)
+    {
+        $articleModel = new Article();
+        $article = $articleModel->getBySlug((string) (int) $id);
+
+        if (!$article) {
+            http_response_code(404);
+            return $this->view('errors/404');
+        }
+
+        header('Location: ' . app_url('article/' . rawurlencode($article['slug'])), true, 301);
+        exit;
+    }
+
+    /**
      * Standard Industry Practice for Unique View Tracking:
      * - Filters automated crawlers & bots
      * - Ignores admin/editor preview sessions
