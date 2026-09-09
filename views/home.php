@@ -14,7 +14,7 @@ $siteLogo       = Settings::get('site_logo', '');
 $themeDefault   = Settings::get('theme_default', 'dark');
 $fontFamily     = Settings::get('font_family', 'Tajawal');
 $dateFormat     = Settings::get('date_format', 'Y-m-d H:i');
-$siteTitle      = $siteName . ' | ' . $siteTagline;
+$siteTitle      = $siteName;
 $activeTemplate = Settings::get('site_theme_template', 'editorial_verge');
 
 $featured = null;

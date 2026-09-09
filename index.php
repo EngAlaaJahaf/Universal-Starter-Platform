@@ -230,6 +230,14 @@ if (!function_exists('site_favicon_tag')) {
         if (empty($favicon)) {
             $favicon = 'assets/images/favicon.ico';
         }
+        // Search engines & browsers ignore oversized icons — fall back to the
+        // bundled small icon so Google/Chrome still display one.
+        if (strpos($favicon, '://') === false && !empty($favicon)) {
+            $local = APP_ROOT . '/' . ltrim($favicon, '/');
+            if (is_file($local) && filesize($local) > 200 * 1024) {
+                $favicon = 'assets/images/favicon.ico';
+            }
+        }
         $url = str_starts_with($favicon, 'http') ? $favicon : app_url($favicon);
         $type = 'image/x-icon';
         if (str_ends_with(strtolower($favicon), '.png')) $type = 'image/png';
@@ -907,6 +915,11 @@ $router->post('/admin/cron/pause', 'CronController@pause');
 $router->post('/admin/cron/resume', 'CronController@resume');
 $router->get('/admin/cron/status-json', 'CronController@statusJson');
 $router->post('/admin/cron/stop', 'CronController@stop');
+
+// Security Guard (IDS): scan every request for intrusions (path traversal,
+// SQLi, XSS, vulnerability scanners) — blocks with 403 + logs a security
+// alert + notifies admins. Must run before dispatch and after helpers.
+SecurityGuard::scanRequest();
 
 // Traffic & Bot Radar: start measuring response time, then record the hit
 // (visitor / spider / AI crawler) once the response completes — even on
