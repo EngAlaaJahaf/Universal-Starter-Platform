@@ -163,8 +163,11 @@ $ga4Id              = Settings::get('google_analytics_id');
 
 <!-- Breaking Headlines + Social Topbar (AITnews style) -->
 <?php
+$breakingEnabled = Settings::get('breaking_ticker_enabled', '1');
 $breakingNews = [];
-if (Settings::get('breaking_ticker_enabled', '1') !== '0' && class_exists('Database')) {
+// NOTE: boolean settings arrive as real bool (Settings casts them), so use
+// empty() which correctly treats false / '0' / 0 / '' as disabled.
+if (!empty($breakingEnabled) && class_exists('Database')) {
     try {
         $breakingDb = new Database();
         $breakingNews = $breakingDb->fetchAll("SELECT title, title_ar, slug FROM articles WHERE status = 'published' ORDER BY published_at DESC, id DESC LIMIT 8");
