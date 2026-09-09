@@ -103,6 +103,8 @@ class AggregatorController extends AdminController
  $content = $this->cleanTextEntity($_POST['content'] ?? ($data['excerpt'] ?? ''));
  $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, '…', 'UTF-8')));
  $featuredImage = trim($data['featured_image'] ?? '');
+ // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
+ if (strlen($featuredImage) > 1000) $featuredImage = '';
 
  if (empty($title)) {
  Session::flash('error', 'عنوان المقال مطلوب للنشر.');
@@ -242,6 +244,8 @@ class AggregatorController extends AdminController
  $content = $this->cleanTextEntity($_POST['content'] ?? ($data['excerpt'] ?? ''));
  $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, '…', 'UTF-8')));
  $featuredImage = trim($data['featured_image'] ?? '');
+ // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
+ if (strlen($featuredImage) > 1000) $featuredImage = '';
 
  if (empty($title)) {
  Session::flash('error', 'عنوان المقال مطلوب للنشر.');
@@ -350,6 +354,8 @@ class AggregatorController extends AdminController
         $content = $this->cleanTextEntity($_POST['content'] ?? ($data['excerpt'] ?? ''));
         $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, '…', 'UTF-8')));
         $featuredImage = trim($data['featured_image'] ?? '');
+        // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
+        if (strlen($featuredImage) > 1000) $featuredImage = '';
 
         if (empty($title)) {
             Session::flash('error', 'عنوان المقال مطلوب.');

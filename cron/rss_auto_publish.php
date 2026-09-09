@@ -304,6 +304,11 @@ try {
             if (empty($featuredImage)) {
                 $featuredImage = getCategoryFallbackImage($finalCategoryId, $catSlugMap);
             }
+            // Drop absurdly long image URLs (feed junk) so the INSERT never
+            // overflows the column; fallback/placeholder logic covers empty values.
+            if (strlen($featuredImage) > 1000) {
+                $featuredImage = '';
+            }
 
             // ─── الإدراج في قاعدة البيانات ────────────────────
             try {
