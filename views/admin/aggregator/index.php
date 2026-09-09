@@ -516,9 +516,15 @@ document.addEventListener('DOMContentLoaded', function () {
  <span class="badge bg-info-subtle text-info border py-2 px-3 font-monospace ms-1"><i class="bi bi-link-45deg"></i> <?= admin_e($customFeedUrl) ?></span>
  <?php endif; ?>
  </h5>
- <span class="badge bg-light text-dark border px-2 py-1 small">
- عرض <strong id="visibleNewsCount" class="text-primary"><?= count($items) ?></strong> من <?= count($items) ?> خبر
- </span>
+<?php $unpublishedCount = (int) ($unpublishedCount ?? 0); ?>
+  <?php if ($unpublishedCount > 0): ?>
+  <span id="unpublishedCounter" class="badge bg-success text-white border px-2 py-1 small" title="أخبار وصلت عبر الخلاصة ولم تُنشر بعد — انشرها الآن">
+  <i class="bi bi-bell-fill me-1"></i>+<?= $unpublishedCount ?> <?= $unpublishedCount === 1 ? 'خبر جديد لم يُنشر' : ($unpublishedCount === 2 ? 'خبران جديدان لم يُنشرا' : 'أخبار جديدة لم تُنشر') ?>
+  </span>
+  <?php endif; ?>
+  <span class="badge bg-light text-dark border px-2 py-1 small">
+  عرض <strong id="visibleNewsCount" class="text-primary"><?= count($items) ?></strong> من <?= count($items) ?> خبر
+  </span>
  </div>
 
  <!-- Quick Status Filter Pills -->
@@ -584,15 +590,19 @@ document.addEventListener('DOMContentLoaded', function () {
  <span class="badge bg-success position-absolute top-0 end-0 m-2 shadow-sm">
  <i class="bi bi-check-circle-fill me-1"></i> منشور للعامة
  </span>
- <?php elseif ($item['import_status'] === 'draft'): ?>
- <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 shadow-sm">
- <i class="bi bi-pencil-square me-1"></i> مسودة قيد التحرير
- </span>
- <?php else: ?>
- <span class="badge bg-secondary position-absolute top-0 end-0 m-2 shadow-sm">
- <?= admin_e($item['import_status']) ?>
- </span>
- <?php endif; ?>
+<?php elseif ($item['import_status'] === 'draft'): ?>
+  <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 shadow-sm">
+  <i class="bi bi-pencil-square me-1"></i> مسودة قيد التحرير
+  </span>
+  <?php elseif (!empty($item['import_status'])): ?>
+  <span class="badge bg-secondary position-absolute top-0 end-0 m-2 shadow-sm">
+  <?= admin_e($item['import_status']) ?>
+  </span>
+  <?php else: ?>
+  <span class="badge bg-info position-absolute top-0 end-0 m-2 shadow-sm">
+  <i class="bi bi-stars me-1"></i> جديد لم يُنشر
+  </span>
+  <?php endif; ?>
  <?php endif; ?>
  </div>
 
@@ -740,6 +750,19 @@ document.addEventListener('DOMContentLoaded', function () {
      filterNewsLive();
     }
     if (btn && btn.isConnected) { btn.disabled = false; btn.innerHTML = originalHtml; }
+
+    const cntBadge = document.getElementById('unpublishedCounter');
+    if (cntBadge) {
+     const m = (cntBadge.textContent || '').match(/\d+/);
+     if (m) {
+      let n = parseInt(m[0], 10) - 1;
+      if (n <= 0) {
+       cntBadge.remove();
+      } else {
+       cntBadge.innerHTML = '<i class="bi bi-bell-fill me-1"></i>+' + n + ' ' + (n === 1 ? 'خبر جديد لم يُنشر' : 'أخبار جديدة لم تُنشر');
+      }
+     }
+    }
    })
    .catch(function (err) {
     showToast('<i class="bi bi-exclamation-triangle-fill me-1"></i> ' + esc(err.message), true);

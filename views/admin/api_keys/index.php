@@ -127,7 +127,7 @@
  <tr>
  <td>
  <strong class="text-dark d-block"><?= admin_e($k['name']) ?></strong>
- <small class="text-muted">تم الإنشاء: <?= admin_e(date('Y-m-d', strtotime($k['created_at']))) ?></small>
+ <small class="text-muted">تم الإنشاء: <?= admin_e(fmt_date($k['created_at'], 'Y-m-d')) ?></small>
  </td>
  <td>
  <code class="small bg-light px-2 py-1 border rounded text-primary font-monospace"><?= admin_e($k['key_prefix']) ?></code>
@@ -147,7 +147,7 @@
  </span>
  </td>
  <td>
- <small class="text-muted"><?= !empty($k['last_used_at']) ? admin_e(date('Y-m-d H:i', strtotime($k['last_used_at']))) : 'لم يستخدم بعد' ?></small>
+ <small class="text-muted"><?= !empty($k['last_used_at']) ? admin_e(fmt_date($k['last_used_at'], 'Y-m-d H:i')) : 'لم يستخدم بعد' ?></small>
  </td>
  <td>
  <span class="badge bg-<?= !empty($k['is_active']) ? 'success' : 'danger' ?>-subtle text-<?= !empty($k['is_active']) ? 'success' : 'danger' ?>">

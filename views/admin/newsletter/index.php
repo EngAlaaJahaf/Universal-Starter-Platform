@@ -168,10 +168,10 @@ $mailFromName = Settings::get('mail_from_name', 'منصة الأخبار الت�
  <span class="badge bg-secondary-subtle text-secondary">ملغي </span>
  <?php endif; ?>
  </td>
- <td><small class="text-muted"><?= admin_e(date('Y-m-d H:i', strtotime($s['subscribed_at']))) ?></small></td>
+ <td><small class="text-muted"><?= admin_e(fmt_date($s['subscribed_at'], 'Y-m-d H:i')) ?></small></td>
  <td>
  <?php if (!empty($s['unsubscribed_at'])): ?>
- <small class="text-danger"><?= admin_e(date('Y-m-d H:i', strtotime($s['unsubscribed_at']))) ?></small>
+ <small class="text-danger"><?= admin_e(fmt_date($s['unsubscribed_at'], 'Y-m-d H:i')) ?></small>
  <?php else: ?>
  <span class="text-muted small">-</span>
  <?php endif; ?>
@@ -345,7 +345,7 @@ $mailFromName = Settings::get('mail_from_name', 'منصة الأخبار الت�
  </td>
  <td><strong class="text-success"><?= number_format((int) ($camp['sent_count'] ?? 0)) ?></strong></td>
  <td><small class="text-danger"><?= (int) ($camp['failed_count'] ?? 0) ?></small></td>
- <td><small class="text-muted"><?= admin_e(date('Y-m-d H:i', strtotime($camp['created_at']))) ?></small></td>
+ <td><small class="text-muted"><?= admin_e(fmt_date($camp['created_at'], 'Y-m-d H:i')) ?></small></td>
  <td class="text-end">
  <?php if ($camp['status'] !== 'sent'): ?>
  <form method="post" action="<?= admin_e(app_url('admin/newsletter/' . $camp['id'] . '/send')) ?>" class="d-inline" onsubmit="return confirm('هل تريد بالتأكيد إرسال هذه النشرة إلى جميع المشتركين الآن؟')">

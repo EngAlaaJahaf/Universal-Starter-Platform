@@ -138,7 +138,7 @@
  <div class="p-3 bg-white rounded-3 border shadow-sm position-relative entry-card-item <?= $e['is_pinned'] ? 'border-primary border-2 is-pinned-card' : '' ?>" id="entry-card-<?= $e['id'] ?>">
  <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
  <div class="d-flex align-items-center gap-2 flex-wrap">
- <span class="badge bg-dark font-monospace"><?= htmlspecialchars(date('H:i:s', strtotime($e['created_at']))) ?></span>
+ <span class="badge bg-dark font-monospace"><?= htmlspecialchars(fmt_date($e['created_at'], 'H:i:s')) ?></span>
  <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1">
  <?php if ($e['entry_type'] === 'image'): ?>
  <?= ui_icon('image', 'text-primary', 13) ?> <span>صورة</span>
@@ -272,7 +272,7 @@
  <div class="flex-grow-1">
  <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
  <strong class="text-primary small"><?= htmlspecialchars($chat['sender_name']) ?></strong>
- <small class="text-muted font-monospace" style="font-size:0.75rem"><?= date('H:i:s Y-m-d', strtotime($chat['created_at'])) ?></small>
+ <small class="text-muted font-monospace" style="font-size:0.75rem"><?= fmt_date($chat['created_at'], 'H:i:s Y-m-d') ?></small>
  <?php if (!empty($chat['ip_address'])): ?>
  <span class="badge bg-secondary font-monospace" style="font-size:0.7rem"><?= htmlspecialchars($chat['ip_address']) ?></span>
  <?php endif; ?>

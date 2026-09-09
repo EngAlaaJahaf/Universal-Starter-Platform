@@ -97,7 +97,7 @@
  <span class="badge bg-danger-subtle text-danger border border-danger-subtle">مرفوض</span>
  <?php endif; ?>
  </td>
- <td><small class="text-muted"><?= htmlspecialchars(date('Y-m-d H:i', strtotime($c['created_at']))) ?></small></td>
+ <td><small class="text-muted"><?= htmlspecialchars(fmt_date($c['created_at'], 'Y-m-d H:i')) ?></small></td>
  <td class="text-end">
  <div class="d-inline-flex gap-1">
  <?php if ($c['status'] !== 'approved'): ?>

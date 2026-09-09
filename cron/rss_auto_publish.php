@@ -353,6 +353,10 @@ try {
 
         // ─── تحديث وقت آخر جلب ────────────────────────────────
         $db->query("UPDATE rss_sources SET last_fetched_at = CURRENT_TIMESTAMP WHERE id = :id", [':id' => $sourceId]);
+
+        // ─── تحديث عدّاد الأخبار الجديدة غير المنشورة لهذا المصدر ──
+        require_once $root . '/core/FeedFreshness.php';
+        FeedFreshness::recount($db, $sourceId, $existingUrls, $feedItems);
     }
 
 } catch (Throwable $e) {

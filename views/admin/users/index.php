@@ -91,7 +91,7 @@
  <?= $u['status'] === 'active' ? 'نشط' : ($u['status'] === 'banned' ? 'محظور' : 'معلق') ?>
  </span>
  </td>
- <td><small class="text-muted"><?= htmlspecialchars(date('Y-m-d', strtotime($u['created_at']))) ?></small></td>
+ <td><small class="text-muted"><?= htmlspecialchars(fmt_date($u['created_at'], 'Y-m-d')) ?></small></td>
  <td class="text-end">
  <div class="d-inline-flex gap-1">
  <a class="btn-action-icon btn-action-edit" href="<?= app_url('admin/users/' . $u['id'] . '/edit') ?>" title="تعديل المستخدم">

@@ -173,7 +173,7 @@
 
  <!-- Time -->
  <td>
- <small class="text-muted"><?= admin_e(date('Y-m-d H:i:s', strtotime($a['created_at']))) ?></small>
+ <small class="text-muted"><?= admin_e(fmt_date($a['created_at'], 'Y-m-d H:i:s')) ?></small>
  </td>
 
  <!-- Actions -->

@@ -95,15 +95,17 @@ if (!function_exists('site_dt')) {
 }
 
 if (!function_exists('fmt_date')) {
-    function fmt_date($dateStr, $fallback = '-')
+    function fmt_date($dateStr, $format = null, $fallback = '-')
     {
         if (empty($dateStr)) return $fallback;
         try {
             $dt = site_dt($dateStr);
             if (!$dt) return $fallback;
-            $fmt = Settings::get('date_format', 'Y-m-d H:i');
-            if (!is_string($fmt) || $fmt === '') $fmt = 'Y-m-d H:i';
-            return $dt->format($fmt);
+            if ($format === null) {
+                $format = Settings::get('date_format', 'Y-m-d H:i');
+                if (!is_string($format) || $format === '') $format = 'Y-m-d H:i';
+            }
+            return $dt->format($format);
         } catch (Throwable $e) {
             return $fallback;
         }

@@ -52,7 +52,7 @@ $title = 'تفاصيل سجل الترجمة #' . $log['id'];
  </li>
  <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
  <span class="text-muted">تاريخ التسجيل:</span>
- <span class="font-monospace text-muted" dir="ltr"><?= admin_e($log['created_at']) ?></span>
+ <span class="font-monospace text-muted" dir="ltr"><?= admin_e(fmt_date($log['created_at'], 'Y-m-d H:i:s')) ?></span>
  </li>
  </ul>
 

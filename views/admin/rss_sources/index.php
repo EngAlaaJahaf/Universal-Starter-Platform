@@ -132,8 +132,8 @@ return date('Y-m-d', $ts);
  <th>القسم المسند</th>
   <th>الحالة</th>
   <th style="width:150px">صحة الخلاصة</th>
-  <th style="width:140px" title="عدد المقالات الواردة من هذا المصدر خلال آخر <?= (int) ($newWindowHours ?? 24) ?> ساعة — اضغط الشارة لعرضها">
-  <i class="bi bi-bell-fill text-success me-1"></i>الجديد
+  <th style="width:140px" title="عدد الأخبار الجديدة التي وصلت عبر الخلاصة ولم تُنشر بعد (تُحدَّث عند كل جلب فعلي) — اضغط الشارة لعرضها">
+  <i class="bi bi-bell-fill text-success me-1"></i>جديد لم يُنشر
   </th>
   <th class="text-end" style="width:180px">الإجراءات</th>
  </tr>
@@ -203,19 +203,20 @@ return date('Y-m-d', $ts);
   </td>
   <td>
   <?php
+  // عدد الأخبار الجديدة غير المنشورة الواصلة من الخلاصة نفسها
   $feedStat = ($newMap ?? [])[$s['name']] ?? null;
-  $feedNew = (int) ($feedStat['new_count'] ?? 0);
-  $feedLatest = $feedStat['latest_at'] ?? null;
+  $feedNew = (int) ($s['new_items_count'] ?? ($feedStat['new_count'] ?? 0));
+  $feedLatest = $s['new_items_last_at'] ?? ($feedStat['latest_at'] ?? null);
   ?>
   <?php if ($feedNew > 0): ?>
   <a href="<?= admin_e(app_url('admin/news-feeds?source_id=' . $s['id'])) ?>" class="text-decoration-none"
-  title="عرض أحدث أخبار هذا المصدر في الاستوديو">
+  title="عرض أحدث أخبار هذا المصدر في الاستوديو (الأخبار الجديدة غير المنشورة)">
   <span class="badge bg-success text-white border shadow-sm">
-  <i class="bi bi-bell-fill me-1"></i>+<?= $feedNew ?> <?= $feedNew === 1 ? 'خبر جديد' : ($feedNew === 2 ? 'خبران جديدان' : 'أخبار جديدة') ?>
+  <i class="bi bi-bell-fill me-1"></i>+<?= $feedNew ?> <?= $feedNew === 1 ? 'خبر جديد لم يُنشر' : ($feedNew === 2 ? 'خبران جديدان لم يُنشرا' : 'أخبار جديدة لم تُنشر') ?>
   </span>
   </a>
   <?php if (!empty($feedLatest)): ?>
-  <div class="small text-muted mt-1">آخرها <?= admin_e(rss_new_ago($feedLatest)) ?></div>
+  <div class="small text-muted mt-1">أحدثها <?= admin_e(rss_new_ago($feedLatest)) ?></div>
   <?php endif; ?>
   <?php else: ?>
   <span class="text-muted small">—</span>

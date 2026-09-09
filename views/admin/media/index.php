@@ -68,7 +68,7 @@
  </td>
  <td><span class="badge bg-light text-dark border"><?= admin_e($item['mime_type'] ?? 'file') ?></span></td>
  <td><small class="text-muted"><?= number_format(((int) ($item['file_size'] ?? 0)) / 1024, 1) ?> KB</small></td>
- <td><small class="text-muted"><?= admin_e(date('Y-m-d H:i', strtotime($item['created_at']))) ?></small></td>
+ <td><small class="text-muted"><?= admin_e(fmt_date($item['created_at'], 'Y-m-d H:i')) ?></small></td>
  <td class="text-end">
  <div class="btn-group btn-group-sm">
  <a target="_blank" href="<?= admin_e(app_url($item['file_path'])) ?>" class="btn btn-outline-dark" title="عرض ومعاينة">

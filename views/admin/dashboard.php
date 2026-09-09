@@ -139,7 +139,7 @@ $currentUser = Auth::user();
  <tr>
  <td>
  <strong class="d-block text-truncate" style="max-width:280px"><?= htmlspecialchars($art['title']) ?></strong>
- <small class="text-muted"><?= htmlspecialchars(date('Y-m-d', strtotime($art['created_at']))) ?></small>
+ <small class="text-muted"><?= htmlspecialchars(fmt_date($art['created_at'], 'Y-m-d')) ?></small>
  </td>
  <td><span class="badge bg-light text-dark border"><?= htmlspecialchars($art['category_name'] ?: 'عام') ?></span></td>
  <td><span class="fw-semibold"><?= number_format((int) $art['views_count']) ?></span></td>
@@ -175,7 +175,7 @@ $currentUser = Auth::user();
  <div class="p-3 bg-light rounded-3 border">
  <div class="d-flex justify-content-between align-items-center mb-1">
  <strong class="text-primary small"><?= htmlspecialchars($c['username'] ?: $c['guest_name'] ?: 'زائر') ?></strong>
- <small class="text-muted" style="font-size:0.75rem"><?= htmlspecialchars(date('m-d H:i', strtotime($c['created_at']))) ?></small>
+ <small class="text-muted" style="font-size:0.75rem"><?= htmlspecialchars(fmt_date($c['created_at'], 'm-d H:i')) ?></small>
  </div>
  <p class="small text-dark mb-2 text-truncate" style="max-width:320px"><?= htmlspecialchars($c['content']) ?></p>
  <div class="d-flex gap-1 justify-content-end">
@@ -251,7 +251,7 @@ $currentUser = Auth::user();
  <span class="badge bg-dark-subtle text-dark"><?= htmlspecialchars($log['action']) ?></span>
  <span class="small fw-semibold ms-1"><?= htmlspecialchars($log['description'] ?: ($log['entity_type'] ?? '')) ?></span>
  </div>
- <small class="text-muted" style="font-size:0.75rem"><?= htmlspecialchars(date('m-d H:i', strtotime($log['created_at']))) ?></small>
+ <small class="text-muted" style="font-size:0.75rem"><?= htmlspecialchars(fmt_date($log['created_at'], 'm-d H:i')) ?></small>
  </div>
  <?php endforeach; ?>
  </div>

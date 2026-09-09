@@ -285,7 +285,7 @@ $initialState = $initialStatus['state'] ?? 'idle';
  </ul>
  </div>
  </td>
- <td class="text-nowrap"><small class="text-muted font-monospace"><?= admin_e(date('H:i:s Y-m-d', strtotime($art['created_at']))) ?></small></td>
+ <td class="text-nowrap"><small class="text-muted font-monospace"><?= admin_e(fmt_date($art['created_at'], 'H:i:s Y-m-d')) ?></small></td>
  <td class="text-end text-nowrap">
  <a href="<?= admin_e(app_url('admin/articles/' . $art['id'] . '/edit')) ?>" class="btn btn-sm btn-outline-secondary py-0 px-2" title="تعديل المقال والتصنيف">
  <i class="bi bi-pencil"></i>
@@ -333,7 +333,7 @@ $initialState = $initialStatus['state'] ?? 'idle';
  <tbody>
  <?php foreach ($logs as $log): ?>
  <tr>
- <td class="text-muted small font-monospace text-nowrap"><?= htmlspecialchars($log['created_at']) ?></td>
+ <td class="text-muted small font-monospace text-nowrap"><?= htmlspecialchars(fmt_date($log['created_at'], 'Y-m-d H:i:s')) ?></td>
  <td class="text-nowrap">
  <?php if ($log['status'] === 'success'): ?>
  <span class="badge bg-success-subtle text-success"><i class="bi bi-check-circle me-1"></i>نجح</span>
@@ -371,7 +371,7 @@ $initialState = $initialStatus['state'] ?? 'idle';
  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
  <div class="modal-content rounded-4 border-0 shadow">
  <div class="modal-header border-0 pb-0">
- <h6 class="modal-title fw-bold">سجل التشغيل #<?= $log['id'] ?> (<?= htmlspecialchars($log['created_at']) ?>)</h6>
+ <h6 class="modal-title fw-bold">سجل التشغيل #<?= $log['id'] ?> (<?= htmlspecialchars(fmt_date($log['created_at'], 'Y-m-d H:i:s')) ?>)</h6>
  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
  </div>
  <div class="modal-body">
@@ -443,7 +443,7 @@ $initialState = $initialStatus['state'] ?? 'idle';
  </a>
  </td>
  <td class="text-nowrap">
- <small class="text-muted font-monospace"><?= !empty($src['last_fetched_at']) ? admin_e(date('Y-m-d H:i', strtotime($src['last_fetched_at']))) : 'لم يُجلب بعد' ?></small>
+ <small class="text-muted font-monospace"><?= !empty($src['last_fetched_at']) ? admin_e(fmt_date($src['last_fetched_at'], 'Y-m-d H:i')) : 'لم يُجلب بعد' ?></small>
  </td>
  <td class="text-end text-nowrap">
  <button type="button" class="btn btn-sm btn-outline-success fw-bold py-1 px-2 btn-fetch-single" 

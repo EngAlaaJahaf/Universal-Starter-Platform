@@ -136,7 +136,7 @@
  <?php if ($t['category_name']): ?>
  <span class="badge bg-light text-secondary border"><?= admin_e($t['category_name']) ?></span>
  <?php endif; ?>
- <span> <?= date('Y-m-d', strtotime($t['created_at'])) ?></span>
+ <span> <?= fmt_date($t['created_at'], 'Y-m-d') ?></span>
  </div>
  </div>
  </div>

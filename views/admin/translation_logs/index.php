@@ -250,9 +250,9 @@ $title = 'سجلات وأخطاء الترجمة الذكية';
  <td class="text-muted small">
  <?= $log['duration_ms'] ? number_format($log['duration_ms']) . ' ms' : '-' ?>
  </td>
- <td class="text-muted small" dir="ltr">
- <?= admin_e($log['created_at']) ?>
- </td>
+<td class="text-muted small" dir="ltr">
+  <?= admin_e(fmt_date($log['created_at'], 'Y-m-d H:i:s')) ?>
+  </td>
  <td class="text-end">
  <div class="d-inline-flex gap-1">
  <a href="<?= admin_e(app_url('admin/translation-logs/show?id=' . $log['id'])) ?>" class="btn-action-icon btn-action-view" title="عرض التفاصيل والأخطاء الكاملة">

@@ -44,9 +44,9 @@
  <div class="mb-4 text-dark" style="font-size:1.05rem;line-height:1.8;white-space:pre-wrap;background:#f8fafc;padding:24px;border-radius:16px;border:1px solid #e2e8f0"><?= htmlspecialchars($message['message']) ?></div>
 
  <div class="d-flex justify-content-between align-items-center text-muted small pt-2">
- <span>تاريخ وتوقيت الاستلام: <?= htmlspecialchars(date('Y-m-d H:i:s', strtotime($message['created_at']))) ?></span>
+ <span>تاريخ وتوقيت الاستلام: <?= htmlspecialchars(fmt_date($message['created_at'], 'Y-m-d H:i:s')) ?></span>
  <?php if (!empty($message['replied_at'])): ?>
- <span class="text-success">تاريخ الرد: <?= htmlspecialchars(date('Y-m-d H:i', strtotime($message['replied_at']))) ?></span>
+ <span class="text-success">تاريخ الرد: <?= htmlspecialchars(fmt_date($message['replied_at'], 'Y-m-d H:i')) ?></span>
  <?php endif; ?>
  </div>
  </div>

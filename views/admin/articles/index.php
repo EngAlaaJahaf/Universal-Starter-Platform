@@ -176,7 +176,7 @@ $allCategoriesList = (new Database())->fetchAll("SELECT id, name, slug FROM cate
  <span class="badge <?= $badgeClass ?>"><?= $statusLabel ?></span>
  </td>
  <td><strong><?= number_format((int) ($art['views_count'] ?? 0)) ?></strong></td>
- <td><small class="text-muted"><?= admin_e(date('Y-m-d', strtotime($art['created_at']))) ?></small></td>
+ <td><small class="text-muted"><?= admin_e(fmt_date($art['created_at'], 'Y-m-d')) ?></small></td>
  <td class="text-end">
  <div class="d-inline-flex gap-1">
  <a href="<?= admin_e(app_url('article/' . $art['slug'])) ?>" target="_blank" class="btn-action-icon btn-action-view" title="معاينة المقال في الموقع">

@@ -99,6 +99,7 @@ class AggregatorController extends AdminController
 
  $items = [];
  $error = null;
+ $unpublishedCount = 0;
 
  if (!empty($activeFeedUrl)) {
  $feedData = $this->fetchRss($activeFeedUrl);
@@ -118,6 +119,23 @@ class AggregatorController extends AdminController
  $it['category_id'] = $activeCategoryId;
  }
  unset($it);
+
+ // عدّاد الأخبار الجديدة غير المنشورة (لكل بطاقة + للمصدر المحدد)
+ foreach ($items as $it) {
+ if (($it['import_status'] ?? null) !== 'published') $unpublishedCount++;
+ }
+
+ // تحديث عدّاد خلاصة المصدر المسجّل فقط (وليس رابط مخصص عابر)
+ if (empty($customFeedUrl) && $selectedSourceId > 0) {
+ $publishedLinks = [];
+ foreach ($items as $it) {
+ if (($it['import_status'] ?? null) === 'published') {
+ $publishedLinks[$it['link']] = true;
+ }
+ }
+ require_once __DIR__ . '/../../core/FeedFreshness.php';
+ FeedFreshness::recount($db, (int) $selectedSourceId, $publishedLinks, $items);
+ }
  } else {
  $error = $feedData['error'];
  }
@@ -132,6 +150,7 @@ class AggregatorController extends AdminController
  'activeFeedUrl' => $activeFeedUrl,
  'items' => $items,
  'error' => $error,
+ 'unpublishedCount' => $unpublishedCount,
  ]);
  }
 
@@ -921,9 +940,9 @@ header('Content-Type: application/json; charset=utf-8');
  $desc = $pNode ? trim($pNode->textContent) : $title;
 
  $items[] = [
- 'title' => $title,
- 'link' => $href,
- 'pubDate' => date('Y-m-d H:i'),
+'title' => $title,
+  'link' => $href,
+  'pubDate' => fmt_date('now', 'Y-m-d H:i'),
  'excerpt' => mb_strimwidth($desc, 0, 220, '…', 'UTF-8'),
  'content' => $desc,
  'featured_image' => $image ?: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80'
@@ -968,7 +987,7 @@ header('Content-Type: application/json; charset=utf-8');
  return [
  'title' => $this->cleanTextEntity($title),
  'link' => trim($link),
- 'pubDate' => $pubDate ? date('Y-m-d H:i', strtotime($pubDate)) : date('Y-m-d H:i'),
+ 'pubDate' => $pubDate ? fmt_date($pubDate, 'Y-m-d H:i') : fmt_date('now', 'Y-m-d H:i'),
  'excerpt' => mb_strimwidth($cleanDesc ?: $cleanContent, 0, 220, '…', 'UTF-8'),
  'content' => $cleanContent,
  'featured_image' => $image ?: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
@@ -996,7 +1015,7 @@ header('Content-Type: application/json; charset=utf-8');
  return [
  'title' => $this->cleanTextEntity($title),
  'link' => trim($link),
- 'pubDate' => $pubDate ? date('Y-m-d H:i', strtotime($pubDate)) : date('Y-m-d H:i'),
+ 'pubDate' => $pubDate ? fmt_date($pubDate, 'Y-m-d H:i') : fmt_date('now', 'Y-m-d H:i'),
  'excerpt' => mb_strimwidth($cleanSummary, 0, 220, '…', 'UTF-8'),
  'content' => $cleanSummary,
  'featured_image' => $image ?: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',

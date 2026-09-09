@@ -121,7 +121,7 @@
  <?php endif; ?>
  </td>
  <td>
- <small class="text-muted"><?= htmlspecialchars(date('Y-m-d H:i', strtotime($m['created_at']))) ?></small>
+ <small class="text-muted"><?= htmlspecialchars(fmt_date($m['created_at'], 'Y-m-d H:i')) ?></small>
  </td>
  <td class="text-end">
  <div class="d-inline-flex gap-1">

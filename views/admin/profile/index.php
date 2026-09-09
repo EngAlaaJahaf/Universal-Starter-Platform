@@ -40,7 +40,7 @@ $title = 'الملف الشخصي للمدير';
  <div class="p-3 bg-light rounded-3 text-start mt-2">
  <div class="d-flex justify-content-between mb-2">
  <span class="text-muted small">تاريخ الانضمام:</span>
- <span class="small fw-semibold"><?= date('Y-m-d', strtotime($user['created_at'] ?? 'now')) ?></span>
+ <span class="small fw-semibold"><?= fmt_date($user['created_at'] ?? 'now', 'Y-m-d') ?></span>
  </div>
  <div class="d-flex justify-content-between mb-2">
  <span class="text-muted small">المقالات المنشورة:</span>
@@ -62,7 +62,7 @@ $title = 'الملف الشخصي للمدير';
  <li class="list-group-item px-0 py-2 border-bottom">
  <div class="d-flex justify-content-between">
  <span class="fw-semibold text-dark"><?= htmlspecialchars($log['action']) ?></span>
- <span class="text-muted" style="font-size:0.75rem"><?= date('H:i', strtotime($log['created_at'])) ?></span>
+ <span class="text-muted" style="font-size:0.75rem"><?= fmt_date($log['created_at'], 'H:i') ?></span>
  </div>
  <span class="text-muted d-block text-truncate" style="max-width:250px"><?= htmlspecialchars($log['entity_type']) ?></span>
  </li>

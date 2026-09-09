@@ -288,8 +288,8 @@
 
  <!-- Timestamp -->
  <td>
- <small class="text-dark d-block fw-semibold"><?= admin_e(date('Y-m-d H:i', strtotime($log['created_at']))) ?></small>
- <small class="text-muted" style="font-size:0.7rem"><?= admin_e(date('s', strtotime($log['created_at']))) ?>s</small>
+<small class="text-dark d-block fw-semibold"><?= admin_e(fmt_date($log['created_at'], 'Y-m-d H:i')) ?></small>
+  <small class="text-muted" style="font-size:0.7rem"><?= admin_e(fmt_date($log['created_at'], 's')) ?>s</small>
  </td>
 
  <!-- View Inspector Button -->
@@ -306,7 +306,7 @@
  'entity_id' => $log['entity_id'],
  'ip' => $log['ip_address'],
  'user_agent' => $log['user_agent'],
- 'created_at' => $log['created_at'],
+ 'created_at' => fmt_date($log['created_at'], 'Y-m-d H:i:s'),
  'old_values' => $log['clean_old_values'],
  'new_values' => $log['clean_new_values']
  ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>)'>

@@ -128,7 +128,7 @@ $iconsList = [
  <input type="datetime-local" 
  name="expires_at" 
  class="form-control" 
- value="<?= !empty($poll['expires_at']) ? date('Y-m-d\TH:i', strtotime($poll['expires_at'])) : '' ?>" 
+ value="<?= !empty($poll['expires_at']) ? admin_e(form_datetime_local($poll['expires_at'])) : '' ?>" 
  style="background:var(--bg-surface);color:var(--text-main);border-color:var(--border-subtle)">
  </div>
  </div>

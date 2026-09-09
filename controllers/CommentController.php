@@ -96,7 +96,7 @@ class CommentController extends Controller
                     'id' => $id,
                     'author' => $user ? $user['username'] : $guestName,
                     'content' => nl2br($content),
-                    'created_at' => date('Y-m-d H:i')
+                    'created_at' => fmt_date('now', 'Y-m-d H:i')
                 ]
             ]);
         }

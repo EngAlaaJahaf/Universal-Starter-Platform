@@ -247,7 +247,7 @@
 
  <!-- Timestamp -->
  <td>
- <small class="text-dark d-block fw-semibold"><?= admin_e(date('Y-m-d H:i:s', strtotime($log['created_at']))) ?></small>
+ <small class="text-dark d-block fw-semibold"><?= admin_e(fmt_date($log['created_at'], 'Y-m-d H:i:s')) ?></small>
  </td>
 
  <!-- Detail Inspector -->

@@ -154,7 +154,7 @@ class LiveBlogController extends Controller
                 'avatar'        => $avatar ? (str_starts_with($avatar, 'http') ? $avatar : app_url($avatar)) : null,
                 'message'       => htmlspecialchars($message),
                 'is_user'       => $userId ? 1 : 0,
-                'created_at'    => date('H:i:s')
+                'created_at'    => fmt_time_site('now', 'H:i:s')
             ]
         ], JSON_UNESCAPED_UNICODE);
         exit;
