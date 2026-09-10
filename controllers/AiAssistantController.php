@@ -2,6 +2,40 @@
 
 class AiAssistantController extends Controller
 {
+    /** Minimum seconds between two questions from the same IP (antibot). */
+    private const MIN_INTERVAL_SECONDS = 2;
+
+    private function throttleCheck($db)
+    {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        if ($ip === '') {
+            return null;
+        }
+        $db->query(
+            "CREATE TABLE IF NOT EXISTS ai_ask_throttle (
+                ip      VARCHAR(45) NOT NULL,
+                last_ts INT UNSIGNED NOT NULL DEFAULT 0,
+                PRIMARY KEY (ip),
+                KEY last_ts (last_ts)
+            ) ENGINE=InnoDB"
+        );
+        $now = time();
+        $row = $db->fetch('SELECT last_ts FROM ai_ask_throttle WHERE ip = ?', [$ip]);
+        if ($row && ($now - (int) $row['last_ts']) < self::MIN_INTERVAL_SECONDS) {
+            http_response_code(429);
+            echo json_encode([
+                'success' => false,
+                'error'   => 'أرسلت أكثر من سؤال خلال ثوانٍ. انتظر قليلاً ثم أعد المحاولة.',
+            ], JSON_UNESCAPED_UNICODE);
+            return false;
+        }
+        $db->query(
+            'INSERT INTO ai_ask_throttle (ip, last_ts) VALUES (?, ?) ON DUPLICATE KEY UPDATE last_ts = VALUES(last_ts)',
+            [$ip, $now]
+        );
+        return true;
+    }
+
     public function ask()
     {
         header('Content-Type: application/json; charset=utf-8');
@@ -32,6 +66,10 @@ class AiAssistantController extends Controller
         }
 
         CSRF::validate();
+
+        if (!$this->throttleCheck(Database::getInstance())) {
+            return;
+        }
 
         $raw = file_get_contents('php://input');
         $body = $raw ? json_decode($raw, true) : null;

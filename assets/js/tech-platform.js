@@ -1492,7 +1492,10 @@
     }
 
     const reactionsKey = 'ai_assistant_reactions';
+    const ridCounterKey = 'ai_assistant_rid_counter';
     let _ridCounter = 0;
+    try { _ridCounter = parseInt(localStorage.getItem(ridCounterKey) || '0', 10) || 0; } catch (e) {}
+    function bumpRid() { _ridCounter++; try { localStorage.setItem(ridCounterKey, String(_ridCounter)); } catch (e) {} return 'm' + _ridCounter; }
     function loadReactions() { try { return JSON.parse(localStorage.getItem(reactionsKey) || '{}') || {}; } catch (e) { return {}; } }
     function storeReaction(rid, v) {
       const m = loadReactions();
@@ -1553,7 +1556,7 @@
     }
 
     function appendMessage(role, contentHtml, sources, rawText, convId, existingRid) {
-      const rid = existingRid || ('m' + (++_ridCounter));
+      const rid = existingRid || bumpRid();
       const row = document.createElement('div');
       row.className = 'ai-msg ' + (role === 'user' ? 'ai-msg-user' : 'ai-msg-ai');
       const bubble = document.createElement('div');
