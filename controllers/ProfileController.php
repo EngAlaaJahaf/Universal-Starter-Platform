@@ -7,7 +7,7 @@ class ProfileController extends Controller
     public function update()
     {
         Auth::requireLogin(); CSRF::verifyRequest(); $data=Sanitizer::cleanArray($_POST); $user=Auth::user();
-        $db=new Database(); $db->query('UPDATE users SET username=:username,bio=:bio,preferred_language=:preferred_language,theme_preference=:theme_preference WHERE id=:id', array(':username'=>$data['username']??$user['username'],':bio'=>$data['bio']??'',':preferred_language'=>$data['preferred_language']??'ar',':theme_preference'=>$data['theme_preference']??'auto',':id'=>$user['id']));
+        $lang=$data['preferred_language']??'ar'; $bio=trim($data['bio']??''); $db=new Database(); $db->query('UPDATE users SET username=:username,bio_ar=:bio_ar,bio_en=:bio_en,preferred_language=:preferred_language,theme_preference=:theme_preference WHERE id=:id', array(':username'=>$data['username']??$user['username'],':bio_ar'=>$lang==='en'?'':$bio,':bio_en'=>$lang==='en'?$bio:'',':preferred_language'=>$lang,':theme_preference'=>$data['theme_preference']??'auto',':id'=>$user['id']));
         Session::flash('success','تم تحديث الملف الشخصي.'); return $this->redirect('profile');
     }
     public function changePassword()

@@ -107,7 +107,7 @@ $title = 'الملف الشخصي للمدير';
  </div>
  <div class="col-12">
  <label class="form-label fw-semibold">النبذة التعريفية (Bio)</label>
- <textarea name="bio" class="form-control" rows="3" placeholder="اكتب نبذة مختصرة تظهر في مقالاتك..."><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
+ <textarea name="bio" class="form-control" rows="3" placeholder="اكتب نبذة مختصرة تظهر في مقالاتك..."><?= htmlspecialchars(($user['preferred_language'] ?? 'ar') === 'en' ? ($user['bio_en'] ?? '') : ($user['bio_ar'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
  </div>
  <div class="col-12 text-end">
  <button type="submit" class="btn btn-primary px-4">

@@ -71,7 +71,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <textarea name="bio" 
                           rows="4" 
                           placeholder="اكتب نبذة قصيرة عن اهتماماتك التقنية..." 
-                          style="width: 100%; padding: 12px 16px; border-radius: var(--radius-btn, 8px); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-main); font-size: 0.92rem; outline: none; box-sizing: border-box; resize: vertical; line-height: 1.6;"><?= htmlspecialchars($user['bio'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                          style="width: 100%; padding: 12px 16px; border-radius: var(--radius-btn, 8px); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-main); font-size: 0.92rem; outline: none; box-sizing: border-box; resize: vertical; line-height: 1.6;"><?= htmlspecialchars(($user['preferred_language'] ?? 'ar') === 'en' ? ($user['bio_en'] ?? '') : ($user['bio_ar'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">

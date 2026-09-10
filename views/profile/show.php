@@ -53,9 +53,10 @@ require_once APP_ROOT . '/views/partials/header.php';
             </div>
         </div>
 
-        <?php if (!empty($user['bio'])): ?>
+        <?php $userBio = ($user['preferred_language'] ?? 'ar') === 'en' ? ($user['bio_en'] ?? '') : ($user['bio_ar'] ?? ''); ?>
+        <?php if (!empty($userBio)): ?>
             <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-subtle); color: var(--text-body); font-size: 0.95rem; line-height: 1.7;">
-                <?= nl2br(htmlspecialchars($user['bio'], ENT_QUOTES, 'UTF-8')) ?>
+                <?= nl2br(htmlspecialchars($userBio, ENT_QUOTES, 'UTF-8')) ?>
             </div>
         <?php endif; ?>
     </div>

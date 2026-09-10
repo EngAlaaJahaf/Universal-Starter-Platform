@@ -59,9 +59,9 @@ class AdminProfileController extends AdminController
  }
  }
 
- $db->prepare("
- UPDATE users SET username = ?, email = ?, bio = ?, preferred_language = ?, theme_preference = ? WHERE id = ?
- ")->execute([$username, $email, $bio, $lang, $theme, $user['id']]);
+$db->prepare("
+  UPDATE users SET username = ?, email = ?, bio_ar = ?, bio_en = ?, preferred_language = ?, theme_preference = ? WHERE id = ?
+  ")->execute([$username, $email, $lang === 'en' ? '' : $bio, $lang === 'en' ? $bio : '', $lang, $theme, $user['id']]);
 
  $this->audit('update', 'admin_profile', $user['id']);
  Session::flash('success', 'تم حفظ وتحديث بيانات الملف الشخصي بنجاح.');
