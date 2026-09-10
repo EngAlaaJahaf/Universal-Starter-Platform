@@ -1503,7 +1503,9 @@
       const state = loadReactions();
       const next = state[cid] === value ? '' : value;
       groupEl.querySelectorAll('[data-reaction]').forEach((b) => {
-        b.classList.toggle('active', b.getAttribute('data-reaction') === next);
+        const k = b.getAttribute('data-reaction');
+        b.classList.remove('active-like', 'active-love', 'active-dislike');
+        if (k === next) b.classList.add('active-' + k);
       });
       storeReaction(cid, next);
       fetch(base + '/ai-assistant/reaction', {
@@ -1516,7 +1518,9 @@
           if (!data || !data.success) {
             if (window.showToast) showToast('تعذر حفظ التقييم.', '⚠️');
             groupEl.querySelectorAll('[data-reaction]').forEach((b) => {
-              b.classList.toggle('active', b.getAttribute('data-reaction') === state[cid]);
+              const k = b.getAttribute('data-reaction');
+              b.classList.remove('active-like', 'active-love', 'active-dislike');
+              if (k === state[cid]) b.classList.add('active-' + state[cid]);
             });
           }
         })
@@ -1535,7 +1539,8 @@
       cfg.forEach(([key, title]) => {
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'ai-react ' + (state[convId] === key ? 'active' : '');
+        const isActive = state[convId] === key;
+        b.className = 'ai-react' + (isActive ? ' active-' + key : '');
         b.setAttribute('data-reaction', key);
         b.title = title;
         b.innerHTML = key === 'like' ? '👍' : (key === 'love' ? '❤️' : '👎');

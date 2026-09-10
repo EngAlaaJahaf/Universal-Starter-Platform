@@ -344,29 +344,32 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 7px;
-  padding-top: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
-.ai-msg-time { font-size: 0.66rem; color: var(--text-muted, #94a3b8); opacity: 0.75; }
-.ai-msg-actions { display: inline-flex; align-items: center; gap: 5px; }
+.ai-msg-time { font-size: 0.66rem; color: var(--text-muted, #94a3b8); opacity: 0.85; }
+.ai-msg-actions { display: inline-flex; align-items: center; gap: 6px; }
 .ai-copy, .ai-react {
   border: none;
   border-radius: 7px;
-  padding: 3px 9px;
+  padding: 4px 10px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--text-muted, #94a3b8);
-  font-size: 0.7rem;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-main, #f8fafc);
+  font-size: 0.78rem;
   cursor: pointer;
   transition: all var(--tr-fast, 0.15s ease);
 }
-.ai-copy:hover, .ai-react:hover { background: rgba(255, 255, 255, 0.16); color: var(--text-main, #f8fafc); }
-.ai-react.active { background: rgba(0, 242, 254, 0.16); color: #00f2fe; transform: scale(1.08); }
-.ai-msg-bubble-user .ai-copy { background: rgba(0, 0, 0, 0.14); color: var(--text-inverse, #080c14); }
-.ai-msg-bubble-user .ai-copy:hover { background: rgba(0, 0, 0, 0.24); }
+.ai-copy:hover, .ai-react:hover { background: rgba(255, 255, 255, 0.22); color: #ffffff; transform: scale(1.04); }
+.ai-react.active-like { background: rgba(34, 197, 94, 0.22); color: #4ade80; }
+.ai-react.active-love { background: rgba(239, 68, 68, 0.22); color: #f87171; }
+.ai-react.active-dislike { background: rgba(234, 179, 8, 0.22); color: #facc15; }
+.ai-msg-bubble-user .ai-msg-meta { border-top-color: rgba(0, 0, 0, 0.15); }
+.ai-msg-bubble-user .ai-copy { background: rgba(0, 0, 0, 0.18); color: var(--text-inverse, #080c14); }
+.ai-msg-bubble-user .ai-copy:hover { background: rgba(0, 0, 0, 0.28); }
 
 /* ---- New chat button ---- */
 .ai-panel-reset {
