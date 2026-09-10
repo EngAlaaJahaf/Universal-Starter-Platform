@@ -274,7 +274,7 @@
  <strong class="text-primary small"><?= htmlspecialchars($chat['sender_name']) ?></strong>
  <small class="text-muted font-monospace" style="font-size:0.75rem"><?= fmt_date($chat['created_at'], 'H:i:s Y-m-d') ?></small>
  <?php if (!empty($chat['ip_address'])): ?>
- <span class="badge bg-secondary font-monospace" style="font-size:0.7rem"><?= htmlspecialchars($chat['ip_address']) ?></span>
+ <?= GeoIp::label($chat['ip_address']) ?>
  <?php endif; ?>
  <?php if (!empty($chat['entry_id'])): ?>
  <a href="#entry-card-<?= $chat['entry_id'] ?>" class="badge bg-primary text-dark text-decoration-none fw-bold" style="font-size:0.72rem">

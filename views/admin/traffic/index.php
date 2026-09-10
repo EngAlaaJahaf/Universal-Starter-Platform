@@ -240,9 +240,7 @@
 
  <!-- IP -->
  <td>
- <span class="badge bg-light text-dark border font-monospace">
- <?= admin_e($log['ip_address']) ?>
- </span>
+ <?= GeoIp::label($log['ip_address'] ?? '') ?>
  </td>
 
  <!-- Timestamp -->
@@ -295,7 +293,7 @@
  <div class="mb-3 p-3 bg-light rounded-3 border">
  <div class="row g-2">
  <div class="col-sm-6"><strong>نوع الزائر:</strong> <span id="mBotName" class="badge bg-primary"></span></div>
- <div class="col-sm-6"><strong>عنوان IP:</strong> <code id="mIp"></code></div>
+ <div class="col-sm-6"><strong>عنوان IP:</strong> <code id="mIp"></code> <span id="mCountry"></span></div>
  <div class="col-sm-6"><strong>المسار:</strong> <code id="mUri"></code></div>
  <div class="col-sm-6"><strong>التوقيت:</strong> <span id="mTime"></span></div>
  </div>
@@ -335,6 +333,12 @@
 function openBotInspector(log) {
  document.getElementById('mBotName').textContent = log.bot_name;
  document.getElementById('mIp').textContent = log.ip_address;
+ const mCountry = document.getElementById('mCountry');
+ if (log.country_name) {
+ mCountry.innerHTML = '<span class="badge bg-info-subtle text-info border ms-1">' + log.country_flag + ' ' + log.country_name + '</span>';
+ } else {
+ mCountry.innerHTML = '';
+ }
  document.getElementById('mUri').textContent = log.request_uri;
  document.getElementById('mTime').textContent = log.created_at;
  document.getElementById('mUserAgent').value = log.user_agent || 'غير معروف';

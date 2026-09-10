@@ -94,6 +94,15 @@ class ActivityLogController extends AdminController
  LIMIT {$perPage} OFFSET {$offset}";
  $logs = $db->fetchAll($logsSql, $params);
 
+ // Enrich each log with GeoIP country info (compact local DB)
+ foreach ($logs as &$log) {
+ $cc = GeoIp::lookup($log['ip_address'] ?? '');
+ $log['country_code'] = $cc ?? '';
+ $log['country_name'] = $cc ? GeoIp::countryName($cc) : '';
+ $log['country_flag'] = $cc ? GeoIp::flag($cc) : '';
+ }
+ unset($log);
+
  // Security & Suspicious Activity Analytics
  $criticalCount24h = (int) ($db->fetch("
  SELECT COUNT(*) as cnt 
@@ -193,9 +202,10 @@ class ActivityLogController extends AdminController
  $out = fopen('php://output', 'w');
  // Add UTF-8 BOM for Excel
  fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
- fputcsv($out, ['المعرف (#ID)', 'المستخدم', 'نوع الإجراء', 'الكيان', 'معرف الكيان', 'عنوان IP', 'التاريخ والوقت', 'البيانات المسجلة']);
+ fputcsv($out, ['المعرف (#ID)', 'المستخدم', 'نوع الإجراء', 'الكيان', 'معرف الكيان', 'عنوان IP', 'الدولة', 'التاريخ والوقت', 'البيانات المسجلة']);
 
  foreach ($logs as $row) {
+ $cc = GeoIp::lookup($row['ip_address'] ?? '');
  fputcsv($out, [
  $row['id'],
  $row['username'] ?? 'نظام آلي',
@@ -203,6 +213,7 @@ class ActivityLogController extends AdminController
  $row['entity_type'],
  $row['entity_id'],
  $row['ip_address'],
+ $cc ? GeoIp::countryName($cc) . ' (' . $cc . ')' : '',
  $row['created_at'],
  $row['new_values']
  ]);

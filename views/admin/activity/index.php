@@ -281,9 +281,7 @@
 
  <!-- IP Address -->
  <td>
- <span class="badge bg-light text-muted border font-monospace" style="font-size:0.75rem">
- <?= admin_e($log['ip_address'] ?: '127.0.0.1') ?>
- </span>
+ <?= GeoIp::label($log['ip_address'] ?? '') ?>
  </td>
 
  <!-- Timestamp -->
@@ -305,6 +303,9 @@
  'entity' => $log['entity_type'],
  'entity_id' => $log['entity_id'],
  'ip' => $log['ip_address'],
+ 'country_code' => $log['country_code'] ?? '',
+ 'country_name' => $log['country_name'] ?? '',
+ 'country_flag' => $log['country_flag'] ?? '',
  'user_agent' => $log['user_agent'],
  'created_at' => fmt_date($log['created_at'], 'Y-m-d H:i:s'),
  'old_values' => $log['clean_old_values'],
@@ -404,6 +405,7 @@
  <div class="col-sm-6 col-md-4">
  <small class="text-muted d-block">عنوان IP:</small>
  <span id="modalIp" class="badge bg-light text-muted border font-monospace"></span>
+ <span id="modalIpCountry"></span>
  </div>
  <div class="col-md-8">
  <small class="text-muted d-block">المتصفح والنظام (User Agent):</small>
@@ -466,6 +468,12 @@ function openLogDetailsModal(log) {
  document.getElementById('modalEntity').textContent = log.entity + (log.entity_id ? ' #' + log.entity_id : '');
  document.getElementById('modalCreatedAt').textContent = log.created_at;
  document.getElementById('modalIp').textContent = log.ip || '127.0.0.1';
+ const modalIpCountry = document.getElementById('modalIpCountry');
+ if (log.country_name) {
+ modalIpCountry.innerHTML = '<span class="badge bg-info-subtle text-info border ms-1">' + log.country_flag + ' ' + log.country_name + '</span>';
+ } else {
+ modalIpCountry.innerHTML = '';
+ }
  document.getElementById('modalUserAgent').textContent = log.user_agent || 'غير معروف';
 
  const severityBadge = document.getElementById('modalSeverityBadge');

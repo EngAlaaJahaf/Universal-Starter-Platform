@@ -152,7 +152,7 @@
 
  <!-- IP -->
  <td>
- <span class="badge bg-dark font-monospace"><?= admin_e($a['ip_address']) ?></span>
+ <?= GeoIp::label($a['ip_address'] ?? '') ?>
  </td>
 
  <!-- Payload -->

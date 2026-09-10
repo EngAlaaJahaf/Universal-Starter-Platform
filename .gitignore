@@ -44,9 +44,12 @@ storage/cache/*
 storage/logs/*
 storage/sessions/*
 storage/cron_status.json
+storage/data/*
 !storage/cache/.gitkeep
 !storage/logs/.gitkeep
 !storage/sessions/.gitkeep
+!storage/data/.gitkeep
+!storage/data/geoip_db.bin
 scratch/
 
 # ── User uploads are server-side data (keep the security .htaccess) ──

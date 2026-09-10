@@ -42,6 +42,15 @@ class TrafficRadarController extends AdminController
  LIMIT {$perPage} OFFSET {$offset}
  ", $params);
 
+ // Enrich each log with GeoIP country info (compact local DB)
+ foreach ($logs as &$log) {
+ $cc = GeoIp::lookup($log['ip_address'] ?? '');
+ $log['country_code'] = $cc ?? '';
+ $log['country_name'] = $cc ? GeoIp::countryName($cc) : '';
+ $log['country_flag'] = $cc ? GeoIp::flag($cc) : '';
+ }
+ unset($log);
+
  // Overall Traffic KPIs (Last 24 Hours)
  $kpiStats = $db->fetchAll("
  SELECT visitor_type, COUNT(*) as cnt 
@@ -106,14 +115,16 @@ class TrafficRadarController extends AdminController
 
  $out = fopen('php://output', 'w');
  fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
- fputcsv($out, ['المعرف (#ID)', 'نوع الكائن / الزائر', 'اسم العنكبوت أو المتصفح', 'عنوان IP', 'المسار المطلوب', 'طريقة HTTP', 'كود الحالة', 'السرعة (ms)', 'التاريخ والوقت', 'User Agent']);
+ fputcsv($out, ['المعرف (#ID)', 'نوع الكائن / الزائر', 'اسم العنكبوت أو المتصفح', 'عنوان IP', 'الدولة', 'المسار المطلوب', 'طريقة HTTP', 'كود الحالة', 'السرعة (ms)', 'التاريخ والوقت', 'User Agent']);
 
  foreach ($logs as $row) {
+ $cc = GeoIp::lookup($row['ip_address'] ?? '');
  fputcsv($out, [
  $row['id'],
  $row['visitor_type'],
  $row['bot_name'],
  $row['ip_address'],
+ $cc ? GeoIp::countryName($cc) . ' (' . $cc . ')' : '',
  $row['request_uri'],
  $row['http_method'],
  $row['status_code'],
