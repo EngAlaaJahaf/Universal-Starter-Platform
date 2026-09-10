@@ -434,6 +434,44 @@ private function ensureCoreRows($db)
   'description_en' => 'Select DeepSeek model.',
   'sort_order' => 11,
   ],
+
+  // --- Newsletter welcome email (group newsletter) ---
+  'newsletter_welcome_enabled' => [
+  'group' => 'newsletter',
+  'value' => '1',
+  'value_type' => 'boolean',
+  'label_ar' => 'رسالة الترحيب عند الاشتراك',
+  'label_en' => 'Welcome Email on Subscribe',
+  'description_ar' => 'إرسال بريد ترحيبي تلقائي لكل مشترك جديد في النشرة البريدية',
+  'description_en' => 'Send an automatic welcome email to every new newsletter subscriber.',
+  'sort_order' => 1,
+  ],
+  'newsletter_welcome_subject' => [
+  'group' => 'newsletter',
+  'value' => 'مرحباً بك في نشرة عصب التقنية 🎉',
+  'value_type' => 'text',
+  'label_ar' => 'موضوع رسالة الترحيب',
+  'label_en' => 'Welcome Subject',
+  'description_ar' => 'سطر الموضوع الذي يظهر في البريد الترحيبي',
+  'description_en' => 'Subject line of the welcome email.',
+  'sort_order' => 2,
+  ],
+  'newsletter_welcome_body' => [
+  'group' => 'newsletter',
+  'value' => 'شكراً لاشتراكك في نشرة عصب التقنية البريدية 🌟
+
+سجل لك أهم أخبار التقنية والذكاء الاصطناعي والهواتف والأمن السيبراني مباشرة إلى بريدك، بملخصات واضحة ودقيقة.
+
+ستصلك أول نشرة في موعدها، وإذا أردت إلغاء الاشتراك في أي وقت يمكنك استخدام رابط الإلغاء أسفل أي بريد نرسله.
+
+مع تحيات فريق عصب التقنية.',
+  'value_type' => 'textarea',
+  'label_ar' => 'محتوى رسالة الترحيب',
+  'label_en' => 'Welcome Body',
+  'description_ar' => 'نص الرسالة الترحيبية (يدعم فواصل الأسطر وفقرات متعددة)',
+  'description_en' => 'Body text of the welcome email (line breaks supported).',
+  'sort_order' => 3,
+  ],
 ];
 
   foreach ($core as $key => $row) {

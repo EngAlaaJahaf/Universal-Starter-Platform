@@ -55,6 +55,11 @@ class DbHealth
                 'ai_system_prompt',
                 'deepseek_model',
             ],
+            'newsletter' => [
+                'newsletter_welcome_enabled',
+                'newsletter_welcome_subject',
+                'newsletter_welcome_body',
+            ],
         ];
     }
 
