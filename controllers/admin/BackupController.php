@@ -299,7 +299,7 @@ class BackupController extends AdminController
  {
  $this->guardAdmin();
  $db = Database::getInstance();
- $settings = $db->query("SELECT `group`, `key`, `value`, `value_type`, `label_ar`, `description_ar` FROM settings ORDER BY `group`, sort_order ASC")->fetchAll(PDO::FETCH_ASSOC);
+ $settings = $db->query("SELECT `group`, `key`, `value`, `value_type`, `label_ar`, `description_ar`, `sort_order` FROM settings ORDER BY `group`, sort_order ASC")->fetchAll(PDO::FETCH_ASSOC);
 
  $filename = 'tech_platform_settings_package_' . date('Y-m-d') . '.json';
  header('Content-Type: application/json; charset=utf-8');
@@ -343,10 +343,30 @@ class BackupController extends AdminController
  foreach ($data['settings'] as $item) {
  if (empty($item['key'])) continue;
 
+ // If the target DB already has the key -> update value only.
+ $exists = $db->fetch("SELECT id FROM settings WHERE `key` = :k", array(':k' => $item['key']));
+ if ($exists) {
  $stmt = $db->prepare("
  UPDATE settings SET `value` = ? WHERE `key` = ?
  ");
  $stmt->execute([$item['value'] ?? '', $item['key']]);
+ } else {
+ // Settings introduced by newer versions (e.g. newsletter_welcome_*)
+ // may not exist yet on older DBs: insert the key so imports stay complete.
+ $stmt = $db->prepare("
+ INSERT INTO settings (`group`, `key`, `value`, `value_type`, `label_ar`, `description_ar`, `sort_order`)
+ VALUES (?, ?, ?, ?, ?, ?, ?)
+ ");
+ $stmt->execute([
+ $item['group'] ?? 'general',
+ $item['key'],
+ $item['value'] ?? '',
+ $item['value_type'] ?? 'text',
+ $item['label_ar'] ?? '',
+ $item['description_ar'] ?? '',
+ $item['sort_order'] ?? 0
+ ]);
+ }
  $updatedCount++;
  }
 
