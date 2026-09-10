@@ -575,6 +575,48 @@ html.admin-dark .btn-outline-info {
   background-color: #9d4edd !important;
   border-color: #9d4edd !important;
   }
+
+  /* AI conversation bubbles (ai_logs conversation view) */
+  .chat-bubble {
+  border-radius: 1rem;
+  }
+  .chat-bubble-user {
+  max-width: 75%;
+  background-color: #eef2ff;
+  border-start-end-radius: 4px;
+  border-end-end-radius: 4px;
+  }
+  .chat-bubble-user .chat-bubble-text {
+  color: #0f172a;
+  }
+  .chat-bubble-ai {
+  max-width: 80%;
+  width: 100%;
+  background-color: #f8f9fa;
+  border-end-start-radius: 4px;
+  border-start-start-radius: 4px;
+  }
+  .chat-bubble-ai .text-dark {
+  color: #0f172a;
+  white-space: pre-wrap;
+  }
+  html.admin-dark .chat-bubble-user {
+  background-color: rgba(99, 102, 241, 0.18) !important;
+  }
+  html.admin-dark .chat-bubble-ai {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  }
+  html.admin-dark .chat-bubble-user .chat-bubble-text,
+  html.admin-dark .chat-bubble-ai .text-dark {
+  color: var(--adm-text) !important;
+  }
+  html.admin-dark .chat-bubble-user .text-muted,
+  html.admin-dark .chat-bubble-ai .text-muted {
+  color: var(--adm-text-mute) !important;
+  }
+  html.admin-dark .chat-bubble-ai a {
+  color: #7dd3fc !important;
+  }
  html.admin-dark .btn-outline-info:hover {
  background-color: rgba(6, 182, 212, 0.15) !important;
  border-color: #22d3ee !important;

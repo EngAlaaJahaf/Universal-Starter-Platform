@@ -27,14 +27,14 @@ $title = 'محادثة المستخدم مع المرشد';
   <?php foreach ($rows as $row): ?>
    <!-- User question -->
    <div class="d-flex justify-content-end mb-2">
-    <div class="rounded-4 px-3 py-2" style="max-width:75%; background:#eef2ff; border-end-end-radius:4px;">
-     <div class="small text-muted mb-1"><i class="bi bi-person me-1"></i><?= admin_e($user['username']) ?> <span class="text-secondary" dir="ltr"><?= admin_e(fmt_date($row['created_at'], 'Y-m-d H:i:s')) ?></span></div>
-     <div class="text-dark"><?= nl2br(admin_e($row['question'])) ?></div>
+     <div class="chat-bubble chat-bubble-user px-3 py-2">
+      <div class="small text-muted mb-1"><i class="bi bi-person me-1"></i><?= admin_e($user['username']) ?> <span class="text-secondary" dir="ltr"><?= admin_e(fmt_date($row['created_at'], 'Y-m-d H:i:s')) ?></span></div>
+      <div class="chat-bubble-text"><?= nl2br(admin_e($row['question'])) ?></div>
+     </div>
     </div>
-   </div>
    <!-- Assistant answer -->
    <div class="d-flex justify-content-start mb-4">
-    <div class="rounded-4 px-3 py-2" style="max-width:80%; background:#f8f9fa; border-start-start-radius:4px; width:100%;">
+     <div class="chat-bubble chat-bubble-ai px-3 py-2">
      <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
       <span class="badge bg-info-subtle text-info"><i class="bi bi-robot me-1"></i><?= admin_e($row['provider'] ?: 'أساسي') ?></span>
       <?php if (!empty($row['reaction'])): ?>
