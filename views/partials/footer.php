@@ -14,7 +14,7 @@ if (!isset($categories)) {
     }
 }
 
-$siteName = Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+$siteName = Settings::get('site_name_ar', 'عصب التقنية');
 $siteDesc = Settings::get('meta_description', 'منصة عربية رائدة في تغطية الأخبار التقنية، أحدث تطورات الذكاء الاصطناعي، الأجهزة الذكية، والأمن السيبراني.');
 ?>
 
@@ -31,7 +31,7 @@ $siteDesc = Settings::get('meta_description', 'منصة عربية رائدة ف
         </div>
         <div class="cmd-footer">
             <span>استخدم <b>↑</b> <b>↓</b> للتنقل و <b>Enter</b> للاختيار</span>
-            <span>منصة الأخبار التقنية الذكية</span>
+            <span>عصب التقنية</span>
         </div>
     </div>
 </div>

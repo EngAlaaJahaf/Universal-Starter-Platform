@@ -714,7 +714,7 @@ $suggestions = [];
 
  echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
  echo '<opml version="2.0">' . "\n";
- echo ' <head><title>Tech News Platform RSS Feeds</title><dateCreated>' . date('r') . '</dateCreated></head>' . "\n";
+ echo ' <head><title>AsabTech RSS Feeds</title><dateCreated>' . date('r') . '</dateCreated></head>' . "\n";
  echo ' <body>' . "\n";
  echo ' <outline text="مصادر الأخبار التقنية المعتمدة" title="Tech Feeds">' . "\n";
  foreach ($sources as $s) {

@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'محرك البحث الذكي | ' . Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+$pageTitle = 'محرك البحث الذكي | ' . Settings::get('site_name_ar', 'عصب التقنية');
 $pageDesc  = 'ابحث في كافة أخبار وتحليلات وشروحات المنصة التقنية.';
 
 require_once APP_ROOT . '/views/partials/header.php';

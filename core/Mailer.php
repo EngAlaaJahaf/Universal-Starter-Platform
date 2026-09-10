@@ -5,7 +5,7 @@ class Mailer
     public static function send($to, $subject, $html, $text = null)
     {
         $fromEmail = Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@technews.local');
-        $fromName = Settings::get('mail_from_name', MAIL_FROM_NAME ?: 'منصة الأخبار التقنية');
+        $fromName = Settings::get('mail_from_name', MAIL_FROM_NAME ?: 'عصب التقنية');
 
         // 1. Brevo HTTP API (port 443) — preferred when set, works on shared
         // hosting plans that block outbound SMTP ports (e.g. InfinityFree free).

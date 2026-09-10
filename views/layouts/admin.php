@@ -26,7 +26,7 @@ if (!function_exists('is_admin_active')) {
 <head>
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1">
- <title><?= admin_e($title ?? 'لوحة التحكم') ?> | <?= admin_e(Settings::get('site_name_ar', 'منصة الأخبار التقنية')) ?></title>
+ <title><?= admin_e($title ?? 'لوحة التحكم') ?> | <?= admin_e(Settings::get('site_name_ar', 'عصب التقنية')) ?></title>
  <?= function_exists('site_favicon_tag') ? site_favicon_tag() : '' ?>
  <!-- Bootstrap 5 RTL with Local Robust Fallback -->
  <link rel="stylesheet" href="<?= htmlspecialchars(app_url('assets/css/admin-bootstrap.css'), ENT_QUOTES, 'UTF-8') ?>">
@@ -983,7 +983,7 @@ if (!function_exists('is_admin_active')) {
  <?php endif; ?>
  <div class="brand-text">
  <strong style="font-size:1rem;display:block;line-height:1.2;color:#fff"><?= admin_e(Settings::get('site_name_ar', 'لوحة الإدارة')) ?></strong>
- <small style="font-size:0.7rem;color:#00f2fe"><?= admin_e(Settings::get('site_name_en', 'TECH NEWS PLATFORM')) ?></small>
+ <small style="font-size:0.7rem;color:#00f2fe"><?= admin_e(Settings::get('site_name_en', 'AsabTech')) ?></small>
  </div>
  <button type="button" class="btn-sidebar-close-mobile d-lg-none" id="sidebarCloseBtn" aria-label="إغلاق القائمة">&times;</button>
  </div>

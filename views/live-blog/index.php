@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'التغطيات الحية والبث المباشر | ' . Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+$pageTitle = 'التغطيات الحية والبث المباشر | ' . Settings::get('site_name_ar', 'عصب التقنية');
 $pageDesc  = 'متابعة مستمرة وبث نصي حي لأهم المؤتمرات التقنية وإطلاقات الأجهزة والذكاء الاصطناعي.';
 
 require_once APP_ROOT . '/views/partials/header.php';

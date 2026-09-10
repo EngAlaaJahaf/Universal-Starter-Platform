@@ -7,7 +7,7 @@ $currentUser = Auth::user();
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
  <div>
  <h2 class="h3 fw-bold mb-1">مرحباً بك، <?= htmlspecialchars($currentUser['username'] ?? 'المدير') ?> </h2>
- <p class="text-muted mb-0">مركز القيادة والتحكم الشامل لمنصة الأخبار التقنية.</p>
+ <p class="text-muted mb-0">مركز القيادة والتحكم الشامل لعصب التقنية.</p>
  </div>
  <div class="d-flex gap-2">
  <a href="<?= app_url('admin/articles/create') ?>" class="btn btn-primary fw-bold shadow-sm">+ كتابة مقال جديد</a>

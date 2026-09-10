@@ -1,5 +1,5 @@
 /**
- * Tech News Platform - Advanced Progressive Web App Service Worker
+ * AsabTech - Advanced Progressive Web App Service Worker
  * Version: 2.0.0
  */
 
@@ -125,7 +125,7 @@ self.addEventListener('fetch', (event) => {
 // 4. Push Notification Event
 self.addEventListener('push', (event) => {
   let data = {
-    title: 'منصة الأخبار التقنية',
+    title: 'عصب التقنية',
     body: 'لديك خبر تقني عاجل جديد!',
     url: '/',
     icon: '/assets/images/icons/icon-192x192.png',

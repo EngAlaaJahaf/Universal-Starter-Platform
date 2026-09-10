@@ -1,5 +1,5 @@
 /**
- * Tech News Platform - Next-Gen Interactive Engine
+ * AsabTech - Next-Gen Interactive Engine
  * Command Palette, Audio Player, Reactions, Bookmarks Drawer, Live Ticker, Polls & Zen Mode
  */
 
@@ -919,7 +919,7 @@
     const banner = document.getElementById('pwa-install-banner');
     if (banner) banner.remove();
     if (window.showToast) {
-      showToast('🎉 تهانينا! تم تثبيت تطبيق منصة الأخبار التقنية بنجاح.', '🚀');
+      showToast('🎉 تهانينا! تم تثبيت تطبيق عصب التقنية بنجاح.', '🚀');
     }
   });
 

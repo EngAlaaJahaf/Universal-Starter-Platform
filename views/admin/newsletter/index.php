@@ -8,7 +8,7 @@ $smtpPassword = Settings::get('smtp_password', '');
 $brevoApiKey = Settings::get('brevo_api_key', '');
 $smtpEncryption = Settings::get('smtp_encryption', 'tls');
 $mailFromAddress = Settings::get('mail_from_address', 'news@yourdomain.com');
-$mailFromName = Settings::get('mail_from_name', 'منصة الأخبار التقنية');
+$mailFromName = Settings::get('mail_from_name', 'عصب التقنية');
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -264,7 +264,7 @@ $mailFromName = Settings::get('mail_from_name', 'منصة الأخبار الت�
 
  <div class="col-md-4">
  <label class="form-label fw-bold small text-dark">اسم المرسل (From Name) *</label>
- <input type="text" name="mail_from_name" class="form-control" value="<?= admin_e($mailFromName) ?>" required placeholder="منصة الأخبار التقنية">
+ <input type="text" name="mail_from_name" class="form-control" value="<?= admin_e($mailFromName) ?>" required placeholder="عصب التقنية">
  </div>
  </div>
 
@@ -453,7 +453,7 @@ $mailFromName = Settings::get('mail_from_name', 'منصة الأخبار الت�
  </div>
  <div class="col-md-4">
  <label class="form-label small fw-bold text-dark">اسم المرسل (From Name) *</label>
- <input type="text" name="mail_from_name" class="form-control" value="<?= admin_e($mailFromName) ?>" required placeholder="منصة الأخبار التقنية">
+ <input type="text" name="mail_from_name" class="form-control" value="<?= admin_e($mailFromName) ?>" required placeholder="عصب التقنية">
  </div>
  </div>
  </div>

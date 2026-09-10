@@ -8,7 +8,7 @@ class SitemapController extends Controller
     public function index()
     {
         $db = Database::getInstance();
-        $siteName = Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+        $siteName = Settings::get('site_name_ar', 'عصب التقنية');
 
         // 1. Published Articles (limited to a fresh window to keep sitemap lean)
         $sitemapDays = (int) Settings::get('sitemap_days', 180);

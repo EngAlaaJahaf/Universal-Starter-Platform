@@ -156,7 +156,7 @@ class NewsletterCampaignController extends AdminController
   'smtp_encryption' => $_POST['smtp_encryption'] ?? 'tls',
   'brevo_api_key' => trim($_POST['brevo_api_key'] ?? ''),
   'mail_from_address' => $_POST['mail_from_address'] ?? 'news@yourdomain.com',
- 'mail_from_name' => $_POST['mail_from_name'] ?? 'منصة الأخبار التقنية',
+ 'mail_from_name' => $_POST['mail_from_name'] ?? 'عصب التقنية',
  );
 
  foreach ($fields as $key => $val) {
@@ -185,7 +185,7 @@ class NewsletterCampaignController extends AdminController
  return $this->redirect('admin/newsletter?tab=smtp');
  }
 
- $siteName = Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+ $siteName = Settings::get('site_name_ar', 'عصب التقنية');
  $subject = 'رسالة تجريبية لاختبار خادم SMTP | ' . $siteName;
  $body = '<div style="font-family:sans-serif;direction:rtl;text-align:right;padding:24px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0">
  <h2 style="color:#0284c7;margin-top:0">تهانينا! الاتصال بخادم SMTP يعمل بنجاح</h2>

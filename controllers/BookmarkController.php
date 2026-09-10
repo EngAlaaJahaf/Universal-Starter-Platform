@@ -19,7 +19,7 @@ class BookmarkController extends Controller
             ORDER BY b.created_at DESC
         ", array(':user_id' => $userId));
 
-        $pageTitle = 'المقالات المحفوظة والمفضلة | ' . Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+        $pageTitle = 'المقالات المحفوظة والمفضلة | ' . Settings::get('site_name_ar', 'عصب التقنية');
         $this->view('bookmarks', [
             'articles'  => $articles,
             'pageTitle' => $pageTitle

@@ -1,5 +1,5 @@
 # دليل تحسين محركات البحث والأرشفة الذكية (SEO & Discovery Guide)
-## منصة الأخبار التقنية — Comprehensive SEO & Discovery Suite
+## عصب التقنية — Comprehensive SEO & Discovery Suite
 
 تم بناء وتفعيل منظومة متكاملة لتحسين ظهور المنصة في محركات البحث (Google, Bing, Yahoo) وخدمات الأخبار والمحتوى الذكي (**Google News**, **Google Discover**) وفق أعلى المعايير العالمية لصحافة التقنية والـ **Core Web Vitals**.
 
@@ -71,7 +71,7 @@
 ### 2️⃣ التقديم كناشر أخباري معتمد في Google News Publisher Center
 1. توجّه إلى [Google News Publisher Center](https://publishercenter.google.com/).
 2. أضف موقعك وحدد:
-   * **اسم المنصة:** منصة الأخبار التقنية.
+   * **اسم المنصة:** عصب التقنية.
    * **اللغة الأساسية:** العربية.
    * **التصنيف:** تكنولوجيا وعلوم (Technology & Science).
 3. في قسم الأقسام (Sections):

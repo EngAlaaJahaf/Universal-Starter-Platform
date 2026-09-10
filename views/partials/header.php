@@ -14,7 +14,7 @@ if (!isset($categories)) {
     }
 }
 
-$siteName       = Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+$siteName       = Settings::get('site_name_ar', 'عصب التقنية');
 $siteTagline    = Settings::get('site_tagline', 'نبض التكنولوجيا والذكاء الاصطناعي');
 $cookieTheme    = $_COOKIE['site_theme'] ?? null;
 $themeDefault   = in_array($cookieTheme, ['dark', 'light'], true) ? $cookieTheme : Settings::get('theme_default', 'dark');
@@ -110,6 +110,7 @@ $ga4Id              = Settings::get('google_analytics_id');
                 "@id": "<?= view_e(app_url('#website')) ?>",
                 "url": "<?= view_e(app_url()) ?>",
                 "name": "<?= view_e($siteName) ?>",
+                "alternateName": "AsabTech",
                 "description": "<?= view_e($siteTagline) ?>",
                 "inLanguage": "ar",
                 "potentialAction": {
@@ -122,6 +123,7 @@ $ga4Id              = Settings::get('google_analytics_id');
                 "@type": "Organization",
                 "@id": "<?= view_e(app_url('#organization')) ?>",
                 "name": "<?= view_e($siteName) ?>",
+                "alternateName": "AsabTech",
                 "url": "<?= view_e(app_url()) ?>",
                 "logo": {
                     "@type": "ImageObject",

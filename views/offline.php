@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>أنت غير متصل بالإنترنت | منصة الأخبار التقنية</title>
+    <title>أنت غير متصل بالإنترنت | عصب التقنية</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0b1120">
     <style>

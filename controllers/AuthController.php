@@ -99,7 +99,7 @@ class AuthController extends Controller
             $db->query('INSERT INTO password_resets (email, token) VALUES (:email, :token)', array(':email' => $email, ':token' => password_hash($token, PASSWORD_DEFAULT)));
             
             $resetLink = app_url('reset-password/' . $token);
-            $siteName  = Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+            $siteName  = Settings::get('site_name_ar', 'عصب التقنية');
             $username  = htmlspecialchars($user['username'] ?? 'عضو المنصة');
 
             $subject = '🔐 رابط إعادة تعيين كلمة المرور | ' . $siteName;

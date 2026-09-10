@@ -61,7 +61,7 @@ if ($readingTime < 1) {
     $readingTime = max(1, (int) ceil($wordCount / 180));
 }
 
-$pageTitle    = ($article['title_ar'] ?? $article['title']) . ' | ' . Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+$pageTitle    = ($article['title_ar'] ?? $article['title']) . ' | ' . Settings::get('site_name_ar', 'عصب التقنية');
 $pageDesc     = $lead;
 $ogType       = 'article';
 $ogImage      = !empty($article['featured_image']) ? app_url($article['featured_image']) : null;
@@ -95,7 +95,7 @@ require_once APP_ROOT . '/views/partials/header.php';
             },
             "publisher": {
                 "@type": "Organization",
-                "name": <?= json_encode(Settings::get('site_name_ar', 'منصة الأخبار التقنية'), JSON_UNESCAPED_UNICODE) ?>,
+                "name": <?= json_encode(Settings::get('site_name_ar', 'عصب التقنية'), JSON_UNESCAPED_UNICODE) ?>,
                 "logo": {
                     "@type": "ImageObject",
                     "url": "<?= article_e(app_url('uploads/brand/logo.png')) ?>"

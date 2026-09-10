@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'تواصل مع فريق التحرير | ' . Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+$pageTitle = 'تواصل مع فريق التحرير | ' . Settings::get('site_name_ar', 'عصب التقنية');
 $pageDesc  = 'تواصل مع هيئة التحرير والخبراء لمقترحات التغطيات والشراكات الإعلامية.';
 $currentUser = Auth::user();
 $prefillName = $old['name'] ?? ($currentUser['username'] ?? $currentUser['name'] ?? '');

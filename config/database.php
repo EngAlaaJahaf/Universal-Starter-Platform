@@ -105,7 +105,7 @@ if (!defined('MAIL_FROM_ADDRESS')) {
     define('MAIL_FROM_ADDRESS', getenv('MAIL_FROM_ADDRESS') ?: 'no-reply@technews.local');
 }
 if (!defined('MAIL_FROM_NAME')) {
-    define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: 'منصة الأخبار التقنية');
+    define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: 'عصب التقنية');
 }
 if (!defined('PUSH_VAPID_PUBLIC_KEY')) {
     define('PUSH_VAPID_PUBLIC_KEY', getenv('PUSH_VAPID_PUBLIC_KEY') ?: '');

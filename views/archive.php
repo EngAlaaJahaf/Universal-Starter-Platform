@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'أرشيف الأخبار | ' . Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+$pageTitle = 'أرشيف الأخبار | ' . Settings::get('site_name_ar', 'عصب التقنية');
 $pageDesc  = 'استعرض أخبارنا ومقالاتنا السابقة المؤرشفة مرتبة زمنياً، مع إمكانية التصفية حسب الشهر والتصنيف والبحث.';
 
 require_once APP_ROOT . '/views/partials/header.php';

@@ -7,7 +7,7 @@ $old = $old ?? [];
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>إنشاء حساب جديد | <?= htmlspecialchars(Settings::get('site_name_ar', 'منصة الأخبار التقنية'), ENT_QUOTES, 'UTF-8') ?></title>
+    <title>إنشاء حساب جديد | <?= htmlspecialchars(Settings::get('site_name_ar', 'عصب التقنية'), ENT_QUOTES, 'UTF-8') ?></title>
     <?= site_favicon_tag() ?>
     <?= site_head_injections() ?>
     <link rel="stylesheet" href="<?= htmlspecialchars(app_url('assets/css/site.css'), ENT_QUOTES, 'UTF-8') ?>">

@@ -256,7 +256,7 @@ if (!function_exists('site_favicon_tag')) {
 if (!function_exists('site_brand_logo_html')) {
     function site_brand_logo_html($imgHeight = 38, $showTagline = true)
     {
-        $siteName = Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+        $siteName = Settings::get('site_name_ar', 'عصب التقنية');
         $siteTagline = Settings::get('site_tagline', 'نبض التكنولوجيا والذكاء الاصطناعي');
         $siteLogo = Settings::get('site_logo', '');
 

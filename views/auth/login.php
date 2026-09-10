@@ -1,7 +1,7 @@
 <?php
 $error = Session::getFlash('error');
 $success = Session::getFlash('success');
-$siteName = Settings::get('site_name_ar', 'منصة الأخبار التقنية');
+$siteName = Settings::get('site_name_ar', 'عصب التقنية');
 ?>
 <!doctype html>
 <html lang="ar" dir="rtl" data-theme="dark">
