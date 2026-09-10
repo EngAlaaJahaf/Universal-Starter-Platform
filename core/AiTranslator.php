@@ -922,7 +922,8 @@ class AiTranslator
             CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => json_encode($payload),
             CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_TIMEOUT        => 45,
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false
         ]);
@@ -932,6 +933,20 @@ class AiTranslator
         $curlErr = curl_error($ch);
         curl_close($ch);
         $durationMs = (int) round((microtime(true) - $startTime) * 1000);
+
+        if ($curlErr) {
+            self::logOperation([
+                'article_id'       => $articleId,
+                'article_title_en' => $titleEn,
+                'provider'         => 'opencode',
+                'status'           => 'failed',
+                'http_code'        => $httpCode,
+                'error_raw'        => $res ?: $curlErr,
+                'error_summary'    => "OpenCode Zen Network: {$curlErr} (ربما الحصة اليومية لكل IP وصلت حدها — جرّب لاحقاً أو غيّر مزوداً)",
+                'duration_ms'      => $durationMs
+            ]);
+            return ['success' => false, 'error' => 'OpenCode Zen: ' . $curlErr . ' (حصة IP المجانية قد تكون مستنفدة)'];
+        }
 
         if ($httpCode === 200 && $res) {
             $data = json_decode($res, true);
@@ -960,7 +975,9 @@ class AiTranslator
             $errorSummary = "cURL Error: {$curlErr}";
         } elseif ($res) {
             $errData = json_decode($res, true);
-            if (!empty($errData['error']['message'])) {
+            if (in_array($httpCode, [401, 403, 429], true)) {
+                $errorSummary = "OpenCode Zen رفض الطلب (HTTP {$httpCode}): الحصة المجانية لـ IP الوصول قد تكون مستنفدة أو الطريق غير متاح. " . ($errData['error']['message'] ?? '');
+            } elseif (!empty($errData['error']['message'])) {
                 $errorSummary = "OpenCode Error: {$errData['error']['message']}";
             }
         }

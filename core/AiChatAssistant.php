@@ -448,7 +448,7 @@ class AiChatAssistant
         return ['success' => false, 'error' => 'المزود غير مدعوم للمحادثة.'];
     }
 
-    private static function callOpenAiCompat($endpoint, $apiKey, $model, array $messages, array $cfg, array $extraHeaders = [])
+    private static function callOpenAiCompat($endpoint, $apiKey, $model, array $messages, array $cfg, array $extraHeaders = [], $timeout = 45)
     {
         $endpoint = rtrim(trim($endpoint), '/');
         if (!str_ends_with($endpoint, '/chat/completions')) {
@@ -477,7 +477,8 @@ class AiChatAssistant
             CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_TIMEOUT        => 45,
+            CURLOPT_TIMEOUT        => $timeout,
+            CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false
         ]);
@@ -597,7 +598,7 @@ class AiChatAssistant
             'x-opencode-request: usr_' . substr($sessionId, 4, 8),
             'User-Agent: opencode/0.1.0',
         ];
-        return self::callOpenAiCompat('https://opencode.ai/zen/v1', '', $model, $messages, $cfg, $extra);
+        return self::callOpenAiCompat('https://opencode.ai/zen/v1', '', $model, $messages, $cfg, $extra, 20);
     }
 
     private static function providerLabel($model)
