@@ -1492,27 +1492,28 @@
     }
 
     const reactionsKey = 'ai_assistant_reactions';
+    let _ridCounter = 0;
     function loadReactions() { try { return JSON.parse(localStorage.getItem(reactionsKey) || '{}') || {}; } catch (e) { return {}; } }
-    function storeReaction(cid, v) {
+    function storeReaction(rid, v) {
       const m = loadReactions();
-      if (v === '') delete m[cid]; else m[cid] = v;
+      if (v === '') delete m[rid]; else m[rid] = v;
       try { localStorage.setItem(reactionsKey, JSON.stringify(m)); } catch (e) {}
     }
 
-    function sendReaction(cid, value, groupEl) {
+    function sendReaction(rid, convId, value, groupEl) {
       const state = loadReactions();
-      const next = state[cid] === value ? '' : value;
+      const next = state[rid] === value ? '' : value;
       groupEl.querySelectorAll('[data-reaction]').forEach((b) => {
         const k = b.getAttribute('data-reaction');
         b.classList.remove('active-like', 'active-love', 'active-dislike');
         if (k === next) b.classList.add('active-' + k);
       });
-      storeReaction(cid, next);
-      if (!cid) return;
+      storeReaction(rid, next);
+      if (!convId) return;
       fetch(base + '/ai-assistant/reaction', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrf, 'X-Requested-With': 'XMLHttpRequest' },
-        body: JSON.stringify({ conv_id: cid, value: next })
+        body: JSON.stringify({ conv_id: convId, value: next })
       })
         .then(res => res.json().catch(() => ({ success: false })))
         .then(data => {
@@ -1521,14 +1522,14 @@
             groupEl.querySelectorAll('[data-reaction]').forEach((b) => {
               const k = b.getAttribute('data-reaction');
               b.classList.remove('active-like', 'active-love', 'active-dislike');
-              if (k === state[cid]) b.classList.add('active-' + state[cid]);
+              if (k === state[rid]) b.classList.add('active-' + state[rid]);
             });
           }
         })
         .catch(() => { if (window.showToast) showToast('تعذر حفظ التقييم.', '⚠️'); });
     }
 
-    function reactionButtons(convId) {
+    function reactionButtons(rid, convId) {
       const wrap = document.createElement('div');
       wrap.className = 'ai-msg-actions';
       const cfg = [
@@ -1540,18 +1541,19 @@
       cfg.forEach(([key, title]) => {
         const b = document.createElement('button');
         b.type = 'button';
-        const isActive = state[convId] === key;
+        const isActive = state[rid] === key;
         b.className = 'ai-react' + (isActive ? ' active-' + key : '');
         b.setAttribute('data-reaction', key);
         b.title = title;
         b.innerHTML = key === 'like' ? '👍' : (key === 'love' ? '❤️' : '👎');
-        b.addEventListener('click', () => sendReaction(convId, key, wrap));
+        b.addEventListener('click', () => sendReaction(rid, convId, key, wrap));
         wrap.appendChild(b);
       });
       return wrap;
     }
 
-    function appendMessage(role, contentHtml, sources, rawText, convId) {
+    function appendMessage(role, contentHtml, sources, rawText, convId, existingRid) {
+      const rid = existingRid || ('m' + (++_ridCounter));
       const row = document.createElement('div');
       row.className = 'ai-msg ' + (role === 'user' ? 'ai-msg-user' : 'ai-msg-ai');
       const bubble = document.createElement('div');
@@ -1593,7 +1595,7 @@
           actions.appendChild(cb);
         }
         if (role === 'ai') {
-          actions.appendChild(reactionButtons(convId));
+          actions.appendChild(reactionButtons(rid, convId));
         }
         if (actions.childNodes.length) meta.appendChild(actions);
         bubble.appendChild(meta);
@@ -1604,6 +1606,7 @@
         messages.appendChild(row);
         scrollToBottom();
       }
+      return rid;
     }
 
     function showTyping() {
@@ -1647,7 +1650,7 @@
         return;
       }
 
-      appendMessage('user', escapeHtml(text), null);
+      const userRid = appendMessage('user', escapeHtml(text), null);
 
       // Guests see the launcher, but the assistant is members-only: answer
       // instantly with a notice instead of burning a provider call.
@@ -1661,7 +1664,7 @@
         return;
       }
 
-      history.push({ role: 'user', content: text });
+      history.push({ role: 'user', content: text, rid: userRid });
       persistHistory();
 
       if (input) input.value = '';
@@ -1688,8 +1691,8 @@
             const clean = (sourcesOn && sources.length > 0)
               ? stripRedundantSources(data.answer || '', true)
               : (data.answer || '');
-            appendMessage('ai', renderMarkdown(clean), sources, clean, data.convId || 0);
-            history.push({ role: 'assistant', content: clean, convId: data.convId || 0 });
+            const aiRid = appendMessage('ai', renderMarkdown(clean), sources, clean, data.convId || 0);
+            history.push({ role: 'assistant', content: clean, convId: data.convId || 0, rid: aiRid });
             persistHistory();
             updateQuota(data.quota || { used: data.used, daily: data.limit, boost: data.boost || 0 });
           } else if (data && data.auth) {
@@ -1787,9 +1790,9 @@
     try { wasOpen = localStorage.getItem(storageKey) || '0'; } catch (e) {}
     history.forEach((m) => {
       if (m.role === 'user') {
-        appendMessage('user', escapeHtml(m.content || ''), null, m.content || '');
+        appendMessage('user', escapeHtml(m.content || ''), null, m.content || '', 0, m.rid);
       } else {
-        appendMessage('ai', renderMarkdown(m.content || ''), null, m.content || '', m.convId || 0);
+        appendMessage('ai', renderMarkdown(m.content || ''), null, m.content || '', m.convId || 0, m.rid);
       }
     });
     if (history.length && suggestions) suggestions.style.display = 'none';
