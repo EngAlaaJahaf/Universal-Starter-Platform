@@ -588,6 +588,9 @@ $router->get('/newsletter/unsubscribe/{token}', 'NewsletterController@unsubscrib
 $router->post('/poll/vote', 'PollController@vote');
 $router->get('/poll/active', 'PollController@active');
 
+// AI Assistant Chat (RAG over published articles)
+$router->post('/ai-assistant/ask', 'AiAssistantController@ask');
+
 // Bookmarks & Push Notifications
 $router->get('/bookmarks', 'BookmarkController@index');
 $router->post('/push/subscribe', 'PushController@subscribe');

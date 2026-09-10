@@ -120,6 +120,8 @@ $siteDesc = Settings::get('meta_description', 'منصة عربية رائدة ف
     </button>
 </div>
 
+<?php require_once APP_ROOT . '/views/partials/ai-assistant.php'; ?>
+
 <script>
 window.APP_BASE_URL = <?= json_encode(app_url()) ?>;
 window.TNP_READER = <?= json_encode([

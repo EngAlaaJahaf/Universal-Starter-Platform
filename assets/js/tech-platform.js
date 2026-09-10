@@ -1188,6 +1188,231 @@
   setTimeout(() => { processReaderTargets(); readerRefreshTimes(); }, 50);
   setInterval(() => { processReaderTargets(); readerRefreshTimes(); }, 30000);
 
+  // ====================================================================
+  // 14. AI Assistant Chat Widget («مرشد عصب التقنية»)
+  // ====================================================================
+  (function initAiAssistant() {
+    const wrapper = document.getElementById('aiAssistant');
+    if (!wrapper) return;
+
+    const panel = document.getElementById('aiPanel');
+    const launcher = document.getElementById('aiLauncher');
+    const closeBtn = document.getElementById('aiPanelClose');
+    const input = document.getElementById('aiInput');
+    const sendBtn = document.getElementById('aiSend');
+    const messages = document.getElementById('aiMessages');
+    const suggestions = document.getElementById('aiSuggestions');
+
+    const limit = parseInt(wrapper.getAttribute('data-limit') || '0', 10);
+    const bypass = wrapper.getAttribute('data-bypass') === '1';
+    const csrf = window.APP_CSRF || '';
+    const base = (window.APP_BASE_URL || '/').replace(/\/$/, '');
+    const storageKey = 'ai_assistant_open';
+    const historyKey = 'ai_assistant_history';
+    let history = [];
+    let sending = false;
+
+    try {
+      const raw = localStorage.getItem(historyKey);
+      const arr = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(arr)) history = arr.slice(-8);
+    } catch (e) { history = []; }
+
+    function persistHistory() {
+      try { localStorage.setItem(historyKey, JSON.stringify(history.slice(-8))); } catch (e) {}
+    }
+
+    function updateQuota(used) {
+      const el = wrapper.querySelector('[data-counter]');
+      if (!el) return;
+      if (bypass) { el.style.display = 'none'; return; }
+      const remaining = limit > 0 ? Math.max(0, limit - used) : 0;
+      el.textContent = remaining + '/' + limit + ' مجاناً';
+      if (remaining <= 0) {
+        el.style.color = '#f87171';
+      }
+    }
+
+    function scrollToBottom() {
+      if (messages) messages.scrollTop = messages.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderAnswer(text) {
+      let html = escapeHtml(text);
+      // Markdown links [text](/article/slug)
+      html = html.replace(/\[([^\]]+)\]\((\/(?:article|tutorial|category)\/[^)\s]+)\)/g, function (m, label, href) {
+        return '<a href="' + base + href + '">' + label + '</a>';
+      });
+      html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+      // Bare links
+      html = html.replace(/(https?:\/\/[^\s<>]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+      // Bold
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      return html;
+    }
+
+    function appendMessage(role, contentHtml, sources) {
+      const row = document.createElement('div');
+      row.className = 'ai-msg ' + (role === 'user' ? 'ai-msg-user' : 'ai-msg-ai');
+      const bubble = document.createElement('div');
+      bubble.className = 'ai-msg-bubble ' + (role === 'user' ? 'ai-msg-bubble-user' : 'ai-msg-bubble-ai');
+      const text = document.createElement('div');
+      text.className = 'ai-msg-text';
+      text.innerHTML = contentHtml;
+      bubble.appendChild(text);
+      if (Array.isArray(sources) && sources.length > 0 && role === 'ai') {
+        const src = document.createElement('div');
+        src.className = 'ai-msg-src';
+        src.textContent = 'المصادر: ';
+        sources.forEach((s, i) => {
+          const a = document.createElement('a');
+          a.href = s.url;
+          a.textContent = (i + 1) + '. ' + s.title;
+          a.style.marginInlineStart = '6px';
+          src.appendChild(a);
+        });
+        bubble.appendChild(src);
+      }
+      row.appendChild(bubble);
+      if (messages) {
+        if (suggestions) suggestions.style.display = 'none';
+        messages.appendChild(row);
+        scrollToBottom();
+      }
+    }
+
+    function showTyping() {
+      const row = document.createElement('div');
+      row.className = 'ai-msg ai-msg-ai';
+      row.id = 'aiTypingRow';
+      row.innerHTML = '<div class="ai-msg-bubble ai-msg-bubble-ai"><div class="ai-typing" style="display:flex"><span></span><span></span><span></span></div></div>';
+      if (messages) {
+        messages.appendChild(row);
+        scrollToBottom();
+      }
+    }
+
+    function removeTyping() {
+      const row = document.getElementById('aiTypingRow');
+      if (row) row.remove();
+    }
+
+    function setBusy(state) {
+      sending = state;
+      if (sendBtn) sendBtn.disabled = state;
+      if (input) input.disabled = state;
+    }
+
+    function disableQuota() {
+      const el = wrapper.querySelector('[data-counter]');
+      if (el) {
+        el.textContent = '0/0 مجاناً';
+        el.style.color = '#f87171';
+        el.title = 'استنفدت حصتك المجانية لهذه الجلسة';
+      }
+      suggestions ? suggestions.style.display = 'none' : null;
+    }
+
+    function sendMessage(question) {
+      const text = (question != null ? String(question) : (input ? input.value : '')).trim();
+      if (sending) return;
+      if (text.length < 2 || text.length > 500) {
+        if (window.showToast) showToast('الرجاء كتابة سؤال بين 2 و500 حرف.', '⚠️');
+        return;
+      }
+
+      appendMessage('user', escapeHtml(text), null);
+      history.push({ role: 'user', content: text });
+      persistHistory();
+
+      if (input) input.value = '';
+      setBusy(true);
+      showTyping();
+
+      fetch(base + '/ai-assistant/ask', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': csrf,
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ question: text, history: history.slice(-8) })
+      })
+        .then(res => res.json().catch(() => ({ success: false, error: 'استجابة غير صالحة من الخادم.' })))
+        .then(data => {
+          removeTyping();
+          setBusy(false);
+
+          if (data && data.success) {
+            appendMessage('ai', renderAnswer(data.answer || ''), data.sources || []);
+            history.push({ role: 'assistant', content: data.answer || '' });
+            persistHistory();
+            if (typeof data.used === 'number') updateQuota(data.used);
+          } else {
+            const err = (data && data.error) ? data.error : 'تعذر الحصول على إجابة. حاول مجدداً بعد قليل.';
+            appendMessage('ai', escapeHtml(err), null);
+            if (data && data.limit > 0 && typeof data.used === 'number' && data.used >= data.limit) {
+              disableQuota();
+            }
+            updateQuota(typeof data.used === 'number' ? data.used : 0);
+          }
+        })
+        .catch(err => {
+          console.error('AI Assistant request failed:', err);
+          removeTyping();
+          setBusy(false);
+          appendMessage('ai', escapeHtml('تعذر الاتصال بالخادم. تأكد من اتصالك بالإنترنت وحاول مجدداً.'), null);
+        });
+    }
+
+    function setOpen(open) {
+      wrapper.classList.toggle('is-open', open);
+      if (panel) panel.hidden = !open;
+      if (launcher) launcher.setAttribute('aria-expanded', open ? 'true' : 'false');
+      try { localStorage.setItem(storageKey, open ? '1' : '0'); } catch (e) {}
+      if (open && input) input.focus();
+    }
+
+    if (launcher) launcher.addEventListener('click', () => setOpen(!wrapper.classList.contains('is-open')));
+    if (closeBtn) closeBtn.addEventListener('click', () => setOpen(false));
+    if (input) {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+      input.addEventListener('input', () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(120, input.scrollHeight) + 'px';
+      });
+    }
+    if (sendBtn) sendBtn.addEventListener('click', () => sendMessage());
+    if (suggestions) {
+      suggestions.addEventListener('click', (e) => {
+        const chip = e.target.closest('[data-q]');
+        if (!chip) return;
+        sendMessage(chip.getAttribute('data-q'));
+      });
+    }
+
+    // Restore last open state
+    let wasOpen = '0';
+    try { wasOpen = localStorage.getItem(storageKey) || '0'; } catch (e) {}
+    setOpen(wasOpen === '1' || bypass);
+    scrollToBottom();
+  })();
+
 })();
 
 

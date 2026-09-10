@@ -58,7 +58,7 @@ $this->renderAdmin('admin/settings/index', [
   private function ensureCoreRows($db)
   {
   $core = [
-  'breaking_ticker_enabled' => [
+'breaking_ticker_enabled' => [
   'group' => 'appearance',
   'value' => '1',
   'value_type' => 'boolean',
@@ -68,7 +68,27 @@ $this->renderAdmin('admin/settings/index', [
   'description_en' => 'Show or hide the breaking headlines ticker and social icons at the top of the site.',
   'sort_order' => 2,
   ],
-  ];
+  'ai_assistant_enabled' => [
+  'group' => 'appearance',
+  'value' => '1',
+  'value_type' => 'boolean',
+  'label_ar' => 'مرشد عصب التقنية (المحادث الذكي)',
+  'label_en' => 'AsabTech AI Assistant',
+  'description_ar' => 'إظهار نافذة المحادث الذكي العائمة التي تجيب الزوار من محتوى مقالات المنصة',
+  'description_en' => 'Show the floating AI chat assistant that answers visitors from the site articles.',
+  'sort_order' => 3,
+  ],
+  'ai_assistant_free_limit' => [
+  'group' => 'appearance',
+  'value' => '3',
+  'value_type' => 'text',
+  'label_ar' => 'حد رسائل المحادث المجانية للزائر',
+  'label_en' => 'Free Assistant Messages Per Visitor',
+  'description_ar' => 'عدد الرسائل المجانية لكل زائر في الجلسة (0 = بلا حد)',
+  'description_en' => 'Free messages per visitor per session (0 = unlimited).',
+  'sort_order' => 4,
+  ],
+];
 
   foreach ($core as $key => $row) {
   $check = $db->prepare("SELECT id FROM settings WHERE `group` = ? AND `key` = ? LIMIT 1");
