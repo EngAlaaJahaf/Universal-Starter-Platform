@@ -3,6 +3,14 @@
 class Mailer
 {
     /**
+     * Last Brevo messageId returned by the API after a successful 2xx send.
+     * Lets callers surface delivery tracking / confirm the message entered Brevo.
+     */
+    public static $lastBrevoMessageId = null;
+
+    /** Last HTTP status returned by Brevo (or null if not used). */
+    public static $lastBrevoHttpCode = null;
+    /**
      * Returns the transport that will be used: 'brevo', 'smtp' or 'simulate'.
      * 'simulate' means NO real mail server is configured (mail is only logged).
      */
@@ -139,13 +147,20 @@ class Mailer
             $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $curlErr = curl_error($ch);
             curl_close($ch);
+            self::$lastBrevoHttpCode = $httpCode;
             if ($result === false) {
                 error_log('Brevo API curl error: ' . $curlErr);
+                self::$lastBrevoMessageId = null;
                 return false;
             }
             if ($httpCode >= 200 && $httpCode < 300) {
+                $decoded = json_decode($result, true);
+                // Brevo returns the message id inside the JSON body
+                self::$lastBrevoMessageId = (isset($decoded['messageId']) && is_string($decoded['messageId']))
+                    ? $decoded['messageId'] : null;
                 return true;
             }
+            self::$lastBrevoMessageId = null;
             error_log('Brevo API error HTTP ' . $httpCode . ': ' . substr((string) $result, 0, 300));
             return false;
         } catch (Throwable $e) {

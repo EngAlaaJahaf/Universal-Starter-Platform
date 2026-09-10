@@ -75,7 +75,11 @@ class NewsletterCampaignController extends AdminController
 
  $sent = 0;
  $failed = 0;
+ $lastMsgId = null;
+ $lastHttp = null;
  foreach ($subscribers as $subscriber) {
+ $lastHttp = Mailer::$lastBrevoHttpCode;
+ $lastMsgId = Mailer::$lastBrevoMessageId;
  if (Mailer::send($subscriber['email'], $campaign['subject'], $campaign['body_html'])) {
  $sent++;
  } else {
@@ -89,8 +93,13 @@ class NewsletterCampaignController extends AdminController
  ':id' => (int) $id
  ));
 
- $this->audit('send', 'newsletter_campaign', $id, $campaign, array('sent' => $sent, 'failed' => $failed, 'transport' => $transport));
- Session::flash('success', "تم إرسال الحملة البريدية عبر " . ($transport === 'brevo' ? 'Brevo API' : 'SMTP') . " إلى ({$sent}) مشترك، وفشل ({$failed}).");
+ $this->audit('send', 'newsletter_campaign', $id, $campaign, array('sent' => $sent, 'failed' => $failed, 'transport' => $transport, 'brevo_http' => $lastHttp, 'brevo_message_id' => $lastMsgId));
+
+ $acceptNote = ($transport === 'brevo' && $sent > 0)
+ ? ' (قُبِلت الرسائل في Brevo — تتبّع التسليم من لوحة Brevo: إحصائيات → بريد المعاملات)'
+ : '';
+ $msgIdNote = (!empty($lastMsgId)) ? ' آخر Message-ID: ' . $lastMsgId : '';
+ Session::flash('success', "تم إرسال الحملة البريدية عبر " . ($transport === 'brevo' ? 'Brevo API' : 'SMTP') . " إلى ({$sent}) مشترك، وفشل ({$failed})." . $acceptNote . $msgIdNote);
  return $this->redirect('admin/newsletter');
  }
 
