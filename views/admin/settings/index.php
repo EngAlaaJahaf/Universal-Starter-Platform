@@ -234,6 +234,42 @@ $brandImageKeys = ['site_logo', 'site_favicon', 'default_og_image', 'site_logo_d
  </div>
 <?php endif; ?>
 
+<?php $dbHealth = class_exists('DbHealth') ? DbHealth::check(Database::getInstance()) : null; ?>
+<?php if ($dbHealth): ?>
+<!-- Database Health / Migration Status Card -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+ <div class="card-header bg-transparent py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+ <div class="d-flex align-items-center gap-2">
+ <i class="bi bi-database-check fs-5 <?= $dbHealth['ok'] ? 'text-success' : 'text-warning' ?>"></i>
+ <h6 class="card-title mb-0 fw-bold">حالة قاعدة البيانات والترحيلات (تحقق ذاتي)</h6>
+ </div>
+ <div class="d-flex align-items-center gap-2">
+ <span class="badge bg-light text-dark border"><?= (int) $dbHealth['settingsTotal'] ?> إعداد</span>
+ <span class="badge bg-light text-dark border"><?= (int) $dbHealth['settingsGroups'] ?> مجموعة</span>
+ <span class="badge <?= $dbHealth['ok'] ? 'bg-success' : 'bg-warning text-dark' ?>">
+ <?= $dbHealth['ok'] ? 'قاعدة البيانات محدّثة ✓' : 'إجراءات مطلوبة ⚠' ?>
+ </span>
+ <a class="btn btn-sm btn-outline-secondary py-0" data-bs-toggle="collapse" href="#dbHealthBody" role="button" aria-expanded="false" aria-controls="dbHealthBody">التفاصيل</a>
+ </div>
+ </div>
+ <div class="collapse" id="dbHealthBody">
+ <div class="card-body p-3 bg-light">
+ <p class="small text-muted mb-2">قائمة تحقق غير مُعدِّلة: صفوف الإعدادات الأساسية بلغاتها الحالية + أعمدة ترحيلات rss_sources. إذا ظهر أي بند ناقص فلن يظهر حقلُه في اللوحة.</p>
+ <ul class="list-unstyled row row-cols-1 row-cols-md-2 g-1 mb-0">
+ <?php foreach ($dbHealth['checks'] as $c): ?>
+ <li class="col small">
+ <i class="bi bi-<?= $c['ok'] ? 'check-circle-fill text-success' : 'x-circle-fill text-danger' ?> me-1"></i>
+ <span class="fw-bold"><?= htmlspecialchars($c['label'], ENT_QUOTES, 'UTF-8') ?></span>
+ <?php if (!$c['required']): ?><span class="badge bg-secondary ms-1">اختياري</span><?php endif; ?>
+ <?php if (!$c['ok']): ?><span class="text-muted d-block ps-4"><?= htmlspecialchars($c['hint'], ENT_QUOTES, 'UTF-8') ?></span><?php endif; ?>
+ </li>
+ <?php endforeach; ?>
+ </ul>
+ </div>
+ </div>
+</div>
+<?php endif; ?>
+
 <!-- Tabs Navigation -->
 <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white p-2">
  <ul class="nav nav-pills flex-wrap gap-2">
