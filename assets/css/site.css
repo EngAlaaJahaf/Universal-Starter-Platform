@@ -2371,7 +2371,7 @@ img {
   width: min(1320px, 94%);
   margin: 36px auto 80px;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 36px;
   align-items: start;
 }
@@ -2388,6 +2388,8 @@ img {
   border-radius: var(--radius-card);
   padding: 44px 50px;
   box-shadow: var(--shadow-sm);
+  min-width: 0;
+  max-width: 100%;
 }
 
 @media (max-width: 768px) {

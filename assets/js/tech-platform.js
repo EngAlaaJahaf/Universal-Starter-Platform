@@ -854,6 +854,61 @@
     }, 3000);
   });
 
+  // B2. iOS Safari fallback: beforeinstallprompt is not supported on iOS at all,
+  // so show a native-style guide banner pointing to "Add to Home Screen".
+  const isIOSDevice = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isStandaloneApp = window.matchMedia('(display-mode: standalone)').matches ||
+                          window.navigator.standalone === true;
+
+  function showIosInstallGuide() {
+    if (document.getElementById('pwa-install-banner')) return;
+    const dismissedTime = localStorage.getItem(PWA_DISMISS_KEY);
+    if (dismissedTime && (Date.now() - parseInt(dismissedTime, 10)) < (7 * 24 * 60 * 60 * 1000)) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'pwa-install-banner';
+    banner.className = 'pwa-install-banner';
+    banner.setAttribute('role', 'dialog');
+    banner.setAttribute('aria-label', 'إضافة التطبيق إلى الشاشة الرئيسية');
+
+    const iconUrl = (window.APP_BASE_URL || '/').replace(/\/$/, '') + '/assets/images/icons/icon-96x96.png';
+
+    banner.innerHTML = `
+      <div class="pwa-banner-header">
+        <img src="${iconUrl}" alt="أيقونة التطبيق" class="pwa-banner-icon" />
+        <div class="pwa-banner-info">
+          <div class="pwa-banner-title">
+            <span>أضِف التطبيق للشاشة الرئيسية</span>
+            <span>📱</span>
+          </div>
+          <p class="pwa-banner-desc">اضغط زر المشاركة في المتصفح، ثم اختر «إضافة إلى الشاشة الرئيسية» للاستخدام كتطبيق.</p>
+        </div>
+      </div>
+      <div class="pwa-banner-actions">
+        <button type="button" class="pwa-btn-dismiss" id="pwa-btn-dismiss-action">حسناً</button>
+      </div>
+    `;
+
+    document.body.appendChild(banner);
+
+    const dismissBtn = document.getElementById('pwa-btn-dismiss-action');
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', () => {
+        banner.style.opacity = '0';
+        banner.style.transform = 'translateY(120%)';
+        setTimeout(() => banner.remove(), 300);
+        localStorage.setItem(PWA_DISMISS_KEY, Date.now().toString());
+      });
+    }
+  }
+
+  if (isIOSDevice && !isStandaloneApp && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      setTimeout(() => { showIosInstallGuide(); }, 2500);
+    });
+  }
+
   function showPwaInstallBanner() {
     if (!deferredPrompt || document.getElementById('pwa-install-banner')) return;
 
