@@ -69,7 +69,7 @@ $title = 'سجلات وأخطاء الترجمة الذكية';
   <span class="provider-spinner spinner-border spinner-border-sm me-1 d-none"></span>
   المترجم المجاني
   </button>
-  <button type="button" class="btn btn-outline-dark fw-bold btn-test-provider" data-provider="opencode" style="border-color:#9d4edd;color:#7b2d8b">
+  <button type="button" class="btn btn-sm fw-bold btn-test-provider btn-test-oc" data-provider="opencode">
   <span class="provider-spinner spinner-border spinner-border-sm me-1 d-none"></span>
   فحص OpenCode Zen (مجاني)
   </button>

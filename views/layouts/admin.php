@@ -550,10 +550,31 @@ if (!function_exists('is_admin_active')) {
  border-color: #34d399 !important;
  color: #fff !important;
  }
- html.admin-dark .btn-outline-info {
- color: #22d3ee !important;
- border-color: rgba(6, 182, 212, 0.4) !important;
- }
+html.admin-dark .btn-outline-info {
+  color: #22d3ee !important;
+  border-color: rgba(6, 182, 212, 0.4) !important;
+  }
+
+  /* OpenCode Zen free-fallback test button (works in light & dark) */
+  .btn-test-oc {
+  color: #7b2d8b !important;
+  border-color: #9d4edd !important;
+  background-color: transparent !important;
+  }
+  .btn-test-oc:hover {
+  color: #ffffff !important;
+  background-color: #9d4edd !important;
+  border-color: #9d4edd !important;
+  }
+  html.admin-dark .btn-test-oc {
+  color: #c9b8f5 !important;
+  border-color: rgba(157, 78, 221, 0.6) !important;
+  }
+  html.admin-dark .btn-test-oc:hover {
+  color: #ffffff !important;
+  background-color: #9d4edd !important;
+  border-color: #9d4edd !important;
+  }
  html.admin-dark .btn-outline-info:hover {
  background-color: rgba(6, 182, 212, 0.15) !important;
  border-color: #22d3ee !important;

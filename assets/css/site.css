@@ -516,6 +516,36 @@
   }
 }
 
+/* ---- AI Assistant: explicit theme-aware legibility fixes ----
+   The widget's surfaces are dark by design; make text/glyphs adapt
+   on top of the (mostly dark) primary gradients in dark themes, and
+   keep soft borders visible in light themes. */
+[data-theme="dark"] .ai-launcher,
+[data-theme="dark"] .ai-input-wrap button {
+  color: var(--text-inverse, #f8fafc);
+}
+
+[data-theme="dark"] .ai-msg-bubble-user {
+  color: var(--text-inverse, #f8fafc);
+}
+[data-theme="dark"] .ai-msg-bubble-user .ai-msg-meta {
+  border-top-color: rgba(255, 255, 255, 0.25);
+}
+[data-theme="dark"] .ai-msg-bubble-user .ai-copy {
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--text-inverse, #f8fafc);
+}
+[data-theme="dark"] .ai-msg-bubble-user .ai-copy:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Cyber keeps a bright cyan/purple gradient: dark glyphs read better */
+[data-template="cyber_futuristic"][data-theme="dark"] .ai-launcher,
+[data-template="cyber_futuristic"][data-theme="dark"] .ai-input-wrap button,
+[data-template="cyber_futuristic"][data-theme="dark"] .ai-msg-bubble-user {
+  color: #030712;
+}
+
 /* Light Theme Variables (Default) */
 [data-theme="light"] {
   --bg-base: #f8fafc;
@@ -571,6 +601,7 @@
   --text-main: #f8fafc;
   --text-body: #cbd5e1;
   --text-muted: #94a3b8;
+  --text-inverse: #f8fafc;
   --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
@@ -609,6 +640,7 @@
   --bg-base: #09090b;
   --bg-surface: #121215;
   --bg-surface-elevated: #18181b;
+  --text-inverse: #f8fafc;
   --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
@@ -635,6 +667,7 @@
   --bg-base: #030712;
   --bg-surface: #0b1120;
   --bg-surface-elevated: #111c35;
+  --text-inverse: #030712;
   --border-subtle: rgba(0, 242, 254, 0.15);
   --border-glow: rgba(0, 242, 254, 0.4);
 }
@@ -658,6 +691,7 @@
   --bg-surface: #0f172a;
   --bg-surface-elevated: #1e293b;
   --bg-surface-hover: #273549;
+  --text-inverse: #f8fafc;
   --border-subtle: rgba(255, 255, 255, 0.09);
   --border-glow: rgba(59, 130, 246, 0.3);
 }
@@ -692,6 +726,7 @@
   --bg-surface-elevated: #1f2937;
   --text-main: #f9fafb;
   --text-body: #d1d5db;
+  --text-inverse: #f8fafc;
   --border-subtle: rgba(255, 255, 255, 0.1);
   --border-medium: rgba(255, 255, 255, 0.18);
 }
