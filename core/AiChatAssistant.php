@@ -302,6 +302,7 @@ class AiChatAssistant
             'groq_api_key', 'groq_model', 'deepseek_api_key', 'deepseek_model',
             'custom_api_endpoint', 'custom_api_key', 'custom_api_model',
             'ai_fallback_enabled', 'ai_temperature',
+            'opencode_fallback_enabled', 'opencode_model',
             'ai_assistant_provider', 'ai_assistant_model', 'ai_assistant_temperature',
             'ai_assistant_tone', 'ai_assistant_context_articles', 'ai_assistant_include_page',
             'ai_assistant_fallback_enabled'
@@ -357,7 +358,7 @@ class AiChatAssistant
         $attempts = [$activeProvider => $res['error'] ?? 'فشل الاتصال بالمزود الافتراضي.'];
 
         if ($fallbackOn) {
-            $order = ['omniroute', 'gemini', 'openai', 'groq', 'deepseek', 'custom_api'];
+            $order = ['omniroute', 'gemini', 'openai', 'groq', 'deepseek', 'custom_api', 'opencode'];
             foreach ($order as $provider) {
                 if ($provider === $activeProvider || !self::providerReady($provider, $cfg)) {
                     continue;
@@ -418,6 +419,8 @@ class AiChatAssistant
                 return !empty($cfg['deepseek_api_key']);
             case 'custom_api':
                 return !empty($cfg['custom_api_endpoint']);
+            case 'opencode':
+                return ($cfg['opencode_fallback_enabled'] ?? '1') == '1';
         }
         return false;
     }
@@ -437,13 +440,15 @@ class AiChatAssistant
                 return self::callOpenAiCompat('https://api.deepseek.com/v1', $cfg['deepseek_api_key'] ?? '', $cfg['deepseek_model'] ?? 'deepseek-chat', $messages, $cfg);
             case 'custom_api':
                 return self::callOpenAiCompat($cfg['custom_api_endpoint'] ?? '', $cfg['custom_api_key'] ?? '', $cfg['custom_api_model'] ?? 'deepseek-chat', $messages, $cfg);
+            case 'opencode':
+                return self::callOpencode($messages, $cfg);
             case 'gemini':
                 return self::callGemini($cfg['gemini_api_key'] ?? '', $cfg['gemini_model'] ?? 'gemini-3.7-flash', $messages, $cfg);
         }
         return ['success' => false, 'error' => 'المزود غير مدعوم للمحادثة.'];
     }
 
-    private static function callOpenAiCompat($endpoint, $apiKey, $model, array $messages, array $cfg)
+    private static function callOpenAiCompat($endpoint, $apiKey, $model, array $messages, array $cfg, array $extraHeaders = [])
     {
         $endpoint = rtrim(trim($endpoint), '/');
         if (!str_ends_with($endpoint, '/chat/completions')) {
@@ -461,6 +466,9 @@ class AiChatAssistant
         $headers = ['Content-Type: application/json'];
         if (!empty($apiKey)) {
             $headers[] = 'Authorization: Bearer ' . $apiKey;
+        }
+        foreach ($extraHeaders as $extra) {
+            $headers[] = $extra;
         }
 
         $ch = curl_init($endpoint);
@@ -577,6 +585,19 @@ class AiChatAssistant
         }
 
         return ['success' => false, 'error' => $lastError];
+    }
+
+    private static function callOpencode(array $messages, array $cfg)
+    {
+        $model = !empty($cfg['opencode_model']) ? $cfg['opencode_model'] : 'big-pickle';
+        $sessionId = 'ses_' . bin2hex(random_bytes(32));
+        $extra = [
+            'x-opencode-session: ' . $sessionId,
+            'x-opencode-client: tui',
+            'x-opencode-request: usr_' . substr($sessionId, 4, 8),
+            'User-Agent: opencode/0.1.0',
+        ];
+        return self::callOpenAiCompat('https://opencode.ai/zen/v1', '', $model, $messages, $cfg, $extra);
     }
 
     private static function providerLabel($model)

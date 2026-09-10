@@ -54,6 +54,8 @@ class DbHealth
                 'deepseek_api_key',
                 'ai_system_prompt',
                 'deepseek_model',
+                'opencode_fallback_enabled',
+                'opencode_model',
             ],
             'newsletter' => [
                 'newsletter_welcome_enabled',

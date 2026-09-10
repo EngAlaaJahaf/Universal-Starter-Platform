@@ -434,6 +434,26 @@ private function ensureCoreRows($db)
   'description_en' => 'Select DeepSeek model.',
   'sort_order' => 11,
   ],
+  'opencode_fallback_enabled' => [
+  'group' => 'ai_translation',
+  'value' => '1',
+  'value_type' => 'boolean',
+  'label_ar' => 'تفعيل OpenCode Zen كاحتياط مجاني أخير',
+  'label_en' => 'Enable OpenCode Zen Free Fallback',
+  'description_ar' => 'عند فشل كل المزودين، جرّب بوابة OpenCode Zen المجانية (نموذج big-pickle) بدون أي مفتاح API. ملاحظة: يعتمد على حصة مجانية يومية لكل IP — مسار غير موثق رسمياً وقد يُغلق مستقبلاً، لذا هو احتياط أخير فقط',
+  'description_en' => 'If all providers fail, try the free OpenCode Zen gateway with no API key. Limited by a daily per-IP quota; unofficial and may change — last-resort fallback only.',
+  'sort_order' => 12,
+  ],
+  'opencode_model' => [
+  'group' => 'ai_translation',
+  'value' => 'big-pickle',
+  'value_type' => 'select',
+  'label_ar' => 'نموذج OpenCode Zen المعتمد',
+  'label_en' => 'OpenCode Zen Model',
+  'description_ar' => 'النموذج المجاني المستخدم عبر بوابة OpenCode Zen للاحتياط',
+  'description_en' => 'Free model used through the OpenCode Zen fallback gateway.',
+  'sort_order' => 13,
+  ],
 
   // --- Newsletter welcome email (group newsletter) ---
   'newsletter_welcome_enabled' => [
@@ -677,7 +697,7 @@ exit;
  {
  $this->postGuard();
  $provider = trim($_POST['provider'] ?? '');
- $allowed = ['openai', 'gemini', 'custom_api', 'mymemory'];
+ $allowed = ['openai', 'gemini', 'custom_api', 'mymemory', 'opencode'];
  if (!in_array($provider, $allowed, true)) {
  header('Content-Type: application/json; charset=utf-8');
  echo json_encode(['success' => false, 'error' => 'مزود غير صالح'], JSON_UNESCAPED_UNICODE);

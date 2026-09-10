@@ -67,6 +67,7 @@ $selectDropdowns = [
   'deepseek' => 'DeepSeek (DeepSeek V3 / R1)',
   'openai' => 'OpenAI (GPT-4o / GPT-4o-mini)',
   'custom_api' => 'مزود مخصص (OpenRouter / Ollama / Local Endpoint)',
+  'opencode' => 'OpenCode Zen المجاني (بدون مفتاح - حصة IP يومية، ينصح به كاحتياط)',
   'mymemory' => 'المترجم المجاني المدمج (MyMemory + القاموس التقني - متاح دائماً)',
   'gtx' => 'Google Translate Web (احتياطي)',
   ],
@@ -80,6 +81,7 @@ $selectDropdowns = [
   'openai' => 'OpenAI',
   'deepseek' => 'DeepSeek',
   'custom_api' => 'خادم API مخصص',
+  'opencode' => 'OpenCode Zen المجاني (بدون مفتاح)',
   ],
   'ai_assistant_tone' => [
   'balanced' => 'متوازن (سرع ما هو قياسي)',
@@ -119,12 +121,17 @@ $selectDropdowns = [
  'gpt-4-turbo' => 'GPT-4 Turbo',
  'gpt-3.5-turbo' => 'GPT-3.5 Turbo',
  ],
- 'gemini_model' => [
- 'gemini-3.7-flash' => 'gemini-3.7-flash (Gemini 3.7 Flash - موصى به ومفعل)',
- 'gemini-3.6-flash' => 'gemini-3.6-flash (Gemini 3.6 Flash - فائق السرعة)',
- 'gemini-3.5-flash' => 'gemini-3.5-flash (Gemini 3.5 Flash)',
- 'gemini-2.5-pro' => 'gemini-2.5-pro (Gemini 2.5 Pro)',
- ],
+'gemini_model' => [
+  'gemini-3.7-flash' => 'gemini-3.7-flash (Gemini 3.7 Flash - موصى به ومفعل)',
+  'gemini-3.6-flash' => 'gemini-3.6-flash (Gemini 3.6 Flash - فائق السرعة)',
+  'gemini-3.5-flash' => 'gemini-3.5-flash (Gemini 3.5 Flash)',
+  'gemini-2.5-pro' => 'gemini-2.5-pro (Gemini 2.5 Pro)',
+  ],
+  'opencode_model' => [
+  'big-pickle' => 'big-pickle (مختبر ويعمل - يوصى به للاحتياط المجاني)',
+  'mimo-v2.5-free' => 'mimo-v2.5-free (نموذج مجاني)',
+  'nemotron-3-ultra-free' => 'nemotron-3-ultra-free (نموذج مجاني)',
+  ],
 
     // Appearance
     'site_theme_template' => [
@@ -328,11 +335,15 @@ $brandImageKeys = ['site_logo', 'site_favicon', 'default_og_image', 'site_logo_d
  <span class="provider-spinner spinner-border spinner-border-sm me-1 d-none"></span>
  فحص OpenAI
  </button>
- <button type="button" class="btn btn-sm btn-outline-warning text-dark fw-bold btn-test-provider" data-provider="mymemory">
- <span class="provider-spinner spinner-border spinner-border-sm me-1 d-none"></span>
- فحص المترجم المجاني
- </button>
- </div>
+<button type="button" class="btn btn-sm btn-outline-warning text-dark fw-bold btn-test-provider" data-provider="mymemory">
+  <span class="provider-spinner spinner-border spinner-border-sm me-1 d-none"></span>
+  فحص المترجم المجاني
+  </button>
+  <button type="button" class="btn btn-sm btn-outline-dark fw-bold btn-test-provider" data-provider="opencode" style="border-color:#9d4edd;color:#7b2d8b">
+  <span class="provider-spinner spinner-border spinner-border-sm me-1 d-none"></span>
+  فحص OpenCode Zen (مجاني)
+  </button>
+  </div>
 
  <!-- Test Output Box in Settings -->
  <div id="testResultBox" class="p-3 rounded-3 bg-white border d-none mt-2">
@@ -729,6 +740,8 @@ document.addEventListener('DOMContentLoaded', () => {
  if (deepseekKey) payload.append('deepseek_api_key', deepseekKey.value);
  if (openaiKey) payload.append('openai_api_key', openaiKey.value);
  if (customEndpoint) payload.append('custom_api_endpoint', customEndpoint.value);
+ const opencodeModel = document.getElementById('setting_opencode_model');
+ if (opencodeModel) payload.append('opencode_model', opencodeModel.value);
 
  try {
  const response = await fetch('<?= admin_e(app_url('admin/ai/test-provider')) ?>', {

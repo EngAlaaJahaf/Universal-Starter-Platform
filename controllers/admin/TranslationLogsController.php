@@ -112,6 +112,7 @@ class TranslationLogsController extends AdminController
  if (isset($_POST['deepseek_api_key'])) $overrides['deepseek_api_key'] = trim($_POST['deepseek_api_key']);
  if (isset($_POST['openai_api_key'])) $overrides['openai_api_key'] = trim($_POST['openai_api_key']);
  if (!empty($_POST['custom_api_endpoint'])) $overrides['custom_api_endpoint'] = trim($_POST['custom_api_endpoint']);
+ if (!empty($_POST['opencode_model'])) $overrides['opencode_model'] = trim($_POST['opencode_model']);
 
  $res = AiTranslator::testProvider($provider, $overrides);
 

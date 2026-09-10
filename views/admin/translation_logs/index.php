@@ -65,11 +65,15 @@ $title = 'سجلات وأخطاء الترجمة الذكية';
  <span class="provider-spinner spinner-border spinner-border-sm me-1 d-none"></span>
  Custom API
  </button>
- <button type="button" class="btn btn-outline-warning text-dark fw-bold btn-test-provider" data-provider="mymemory">
- <span class="provider-spinner spinner-border spinner-border-sm me-1 d-none"></span>
- المترجم المجاني
- </button>
- </div>
+<button type="button" class="btn btn-outline-warning text-dark fw-bold btn-test-provider" data-provider="mymemory">
+  <span class="provider-spinner spinner-border spinner-border-sm me-1 d-none"></span>
+  المترجم المجاني
+  </button>
+  <button type="button" class="btn btn-outline-dark fw-bold btn-test-provider" data-provider="opencode" style="border-color:#9d4edd;color:#7b2d8b">
+  <span class="provider-spinner spinner-border spinner-border-sm me-1 d-none"></span>
+  فحص OpenCode Zen (مجاني)
+  </button>
+  </div>
 
  <!-- Live Test Result Output Box -->
  <div id="testResultBox" class="p-3 rounded-4 bg-light border d-none">

@@ -83,7 +83,8 @@ class AiTranslator
             'ai_provider', 'openai_api_key', 'openai_model', 'gemini_api_key', 'gemini_model',
             'omniroute_endpoint', 'omniroute_api_key', 'omniroute_model',
             'groq_api_key', 'groq_model', 'deepseek_api_key', 'deepseek_model',
-            'custom_api_endpoint', 'custom_api_key', 'custom_api_model'
+            'custom_api_endpoint', 'custom_api_key', 'custom_api_model',
+            'opencode_fallback_enabled', 'opencode_model'
         ];
         $inClause = "'" . implode("','", $keys) . "'";
         $settingsRow = $db->fetchAll("SELECT `key`, `value` FROM settings WHERE `key` IN ({$inClause})");
@@ -308,6 +309,7 @@ class AiTranslator
             'omniroute_endpoint', 'omniroute_api_key', 'omniroute_model',
             'groq_api_key', 'groq_model', 'deepseek_api_key', 'deepseek_model',
             'custom_api_endpoint', 'custom_api_key', 'custom_api_model',
+            'opencode_fallback_enabled', 'opencode_model',
             'ai_fallback_enabled', 'ai_temperature', 'ai_system_prompt'
         ];
         $inClause = "'" . implode("','", $keys) . "'";
@@ -366,6 +368,13 @@ class AiTranslator
                 $res = self::callCustomApi($sampleTitle, $sampleContent, $settings);
                 break;
 
+            case 'opencode':
+                if (($settings['opencode_fallback_enabled'] ?? '1') != '1') {
+                    return ['ok' => false, 'error' => 'الاحتياط المجاني OpenCode Zen معطل في الإعدادات.'];
+                }
+                $res = self::callOpencode($sampleTitle, $sampleContent, $settings);
+                break;
+
             case 'mymemory':
             case 'gtx':
                 $res = ['success' => true, 'data' => self::freeTranslateWithGlossary($sampleTitle, $sampleContent)];
@@ -406,6 +415,7 @@ class AiTranslator
             'omniroute_endpoint', 'omniroute_api_key', 'omniroute_model',
             'groq_api_key', 'groq_model', 'deepseek_api_key', 'deepseek_model',
             'custom_api_endpoint', 'custom_api_key', 'custom_api_model',
+            'opencode_fallback_enabled', 'opencode_model',
             'ai_fallback_enabled', 'ai_temperature', 'ai_system_prompt'
         ];
         $inClause = "'" . implode("','", $keys) . "'";
@@ -453,6 +463,12 @@ class AiTranslator
                 'name'  => '🛠️ خادم API مخصص (Custom Endpoint)',
                 'ready' => !empty($settings['custom_api_endpoint']),
                 'desc'  => !empty($settings['custom_api_endpoint']) ? 'عنوان الخادم مسجل' : 'الرابط غير محدد في الإعدادات'
+            ],
+            'opencode'   => [
+                'id'    => 'opencode',
+                'name'  => '🤖 OpenCode Zen (احتياط مجاني - بدون مفتاح)',
+                'ready' => ($settings['opencode_fallback_enabled'] ?? '1') == '1',
+                'desc'  => 'بوابة OpenCode Zen المجانية عبر هيدر جلسة، محدود بحصة IP يومية'
             ],
             'mymemory'   => [
                 'id'    => 'mymemory',
@@ -522,6 +538,14 @@ class AiTranslator
             } else {
                 $attempts['custom_api'] = 'عنوان Custom API Endpoint غير مدخل في إعدادات المنصة.';
             }
+        } elseif ($activeProvider === 'opencode') {
+            if (($settings['opencode_fallback_enabled'] ?? '1') != '1') {
+                $attempts[$activeProvider] = 'OpenCode Zen معطل في الإعدادات.';
+            } else {
+                $res = self::callOpencode($titleEn, $contentEn, $settings, $articleId);
+                if ($res['success']) return $buildResult($res['data'], 'opencode');
+                $attempts[$activeProvider] = $res['error'] ?? 'فشل الاتصال بـ OpenCode Zen.';
+            }
         } elseif ($activeProvider === 'mymemory' || $activeProvider === 'gtx') {
             $res = self::freeTranslateWithGlossary($titleEn, $contentEn, $articleId);
             return $buildResult($res, 'mymemory');
@@ -558,6 +582,11 @@ class AiTranslator
                 $res = self::callCustomApi($titleEn, $contentEn, $settings, $articleId);
                 if ($res['success']) return $buildResult($res['data'], 'custom_api');
                 $attempts['fallback_custom_api'] = $res['error'] ?? 'تعذر استخدام Custom API كخيار احتياطي.';
+            }
+            if ($activeProvider !== 'opencode' && ($settings['opencode_fallback_enabled'] ?? '1') == '1') {
+                $res = self::callOpencode($titleEn, $contentEn, $settings, $articleId);
+                if ($res['success']) return $buildResult($res['data'], 'opencode');
+                $attempts['fallback_opencode'] = $res['error'] ?? 'تعذر استخدام OpenCode Zen كخيار احتياطي.';
             }
 
             // Final Fallback: Free Google Web + Tech Glossary Engine
@@ -842,6 +871,104 @@ class AiTranslator
             'article_id'       => $articleId,
             'article_title_en' => $titleEn,
             'provider'         => 'custom_api',
+            'status'           => 'failed',
+            'http_code'        => $httpCode,
+            'error_raw'        => $res ?: $curlErr,
+            'error_summary'    => $errorSummary,
+            'duration_ms'      => $durationMs
+        ]);
+
+        return ['success' => false, 'error' => $errorSummary];
+    }
+
+    /**
+     * 🤖 OpenCode Zen Free Fallback Provider (no API key required)
+     * Uses the same session-header identity trick as the OpenCode CLI.
+     */
+    private static function callOpencode($titleEn, $contentEn, array $cfg, $articleId = null)
+    {
+        $startTime = microtime(true);
+        $model = !empty($cfg['opencode_model']) ? $cfg['opencode_model'] : 'big-pickle';
+        $temp = isset($cfg['ai_temperature']) && is_numeric($cfg['ai_temperature']) ? (float)$cfg['ai_temperature'] : 0.3;
+        $endpoint = 'https://opencode.ai/zen/v1/chat/completions';
+
+        $systemPrompt = !empty($cfg['ai_system_prompt'])
+            ? $cfg['ai_system_prompt'] . "\nقم بالرد بصيغة JSON فقط متضمناً المفاتيح: title_ar, excerpt, content_ar, reading_time_minutes."
+            : "أنت كبير محرري الأخبار التقنية باللغة العربية. ترجم وصِغ الخبر الإنجليزي التالي إلى خبر تقني عربي احترافي غير حرفي وبأعلى معايير المصطلحات التقنية.\nقم بالرد بصيغة JSON فقط متضمناً المفاتيح: {\"title_ar\": \"...\", \"excerpt\": \"...\", \"content_ar\": \"...\", \"reading_time_minutes\": 3}";
+
+        $userPrompt = "Title: {$titleEn}\n\nContent:\n" . substr(strip_tags($contentEn), 0, 3000);
+
+        $payload = [
+            'model' => $model,
+            'messages' => [
+                ['role' => 'system', 'content' => $systemPrompt],
+                ['role' => 'user', 'content' => $userPrompt]
+            ],
+            'temperature' => $temp
+        ];
+
+        $sessionId = 'ses_' . bin2hex(random_bytes(32));
+        $headers = [
+            'Content-Type: application/json',
+            'x-opencode-session: ' . $sessionId,
+            'x-opencode-client: tui',
+            'x-opencode-request: usr_' . substr($sessionId, 4, 8),
+            'User-Agent: opencode/0.1.0',
+        ];
+
+        $ch = curl_init($endpoint);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_TIMEOUT        => 45,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false
+        ]);
+
+        $res = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr = curl_error($ch);
+        curl_close($ch);
+        $durationMs = (int) round((microtime(true) - $startTime) * 1000);
+
+        if ($httpCode === 200 && $res) {
+            $data = json_decode($res, true);
+            $rawContent = $data['choices'][0]['message']['content'] ?? '';
+            // Strip any markdown fences if present
+            $rawContent = preg_replace('/^```(?:json)?\s*/i', '', trim($rawContent));
+            $rawContent = preg_replace('/\s*```$/', '', $rawContent);
+            $parsed = json_decode($rawContent, true);
+            if (!empty($parsed['title_ar'])) {
+                $parsed['mode'] = "opencode_{$model}";
+                self::logOperation([
+                    'article_id'       => $articleId,
+                    'article_title_en' => $titleEn,
+                    'provider'         => 'opencode',
+                    'status'           => 'success',
+                    'http_code'        => $httpCode,
+                    'response_preview' => mb_substr($parsed['title_ar'] . ' - ' . ($parsed['excerpt'] ?? ''), 0, 400, 'UTF-8'),
+                    'duration_ms'      => $durationMs
+                ]);
+                return ['success' => true, 'data' => $parsed];
+            }
+        }
+
+        $errorSummary = "فشل الاتصال بـ OpenCode Zen ({$model})";
+        if ($curlErr) {
+            $errorSummary = "cURL Error: {$curlErr}";
+        } elseif ($res) {
+            $errData = json_decode($res, true);
+            if (!empty($errData['error']['message'])) {
+                $errorSummary = "OpenCode Error: {$errData['error']['message']}";
+            }
+        }
+
+        self::logOperation([
+            'article_id'       => $articleId,
+            'article_title_en' => $titleEn,
+            'provider'         => 'opencode',
             'status'           => 'failed',
             'http_code'        => $httpCode,
             'error_raw'        => $res ?: $curlErr,
