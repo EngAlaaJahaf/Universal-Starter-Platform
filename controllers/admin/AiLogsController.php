@@ -41,50 +41,52 @@ class AiLogsController extends AdminController
 
         // Per-user rows (even users with zero conversations, for quota mgmt).
         $users = [];
-        if ($quotaReady) {
-            $where = '1=1';
-            $params = [];
-            if ($userId > 0) {
-                $where .= ' AND u.id = ?';
-                $params[] = $userId;
-            } elseif ($search !== '') {
-                $where .= ' AND (u.username LIKE ? OR u.email LIKE ?)';
-                $params[] = '%' . $search . '%';
-                $params[] = '%' . $search . '%';
-            }
-            $limit = $userId > 0 ? 1 : 100;
+        $quotaSelected = $quotaReady
+            ? 'u.ai_quota_date, u.ai_quota_used, u.ai_quota_boost, u.ai_quota_daily'
+            : 'NULL AS ai_quota_date, 0 AS ai_quota_used, 0 AS ai_quota_boost, NULL AS ai_quota_daily';
 
-            try {
-                if ($tableReady) {
-                    $users = $db->fetchAll(
-                        "SELECT u.id, u.username, u.email, u.status,
-                                u.ai_quota_date, u.ai_quota_used, u.ai_quota_boost, u.ai_quota_daily,
-                                COUNT(c.id) AS total_msgs,
-                                COALESCE(SUM(c.status = 'error'), 0) AS err_msgs,
-                                MAX(c.created_at) AS last_at
-                         FROM users u
-                         LEFT JOIN ai_conversations c ON c.user_id = u.id
-                         WHERE {$where}
-                         GROUP BY u.id
-                         ORDER BY (last_at IS NULL), last_at DESC, u.id DESC
-                         LIMIT {$limit}",
-                        $params
-                    );
-                } else {
-                    $users = $db->fetchAll(
-                        "SELECT u.id, u.username, u.email, u.status,
-                                u.ai_quota_date, u.ai_quota_used, u.ai_quota_boost, u.ai_quota_daily,
-                                0 AS total_msgs, 0 AS err_msgs, NULL AS last_at
-                         FROM users u
-                         WHERE {$where}
-                         ORDER BY u.id DESC
-                         LIMIT {$limit}",
-                        $params
-                    );
-                }
-            } catch (Throwable $e) {
-                $users = [];
+        $where = '1=1';
+        $params = [];
+        if ($userId > 0) {
+            $where .= ' AND u.id = ?';
+            $params[] = $userId;
+        } elseif ($search !== '') {
+            $where .= ' AND (u.username LIKE ? OR u.email LIKE ?)';
+            $params[] = '%' . $search . '%';
+            $params[] = '%' . $search . '%';
+        }
+        $limit = $userId > 0 ? 1 : 500;
+
+        try {
+            if ($tableReady) {
+                $users = $db->fetchAll(
+                    "SELECT u.id, u.username, u.email, u.status,
+                            {$quotaSelected},
+                            COUNT(c.id) AS total_msgs,
+                            COALESCE(SUM(c.status = 'error'), 0) AS err_msgs,
+                            MAX(c.created_at) AS last_at
+                     FROM users u
+                     LEFT JOIN ai_conversations c ON c.user_id = u.id
+                     WHERE {$where}
+                     GROUP BY u.id
+                     ORDER BY last_at DESC, u.id DESC
+                     LIMIT {$limit}",
+                    $params
+                );
+            } else {
+                $users = $db->fetchAll(
+                    "SELECT u.id, u.username, u.email, u.status,
+                            {$quotaSelected},
+                            0 AS total_msgs, 0 AS err_msgs, NULL AS last_at
+                     FROM users u
+                     WHERE {$where}
+                     ORDER BY u.id DESC
+                     LIMIT {$limit}",
+                    $params
+                );
             }
+        } catch (Throwable $e) {
+            $users = [];
         }
 
         if (!is_array($users)) {
