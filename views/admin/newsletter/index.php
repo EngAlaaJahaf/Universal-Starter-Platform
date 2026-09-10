@@ -201,6 +201,34 @@ $mailFromName = Settings::get('mail_from_name', 'عصب التقنية');
 <?php elseif ($activeTab === 'smtp'): ?>
  <!-- TAB 3: SMTP SETTINGS & TEST TOOL -->
  <div class="row g-4">
+ <div class="col-12">
+ <?php $mailTransport = Mailer::transport(); ?>
+ <?php if ($mailTransport === 'brevo'): ?>
+ <div class="alert alert-success d-flex align-items-start gap-2 rounded-4 border-0 shadow-sm mb-0">
+ <i class="bi bi-check-circle-fill fs-5"></i>
+ <div>
+ <strong>حالة خادم البريد: نشط — Brevo HTTP API</strong><br>
+ <small class="text-muted">سيُرسل البريد فعلياً عبر Brevo API. مفتاح API مضبوط.</small>
+ </div>
+ </div>
+ <?php elseif ($mailTransport === 'smtp'): ?>
+ <div class="alert alert-success d-flex align-items-start gap-2 rounded-4 border-0 shadow-sm mb-0">
+ <i class="bi bi-check-circle-fill fs-5"></i>
+ <div>
+ <strong>حالة خادم البريد: نشط — SMTP</strong><br>
+ <small class="text-muted">سيُرسل البريد فعلياً عبر خادم SMTP المضبوط.</small>
+ </div>
+ </div>
+ <?php else: ?>
+ <div class="alert alert-danger d-flex align-items-start gap-2 rounded-4 border-0 shadow-sm mb-0">
+ <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+ <div>
+ <strong>حالة خادم البريد: غير مهيأ — البريد لن يُرسل!</strong><br>
+ <small class="text-muted">أدخل مفتاح Brevo API (الأفضل للاستضافات المجانية) أو بيانات SMTP ثم أرسل بريداً تجريبياً للتأكد قبل إرسال أي حملة. لن تُحتسب أي إرسالة حالياً كبريد حقيقي.</small>
+ </div>
+ </div>
+ <?php endif; ?>
+ </div>
  <div class="col-lg-8">
  <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
  <h5 class="fw-bold mb-3 text-dark">إعدادات خادم البريد الصادر (SMTP Settings)</h5>

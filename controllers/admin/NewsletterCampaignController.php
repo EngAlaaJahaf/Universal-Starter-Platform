@@ -58,10 +58,18 @@ class NewsletterCampaignController extends AdminController
  return $this->redirect('admin/newsletter');
  }
 
- $subscribers = $db->fetchAll("SELECT email FROM newsletters WHERE status='active'");
+ $subscribers = $db->fetchAll("SELECT email, name FROM newsletters WHERE status='active'");
  
  if (empty($subscribers)) {
  Session::flash('error', 'لا يوجد أي مشتركين نشطين في النشرة البريدية حالياً.');
+ return $this->redirect('admin/newsletter');
+ }
+
+ // Never report a fake success: if no real mail server (Brevo API / SMTP) is
+ // configured on THIS server, block the run and explain what to fix.
+ $transport = Mailer::transport();
+ if ($transport === 'simulate') {
+ Session::flash('error', 'لم يُرسل أي بريد: لا يوجد خادم بريد مُهيّأ على هذا الخادم. اذهب إلى تبويب SMTP/Brevo في هذه الصفحة وأدخل مفتاح Brevo API أو إعدادات SMTP، ثم أرسل بريداً تجريبياً للتأكد.');
  return $this->redirect('admin/newsletter');
  }
 
@@ -81,8 +89,8 @@ class NewsletterCampaignController extends AdminController
  ':id' => (int) $id
  ));
 
- $this->audit('send', 'newsletter_campaign', $id, $campaign, array('sent' => $sent, 'failed' => $failed));
- Session::flash('success', "تم إرسال الحملة البريدية بنجاح إلى ({$sent}) مشترك.");
+ $this->audit('send', 'newsletter_campaign', $id, $campaign, array('sent' => $sent, 'failed' => $failed, 'transport' => $transport));
+ Session::flash('success', "تم إرسال الحملة البريدية عبر " . ($transport === 'brevo' ? 'Brevo API' : 'SMTP') . " إلى ({$sent}) مشترك، وفشل ({$failed}).");
  return $this->redirect('admin/newsletter');
  }
 

@@ -2,6 +2,24 @@
 
 class Mailer
 {
+    /**
+     * Returns the transport that will be used: 'brevo', 'smtp' or 'simulate'.
+     * 'simulate' means NO real mail server is configured (mail is only logged).
+     */
+    public static function transport()
+    {
+        $brevoKey = trim((string) Settings::get('brevo_api_key', (defined('BREVO_API_KEY') ? BREVO_API_KEY : '')));
+        if ($brevoKey !== '') {
+            return 'brevo';
+        }
+        $host = Settings::get('smtp_host', SMTP_HOST);
+        $username = Settings::get('smtp_username', SMTP_USERNAME);
+        if (!empty($host) && !empty($username)) {
+            return 'smtp';
+        }
+        return 'simulate';
+    }
+
     public static function send($to, $subject, $html, $text = null)
     {
         $fromEmail = Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@technews.local');
@@ -21,15 +39,16 @@ class Mailer
         $password = Settings::get('smtp_password', SMTP_PASSWORD);
         $encryption = Settings::get('smtp_encryption', SMTP_ENCRYPTION ?: 'tls');
 
-        // 3. If no SMTP is configured in localhost, log the email to storage/logs/mail.log
+        // 3. If no SMTP is configured, log the email locally and report it as
+        // simulated — callers buy into it only when they explicitly handle it.
         if (empty($host) || empty($username)) {
-            $logEntry = "[" . date('Y-m-d H:i:s') . "] TO: {$to} | SUBJECT: {$subject}\n" . strip_tags($html) . "\n----------------------------------------\n";
+            $logEntry = "[" . date('Y-m-d H:i:s') . "][SIMULATED — no SMTP/Brevo configured] TO: {$to} | SUBJECT: {$subject}\n" . strip_tags($html) . "\n----------------------------------------\n";
             $logDir = __DIR__ . '/../storage/logs';
             if (!is_dir($logDir)) {
                 @mkdir($logDir, 0777, true);
             }
             @file_put_contents($logDir . '/mail.log', $logEntry, FILE_APPEND);
-            return true; // Marked as simulated/sent successfully in dev mode
+            return false; // NOT a real send — callers must not count it as delivered
         }
 
         // 3. Real SMTP Transport via Socket Stream
