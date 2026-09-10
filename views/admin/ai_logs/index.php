@@ -84,6 +84,42 @@ if ($_msg = Session::getFlash('success')): ?>
   </div>
  </div>
 </div>
+<!-- Reactions summary -->
+<div class="row g-3 mb-4">
+ <div class="col-md-3 col-sm-6">
+  <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+   <div class="d-flex align-items-center justify-content-between">
+    <div>
+     <span class="text-muted small d-block mb-1">تقييم إعجاب 👍</span>
+     <h3 class="fw-bold mb-0 text-success"><?= number_format($stats['like']) ?></h3>
+    </div>
+    <div class="p-3 bg-success bg-opacity-10 text-success rounded-4"><i class="bi bi-hand-thumbs-up fs-4"></i></div>
+   </div>
+  </div>
+ </div>
+ <div class="col-md-3 col-sm-6">
+  <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+   <div class="d-flex align-items-center justify-content-between">
+    <div>
+     <span class="text-muted small d-block mb-1">تقييم عدم إعجاب 👎</span>
+     <h3 class="fw-bold mb-0 text-danger"><?= number_format($stats['dislike']) ?></h3>
+    </div>
+    <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-4"><i class="bi bi-hand-thumbs-down fs-4"></i></div>
+   </div>
+  </div>
+ </div>
+ <div class="col-md-3 col-sm-6">
+  <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+   <div class="d-flex align-items-center justify-content-between">
+    <div>
+     <span class="text-muted small d-block mb-1">تقييم رائع ❤️</span>
+     <h3 class="fw-bold mb-0 text-primary"><?= number_format($stats['love']) ?></h3>
+    </div>
+    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-4"><i class="bi bi-heart-fill fs-4"></i></div>
+   </div>
+  </div>
+ </div>
+</div>
 
 <!-- Search -->
 <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">

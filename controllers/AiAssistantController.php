@@ -75,7 +75,7 @@ class AiAssistantController extends Controller
 
         if (!empty($result['success'])) {
             AiChatAssistant::consumeOne($db, $userId, $quota);
-            AiChatAssistant::logConversation($db, $userId, [
+            $convId = AiChatAssistant::logConversation($db, $userId, [
                 'question'  => $question,
                 'answer'    => $result['answer'],
                 'provider'  => $result['provider'] ?? '',
@@ -89,6 +89,7 @@ class AiAssistantController extends Controller
                 'answer'   => $result['answer'],
                 'provider' => $result['provider'] ?? '',
                 'sources'  => $result['sources'] ?? [],
+                'convId'   => $convId,
                 'quota'    => $quota,
                 'used'     => $quota['used'],
                 'limit'    => $daily,
@@ -97,7 +98,7 @@ class AiAssistantController extends Controller
             return;
         }
 
-        AiChatAssistant::logConversation($db, $userId, [
+        $convId = AiChatAssistant::logConversation($db, $userId, [
             'question'  => $question,
             'status'    => 'error',
             'error'     => $result['error'] ?? 'تعذر الحصول على إجابة.',
@@ -109,9 +110,62 @@ class AiAssistantController extends Controller
             'success' => false,
             'error'   => $result['error'] ?? 'تعذر الحصول على إجابة. حاول مجدداً.',
             'attempts'=> $result['attempts'] ?? null,
+            'convId'  => $convId,
             'quota'   => $quota,
             'used'    => $used,
             'limit'   => $daily
         ], JSON_UNESCAPED_UNICODE);
+    }
+
+    /** Persist a member's like/dislike on a past assistant answer. */
+    public function reaction()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'error' => 'الطريقة غير مسموحة.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        if (!Auth::isLoggedIn()) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'error' => 'سجّل دخولك أولاً.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        CSRF::validate();
+
+        $raw = file_get_contents('php://input');
+        $body = $raw ? json_decode($raw, true) : null;
+        if (!is_array($body)) {
+            $body = [];
+        }
+
+        $convId = (int) ($body['conv_id'] ?? 0);
+        $value = (string) ($body['value'] ?? '');
+        if (!in_array($value, ['like', 'dislike', 'love', ''], true)) {
+            $value = '';
+        }
+
+        $userId = (int) (Auth::user()['id'] ?? 0);
+        $db = Database::getInstance();
+
+        if (!AiChatAssistant::conversationTableReady($db)) {
+            echo json_encode(['success' => false, 'error' => 'سجلات المحادثات غير مفعّلة بعد.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $owned = $db->fetch('SELECT id FROM ai_conversations WHERE id = ? AND user_id = ? LIMIT 1', [$convId, $userId]);
+        if (!$owned) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'error' => 'الرسالة غير موجودة.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $db->query(
+            'UPDATE ai_conversations SET reaction = ?, reaction_at = NOW() WHERE id = ? AND user_id = ?',
+            [$value === '' ? null : $value, $convId, $userId]
+        );
+
+        echo json_encode(['success' => true, 'reaction' => $value], JSON_UNESCAPED_UNICODE);
     }
 }

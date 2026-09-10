@@ -154,6 +154,31 @@ class DbHealth
             'required' => true,
         ];
 
+        // Reaction columns added to ai_conversations by the same migration.
+        $convCols = ['reaction', 'reaction_at'];
+        $foundConvCols = [];
+        try {
+            $stmt = $pdo->query(
+                "SELECT COLUMN_NAME FROM information_schema.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ai_conversations'
+                 AND COLUMN_NAME IN ('reaction','reaction_at')"
+            );
+            $foundConvCols = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        } catch (Exception $e) {
+            $foundConvCols = [];
+        }
+        foreach ($convCols as $col) {
+            $ok = in_array($col, $foundConvCols, true);
+            $checks[] = [
+                'ok'       => $ok,
+                'label'    => 'عمود ai_conversations.' . $col,
+                'hint'     => $ok
+                    ? 'موجود (يتلقّى تقييم الأعضاء 👍/👎 على رسائل المرشد)'
+                    : 'أعد تنفيذ ملف migrate_ai_conversations.sql من SQL Tab لإضافة عمود التقييم.',
+                'required' => true,
+            ];
+        }
+
         $requiredOk = true;
         foreach ($checks as $c) {
             if ($c['required'] && !$c['ok']) {

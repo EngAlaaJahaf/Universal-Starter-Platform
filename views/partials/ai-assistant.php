@@ -94,7 +94,10 @@ $aiSubtitle = $aiLoggedIn ? 'مساعدك التقني من محتوى عصب ا
                 <h2 class="ai-panel-title">مرشد عصب التقنية</h2>
                 <p class="ai-panel-subtitle"><?= htmlspecialchars($aiSubtitle, ENT_QUOTES, 'UTF-8') ?></p>
             </div>
-            <button type="button" class="ai-panel-close" id="aiPanelClose" aria-label="إغلاق المحادثة">✕</button>
+            <button type="button" class="ai-panel-reset" id="aiReset" aria-label="بدء محادثة جديدة" title="بدء محادثة جديدة">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+                </button>
+                <button type="button" class="ai-panel-close" id="aiPanelClose" aria-label="إغلاق المحادثة">✕</button>
         </header>
 
         <div class="ai-messages" id="aiMessages" role="log" aria-live="polite">

@@ -19,23 +19,31 @@ class AiLogsController extends AdminController
         $tableReady = AiChatAssistant::conversationTableReady($db);
 
         // Global stats (fail gracefully when the table is still missing).
-        $stats = ['total' => 0, 'ok' => 0, 'error' => 0, 'users' => 0];
+        $stats = ['total' => 0, 'ok' => 0, 'error' => 0, 'users' => 0, 'like' => 0, 'dislike' => 0, 'love' => 0];
         $missingTable = !$tableReady;
         if ($tableReady) {
             try {
                 $r = $db->fetch("SELECT COUNT(*) AS total,
                                     COALESCE(SUM(status = 'ok'), 0) AS ok,
                                     COALESCE(SUM(status = 'error'), 0) AS err,
-                                    COUNT(DISTINCT user_id) AS users
+                                    COUNT(DISTINCT user_id) AS users,
+                                    COALESCE(SUM(reaction = 'like'), 0) AS likes,
+                                    COALESCE(SUM(reaction = 'dislike'), 0) AS dislikes,
+                                    COALESCE(SUM(reaction = 'love'), 0) AS loves
                                  FROM ai_conversations");
                 $stats = [
-                    'total' => (int) ($r['total'] ?? 0),
-                    'ok'    => (int) ($r['ok'] ?? 0),
-                    'error' => (int) ($r['err'] ?? 0),
-                    'users' => (int) ($r['users'] ?? 0),
+                    'total'  => (int) ($r['total'] ?? 0),
+                    'ok'     => (int) ($r['ok'] ?? 0),
+                    'error'  => (int) ($r['err'] ?? 0),
+                    'users'  => (int) ($r['users'] ?? 0),
+                    'like'   => (int) ($r['likes'] ?? 0),
+                    'dislike'=> (int) ($r['dislikes'] ?? 0),
+                    'love'   => (int) ($r['loves'] ?? 0),
                 ];
             } catch (Throwable $e) {
-                $missingTable = true;
+                // Stats query can fail if the reaction columns are still
+                // missing; the users list below still works without them.
+                $stats = ['total' => 0, 'ok' => 0, 'error' => 0, 'users' => 0, 'like' => 0, 'dislike' => 0, 'love' => 0];
             }
         }
 

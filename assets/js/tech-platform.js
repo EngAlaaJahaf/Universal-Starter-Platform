@@ -1269,18 +1269,174 @@
         .replace(/'/g, '&#39;');
     }
 
-    function renderAnswer(text) {
-      let html = escapeHtml(text);
-      // Markdown links [text](/article/slug)
-      html = html.replace(/\[([^\]]+)\]\((\/(?:article|tutorial|category)\/[^)\s]+)\)/g, function (m, label, href) {
+    // Clean up markup the model sometimes smuggles out (e.g. <a href=...> or
+    // leftover `" target="_blank" rel="noopener noreferrer">` fragments) into
+    // plain markdown-friendly text before rendering. Everything is escaped
+    // later, so this is purely a readability pass.
+    function normalizeModelMarkup(text) {
+      let t = String(text || '');
+      t = t.replace(/<a\s+[^>]*?href\s*=\s*["']?([^"'\s>]+)["']?[^>]*>([\s\S]*?)<\/a>/gi, (m, u, l) => {
+        return '[' + (l || '').trim() + '](' + u + ')';
+      });
+      t = t.replace(/<\/?a\b[^>]*>/gi, '');
+      t = t.replace(/\s+(?:target|rel|class|style|aria-[a-z0-9-]+|data-[a-z0-9-]+)\s*=\s*"[^"]*"/gi, '');
+      t = t.replace(/(https?:\/\/[^\s<>"']+)"\s*>/gi, '$1');
+      return t;
+    }
+
+    // Inline markdown transforms (receive ALREADY-escaped text).
+    function inlineMarkdown(t) {
+      t = t.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+      t = t.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+      t = t.replace(/__([^_\n]+)__/g, '<strong>$1</strong>');
+      t = t.replace(/(^|[^*\w])\*([^*\n]+)\*(?!\*)(?=[^*\w]|$)/g, '$1<em>$2</em>');
+      t = t.replace(/~~([^~\n]+)~~/g, '<del>$1</del>');
+      t = t.replace(/\[([^\]]+)\]\(\/(?:article|tutorial|category)\/[^)\s]+\)/g, function (m, label) {
+        const href = m.match(/\((\/[^)\s]+)\)/)[1];
         return '<a href="' + base + href + '">' + label + '</a>';
       });
-      html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-      // Bare links
-      html = html.replace(/(https?:\/\/[^\s<>]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
-      // Bold
-      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-      return html;
+      t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+      t = t.replace(/(?:(?:https?|ftp):\/\/[^\s<>"']+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+      return t;
+    }
+
+    function renderCodeBlock(raw) {
+      const pre = document.createElement('pre');
+      pre.className = 'ai-code';
+      const code = document.createElement('code');
+      code.textContent = raw.replace(/\n$/, '');
+      pre.appendChild(code);
+      const cp = document.createElement('button');
+      cp.type = 'button';
+      cp.className = 'ai-code-copy';
+      cp.textContent = 'نسخ الكود';
+      cp.addEventListener('click', () => copyText(raw, cp));
+      pre.appendChild(cp);
+      return pre;
+    }
+
+    // Block-level markdown -> safe DOM. Returns a DocumentFragment of nodes.
+    function renderMarkdown(src) {
+      const text = normalizeModelMarkup(src);
+      const frag = document.createDocumentFragment();
+      const lines = text.split(/\r?\n/);
+      let html = '';
+      let inCode = false;
+      let codeBuf = [];
+
+      const closeList = (tag) => {
+        if (html === '') return;
+        html += '</' + tag + '>';
+      };
+
+      function flushParagraph() {
+        if (html.trim() !== '') {
+          html = html.replace(/<br>\s*$/, '');
+          const div = document.createElement('p');
+          div.className = 'ai-para';
+          div.innerHTML = inlineMarkdown(escapeHtml(html));
+          frag.appendChild(div);
+          html = '';
+        }
+      }
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        if (/^\s*```/.test(line)) {
+          if (inCode) {
+            const pre = renderCodeBlock(codeBuf.join('\n'));
+            frag.appendChild(pre);
+            codeBuf = [];
+            inCode = false;
+          } else {
+            flushParagraph();
+            inCode = true;
+          }
+          continue;
+        }
+        if (inCode) {
+          codeBuf.push(line);
+          continue;
+        }
+
+        const h = line.match(/^(#{1,6})\s+(.+)$/);
+        if (h) {
+          flushParagraph();
+          const level = Math.min(6, h[1].length);
+          const el = document.createElement('h' + level);
+          el.className = 'ai-h';
+          el.innerHTML = inlineMarkdown(escapeHtml(h[2]));
+          frag.appendChild(el);
+          continue;
+        }
+        if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
+          flushParagraph();
+          frag.appendChild(document.createElement('hr'));
+          continue;
+        }
+        if (/^>\s?/.test(line)) {
+          flushParagraph();
+          let q = [];
+          while (i < lines.length && /^>\s?/.test(lines[i])) {
+            q.push(lines[i].replace(/^>\s?/, ''));
+            i++;
+          }
+          i--;
+          const bq = document.createElement('blockquote');
+          bq.className = 'ai-quote';
+          bq.innerHTML = inlineMarkdown(escapeHtml(q.join('<br>')));
+          frag.appendChild(bq);
+          continue;
+        }
+        if (/^\s*[-*+]\s+/.test(line)) {
+          flushParagraph();
+          let items = [];
+          while (i < lines.length && /^\s*[-*+]\s+/.test(lines[i])) {
+            items.push(lines[i].replace(/^\s*[-*+]\s+/, ''));
+            i++;
+          }
+          i--;
+          const ul = document.createElement('ul');
+          ul.className = 'ai-ul';
+          items.forEach((it) => {
+            const li = document.createElement('li');
+            li.innerHTML = inlineMarkdown(escapeHtml(it));
+            ul.appendChild(li);
+          });
+          frag.appendChild(ul);
+          continue;
+        }
+        if (/^\s*\d+[\.\)]\s+/.test(line)) {
+          flushParagraph();
+          let items = [];
+          while (i < lines.length && /^\s*\d+[\.\)]\s+/.test(lines[i])) {
+            items.push(lines[i].replace(/^\s*\d+[\.\)]\s+/, ''));
+            i++;
+          }
+          i--;
+          const ol = document.createElement('ol');
+          ol.className = 'ai-ol';
+          items.forEach((it) => {
+            const li = document.createElement('li');
+            li.innerHTML = inlineMarkdown(escapeHtml(it));
+            ol.appendChild(li);
+          });
+          frag.appendChild(ol);
+          continue;
+        }
+
+        if (line.trim() === '') {
+          flushParagraph();
+          continue;
+        }
+        html += (html === '' ? '' : '<br>') + line;
+      }
+      flushParagraph();
+      if (inCode && codeBuf.length) {
+        frag.appendChild(renderCodeBlock(codeBuf.join('\n')));
+      }
+      return frag;
     }
 
     // The model sometimes stubbornly appends its own «المصادر:» listing even
@@ -1307,14 +1463,96 @@
       return lines.slice(0, end).join('\n').replace(/\n{3,}/g, '\n\n').trim();
     }
 
-    function appendMessage(role, contentHtml, sources) {
+    function timeLabel() {
+      try { return new Date().toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
+    }
+
+    function copyText(text, btn) {
+      const done = () => {
+        if (btn) { const old = btn.textContent; btn.textContent = 'تم النسخ ✓'; setTimeout(() => { btn.textContent = old; }, 1500); }
+        if (window.showToast) showToast('تم نسخ النص.');
+      };
+      const fallback = () => {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          if (document.execCommand('copy')) done(); else if (window.showToast) showToast('تعذر النسخ.');
+          ta.remove();
+        } catch (e) { if (window.showToast) showToast('تعذر النسخ.'); }
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(fallback);
+      } else {
+        fallback();
+      }
+    }
+
+    const reactionsKey = 'ai_assistant_reactions';
+    function loadReactions() { try { return JSON.parse(localStorage.getItem(reactionsKey) || '{}') || {}; } catch (e) { return {}; } }
+    function storeReaction(cid, v) {
+      const m = loadReactions();
+      if (v === '') delete m[cid]; else m[cid] = v;
+      try { localStorage.setItem(reactionsKey, JSON.stringify(m)); } catch (e) {}
+    }
+
+    function sendReaction(cid, value, groupEl) {
+      const state = loadReactions();
+      const next = state[cid] === value ? '' : value;
+      groupEl.querySelectorAll('[data-reaction]').forEach((b) => {
+        b.classList.toggle('active', b.getAttribute('data-reaction') === next);
+      });
+      storeReaction(cid, next);
+      fetch(base + '/ai-assistant/reaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrf, 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ conv_id: cid, value: next })
+      })
+        .then(res => res.json().catch(() => ({ success: false })))
+        .then(data => {
+          if (!data || !data.success) {
+            if (window.showToast) showToast('تعذر حفظ التقييم.', '⚠️');
+            groupEl.querySelectorAll('[data-reaction]').forEach((b) => {
+              b.classList.toggle('active', b.getAttribute('data-reaction') === state[cid]);
+            });
+          }
+        })
+        .catch(() => { if (window.showToast) showToast('تعذر حفظ التقييم.', '⚠️'); });
+    }
+
+    function reactionButtons(convId) {
+      const wrap = document.createElement('div');
+      wrap.className = 'ai-msg-actions';
+      const cfg = [
+        ['like', 'like', 'محبب'],
+        ['love', 'love', 'رائع'],
+        ['dislike', 'dislike', 'غير جيد']
+      ];
+      const state = loadReactions();
+      cfg.forEach(([key, title]) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'ai-react ' + (state[convId] === key ? 'active' : '');
+        b.setAttribute('data-reaction', key);
+        b.title = title;
+        b.innerHTML = key === 'like' ? '👍' : (key === 'love' ? '❤️' : '👎');
+        b.addEventListener('click', () => sendReaction(convId, key, wrap));
+        wrap.appendChild(b);
+      });
+      return wrap;
+    }
+
+    function appendMessage(role, contentHtml, sources, rawText, convId) {
       const row = document.createElement('div');
       row.className = 'ai-msg ' + (role === 'user' ? 'ai-msg-user' : 'ai-msg-ai');
       const bubble = document.createElement('div');
       bubble.className = 'ai-msg-bubble ' + (role === 'user' ? 'ai-msg-bubble-user' : 'ai-msg-bubble-ai');
       const text = document.createElement('div');
       text.className = 'ai-msg-text';
-      text.innerHTML = contentHtml;
+      if (contentHtml instanceof Node) text.appendChild(contentHtml); else text.innerHTML = contentHtml;
       bubble.appendChild(text);
       if (Array.isArray(sources) && sources.length > 0 && role === 'ai' && sourcesOn) {
         const src = document.createElement('div');
@@ -1328,6 +1566,31 @@
           src.appendChild(a);
         });
         bubble.appendChild(src);
+      }
+      // Actions bar: time + copy (+ like/dislike/love for assistant answers).
+      if (rawText || role === 'ai') {
+        const meta = document.createElement('div');
+        meta.className = 'ai-msg-meta';
+        const tm = document.createElement('span');
+        tm.className = 'ai-msg-time';
+        tm.textContent = timeLabel();
+        meta.appendChild(tm);
+        const actions = document.createElement('div');
+        actions.className = 'ai-msg-actions';
+        if (rawText) {
+          const cb = document.createElement('button');
+          cb.type = 'button';
+          cb.className = 'ai-copy';
+          cb.title = 'نسخ الرسالة';
+          cb.innerHTML = '<i class="bi bi-copy"></i> نسخ';
+          cb.addEventListener('click', () => copyText(rawText, cb));
+          actions.appendChild(cb);
+        }
+        if (role === 'ai' && convId) {
+          actions.appendChild(reactionButtons(convId));
+        }
+        if (actions.childNodes.length) meta.appendChild(actions);
+        bubble.appendChild(meta);
       }
       row.appendChild(bubble);
       if (messages) {
@@ -1416,11 +1679,11 @@
 
           if (data && data.success) {
             const sources = data.sources || [];
-            const answerHtml = (sourcesOn && sources.length > 0)
-              ? renderAnswer(stripRedundantSources(data.answer || '', true))
-              : renderAnswer(data.answer || '');
-            appendMessage('ai', answerHtml, sources);
-            history.push({ role: 'assistant', content: data.answer || '' });
+            const clean = (sourcesOn && sources.length > 0)
+              ? stripRedundantSources(data.answer || '', true)
+              : (data.answer || '');
+            appendMessage('ai', renderMarkdown(clean), sources, clean, data.convId || 0);
+            history.push({ role: 'assistant', content: clean, convId: data.convId || 0 });
             persistHistory();
             updateQuota(data.quota || { used: data.used, daily: data.limit, boost: data.boost || 0 });
           } else if (data && data.auth) {
@@ -1459,8 +1722,38 @@
       if (open && input) input.focus();
     }
 
+    function buildWelcomeRow() {
+      const row = document.createElement('div');
+      row.className = 'ai-msg ai-msg-ai';
+      const bub = document.createElement('div');
+      bub.className = 'ai-msg-bubble ai-msg-bubble-ai';
+      const t = document.createElement('div');
+      t.className = 'ai-msg-text';
+      t.textContent = (cf.welcome || 'مرحباً 👋 اسألني عن آخر أخبار التقنية والمقالات المنشورة في المنصة.');
+      bub.appendChild(t);
+      row.appendChild(bub);
+      return row;
+    }
+
+    function resetChat() {
+      history = [];
+      persistHistory();
+      if (!messages) return;
+      messages.querySelectorAll('.ai-msg, .ai-suggestions').forEach((n) => n.remove());
+      messages.appendChild(buildWelcomeRow());
+      if (suggestions) {
+        suggestions.style.display = '';
+        messages.appendChild(suggestions);
+      }
+      scrollToBottom();
+      if (window.showToast) showToast('بدأت محادثة جديدة.');
+      if (input) input.focus();
+    }
+
     if (launcher) launcher.addEventListener('click', () => setOpen(!wrapper.classList.contains('is-open')));
     if (closeBtn) closeBtn.addEventListener('click', () => setOpen(false));
+    const resetBtn = document.getElementById('aiReset');
+    if (resetBtn) resetBtn.addEventListener('click', () => resetChat());
     if (input) {
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -1482,9 +1775,18 @@
       });
     }
 
-    // Restore last open state
+    // Restore last open state + re-paint the member's previous chat so it
+    // survives a page refresh (last 8 exchanges kept in localStorage).
     let wasOpen = '0';
     try { wasOpen = localStorage.getItem(storageKey) || '0'; } catch (e) {}
+    history.forEach((m) => {
+      if (m.role === 'user') {
+        appendMessage('user', escapeHtml(m.content || ''), null, m.content || '');
+      } else {
+        appendMessage('ai', renderMarkdown(m.content || ''), null, m.content || '', m.convId || 0);
+      }
+    });
+    if (history.length && suggestions) suggestions.style.display = 'none';
     setOpen(wasOpen === '1' || bypass);
     scrollToBottom();
   })();

@@ -37,6 +37,12 @@ $title = 'محادثة المستخدم مع المرشد';
     <div class="rounded-4 px-3 py-2" style="max-width:80%; background:#f8f9fa; border-start-start-radius:4px; width:100%;">
      <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
       <span class="badge bg-info-subtle text-info"><i class="bi bi-robot me-1"></i><?= admin_e($row['provider'] ?: 'أساسي') ?></span>
+      <?php if (!empty($row['reaction'])): ?>
+       <span class="badge <?= $row['reaction'] === 'dislike' ? 'bg-danger bg-opacity-10 text-danger border' : ($row['reaction'] === 'love' ? 'bg-primary bg-opacity-10 text-primary border' : 'bg-success bg-opacity-10 text-success border') ?>">
+        <?= $row['reaction'] === 'like' ? '<i class="bi bi-hand-thumbs-up"></i> إعجاب' : ($row['reaction'] === 'dislike' ? '<i class="bi bi-hand-thumbs-down"></i> عدم إعجاب' : '<i class="bi bi-heart-fill"></i> رائع') ?>
+        <?php if (!empty($row['reaction_at'])): ?> <span class="text-muted small" dir="ltr">(<?= admin_e(fmt_date($row['reaction_at'], 'Y-m-d H:i')) ?>)</span><?php endif; ?>
+       </span>
+      <?php endif; ?>
       <?php if ($row['status'] === 'error'): ?>
        <span class="badge bg-danger bg-opacity-10 text-danger border"><i class="bi bi-x-circle me-1"></i> فشل / خطأ مزوّد</span>
       <?php else: ?>

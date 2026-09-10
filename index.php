@@ -590,6 +590,7 @@ $router->get('/poll/active', 'PollController@active');
 
 // AI Assistant Chat (RAG over published articles)
 $router->post('/ai-assistant/ask', 'AiAssistantController@ask');
+$router->post('/ai-assistant/reaction', 'AiAssistantController@reaction');
 
 // Bookmarks & Push Notifications
 $router->get('/bookmarks', 'BookmarkController@index');
