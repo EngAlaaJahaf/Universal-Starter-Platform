@@ -24,8 +24,9 @@ class AiAssistantController extends Controller
             echo json_encode([
                 'success'  => false,
                 'auth'     => true,
-                'error'    => 'سجّل دخولك إلى حسابك لتتمكن من سؤال مرشد عصب التقنية.',
-                'loginUrl' => app_url('login')
+                'error'    => 'هذه الميزة متاحة للأعضاء المسجلين فقط. سجّل دخولك لتتمكن من سؤال المرشد.',
+                'loginUrl' => app_url('login'),
+                'registerUrl' => app_url('register')
             ], JSON_UNESCAPED_UNICODE);
             return;
         }
@@ -49,23 +50,23 @@ class AiAssistantController extends Controller
             return;
         }
 
-        $limit = AiChatAssistant::freeLimit();
         $user = Auth::user();
         $userId = (int) ($user['id'] ?? 0);
         $isAdmin = Auth::isAdmin();
 
-        // Per-user DAILY budget (reset at the site's midnight).
+        // Per-user budget: daily allowance (per-user override or global) + one-time boosts.
         $db = Database::getInstance();
-        $quota = AiChatAssistant::quotaUsedToday($db, $userId);
-        $used = $quota['used'];
+        $quota = AiChatAssistant::userQuotaSummary($db, $userId);
+        $daily  = $quota['daily'];
+        $used   = $quota['used'];
+        $boost  = $quota['boost'];
 
-        if (!$isAdmin && $limit > 0 && $used >= $limit) {
+        if (!$isAdmin && $daily > 0 && $used >= $daily && $boost <= 0) {
             http_response_code(403);
             echo json_encode([
                 'success' => false,
-                'error'   => 'استنفدت أسئلتك الثلاثة لهذا اليوم. عُد غداً وقدّمت لك 3 أسئلة جديدة.',
-                'limit'   => $limit,
-                'used'    => $used
+                'error'   => 'استنفدت أسئلتك لهذا اليوم. عُد غداً وقدّمت لك أسئلة جديدة، أو اطلب من الإدارة زيادة حصتك.',
+                'quota'   => $quota
             ], JSON_UNESCAPED_UNICODE);
             return;
         }
@@ -73,25 +74,44 @@ class AiAssistantController extends Controller
         $result = AiChatAssistant::ask($question, $history, ['page_slug' => $pageSlug]);
 
         if (!empty($result['success'])) {
-            AiChatAssistant::bumpQuota($db, $userId);
+            AiChatAssistant::consumeOne($db, $userId, $quota);
+            AiChatAssistant::logConversation($db, $userId, [
+                'question'  => $question,
+                'answer'    => $result['answer'],
+                'provider'  => $result['provider'] ?? '',
+                'status'    => 'ok',
+                'sources'   => $result['sources'] ?? [],
+                'page_slug' => $pageSlug,
+            ]);
+            $quota['remaining'] = AiChatAssistant::userQuotaSummary($db, $userId)['remaining'];
             echo json_encode([
                 'success'  => true,
                 'answer'   => $result['answer'],
                 'provider' => $result['provider'] ?? '',
                 'sources'  => $result['sources'] ?? [],
-                'used'     => $used + 1,
-                'limit'    => $limit,
-                'resetAt'  => AiChatAssistant::todaySiteDate()
+                'quota'    => $quota,
+                'used'     => $quota['used'],
+                'limit'    => $daily,
+                'boost'    => $boost
             ], JSON_UNESCAPED_UNICODE);
             return;
         }
+
+        AiChatAssistant::logConversation($db, $userId, [
+            'question'  => $question,
+            'status'    => 'error',
+            'error'     => $result['error'] ?? 'تعذر الحصول على إجابة.',
+            'provider'  => $result['provider'] ?? '',
+            'page_slug' => $pageSlug,
+        ]);
 
         echo json_encode([
             'success' => false,
             'error'   => $result['error'] ?? 'تعذر الحصول على إجابة. حاول مجدداً.',
             'attempts'=> $result['attempts'] ?? null,
+            'quota'   => $quota,
             'used'    => $used,
-            'limit'   => $limit
+            'limit'   => $daily
         ], JSON_UNESCAPED_UNICODE);
     }
 }

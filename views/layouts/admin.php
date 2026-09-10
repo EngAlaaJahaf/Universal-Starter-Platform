@@ -1051,6 +1051,9 @@ if (!function_exists('is_admin_active')) {
  <a class="nav-link-admin <?= is_admin_active('admin/translation-logs', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/translation-logs')) ?>" title="سجلات وأخطاء الترجمة (AI & Provider Logs)">
  <i class="bi bi-translate text-success"></i> <span class="nav-text">سجلات وأخطاء الترجمة</span>
  </a>
+ <a class="nav-link-admin <?= is_admin_active('admin/ai-logs', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/ai-logs')) ?>" title="سجلات محادثات المرشد وحصص الأعضاء">
+ <i class="bi bi-robot text-primary"></i> <span class="nav-text">محادثات المرشد والحصص</span>
+ </a>
  <a class="nav-link-admin <?= is_admin_active('admin/media', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/media')) ?>" title="مكتبة الوسائط">
  <i class="bi bi-images"></i> <span class="nav-text">مكتبة الوسائط</span>
  </a>

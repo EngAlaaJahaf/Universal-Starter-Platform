@@ -108,14 +108,15 @@ class DbHealth
             ];
         }
 
-        // Columns added by migrate_ai_daily_quota.sql: login-only daily chat quota.
-        $quotaCols = ['ai_quota_date', 'ai_quota_used'];
+        // Columns added by migrate_ai_daily_quota.sql: member daily chat quota
+        // + one-time admin boosts + per-user override.
+        $quotaCols = ['ai_quota_date', 'ai_quota_used', 'ai_quota_boost', 'ai_quota_daily'];
         $foundQuota = [];
         try {
             $stmt = $pdo->query(
                 "SELECT COLUMN_NAME FROM information_schema.COLUMNS
                  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users'
-                 AND COLUMN_NAME IN ('ai_quota_date','ai_quota_used')"
+                 AND COLUMN_NAME IN ('ai_quota_date','ai_quota_used','ai_quota_boost','ai_quota_daily')"
             );
             $foundQuota = $stmt->fetchAll(PDO::FETCH_COLUMN);
         } catch (Exception $e) {
@@ -128,10 +129,30 @@ class DbHealth
                 'label'    => 'عمود users.' . $col,
                 'hint'     => $ok
                     ? 'موجود (ترحيل مطبق)'
-                    : 'نفّذ ملف migrate_ai_daily_quota.sql من SQL Tab (مطلوب للحصة اليومية للمسجلين).',
+                    : 'نفّذ ملف migrate_ai_daily_quota.sql من SQL Tab (مطلوب للحصة اليومية والإضافية للمسجلين).',
                 'required' => true,
             ];
         }
+
+        // Table added by migrate_ai_conversations.sql: assistant conversation log.
+        $convTableOk = false;
+        try {
+            $stmt = $pdo->query(
+                "SELECT TABLE_NAME FROM information_schema.TABLES
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ai_conversations'"
+            );
+            $convTableOk = (bool) $stmt->fetchColumn();
+        } catch (Exception $e) {
+            $convTableOk = false;
+        }
+        $checks[] = [
+            'ok'       => $convTableOk,
+            'label'    => 'جدول ai_conversations',
+            'hint'     => $convTableOk
+                ? 'موجود (ترحيل مطبق) — تُسجَّل هنا محادثات المرشد مع الأعضاء'
+                : 'نفّذ ملف migrate_ai_conversations.sql من SQL Tab (مطلوب لسجلات المحادثات في اللوحة).',
+            'required' => true,
+        ];
 
         $requiredOk = true;
         foreach ($checks as $c) {

@@ -1,14 +1,12 @@
 <?php
 /*
  * AI Assistant floating chat widget («مرشد عصب التقنية»)
- * LOGIN-ONLY: rendered for registered members only (guests never see it), and
- * each member gets a DAILY question budget from the settings table.
+ * VISIBLE TO EVERYONE (launcher + panel), but ONLY registered members may
+ * actually send questions; the JS answers guests instantly with a
+ * members-only notice, and the server enforces it too (401).
  */
 if (!class_exists('AiChatAssistant') || !AiChatAssistant::enabled()) {
     return;
-}
-if (!Auth::isLoggedIn()) {
-    return; // guests are not allowed to use the assistant
 }
 
 // --- Where does the widget appear? (all / home / articles / none) ---
@@ -46,22 +44,39 @@ if ((string) Settings::get('ai_assistant_suggestions_enabled', '1') === '1') {
     }
 }
 
+$aiLoggedIn = Auth::isLoggedIn();
 $aiLimit = AiChatAssistant::freeLimit();
-$aiBypass = Auth::isAdmin() ? 1 : 0;
-if ($aiBypass) {
-    $aiUsed = 0;
-} else {
-    $aiUsed = AiChatAssistant::quotaUsedToday(Database::getInstance(), (int) (Auth::user()['id'] ?? 0))['used'];
-}
-$aiRemaining = $aiLimit > 0 ? max(0, $aiLimit - $aiUsed) : null;
-if ($aiBypass) {
+$aiBypass = $aiLoggedIn && Auth::isAdmin() ? 1 : 0;
+$aiDaily = $aiLimit;
+$aiUsed = 0;
+$aiBoost = 0;
+$aiRemaining = null;
+$aiUnlimited = false;
+if ($aiLoggedIn && !$aiBypass) {
+    $s = AiChatAssistant::userQuotaSummary(Database::getInstance(), (int) (Auth::user()['id'] ?? 0));
+    $aiDaily = $s['daily'];
+    $aiUsed = $s['used'];
+    $aiBoost = $s['boost'];
+    if ($aiDaily <= 0) {
+        $aiUnlimited = $aiBoost === 0;
+        $aiRemaining = $aiBoost > 0 ? $aiBoost : null;
+    } else {
+        $aiRemaining = max(0, $aiDaily - $aiUsed) + $aiBoost;
+    }
+} elseif ($aiBypass) {
     $aiRemaining = null;
 }
+$aiSubtitle = $aiLoggedIn ? 'مساعدك التقني من محتوى عصب التقنية'
+                          : 'متاح للأعضاء المسجلين — سجّل دخولك لتسأله';
 ?>
 <!-- AI Assistant Chat Widget -->
 <div class="ai-assistant" id="aiAssistant"
-     data-limit="<?= (int) $aiLimit ?>"
+     data-limit="<?= (int) $aiDaily ?>"
      data-remaining="<?= $aiRemaining === null ? '' : (int) $aiRemaining ?>"
+     data-daily="<?= (int) $aiDaily ?>"
+     data-used="<?= (int) $aiUsed ?>"
+     data-boost="<?= (int) $aiBoost ?>"
+     data-logged-in="<?= $aiLoggedIn ? '1' : '0' ?>"
      data-bypass="<?= $aiBypass ?>">
 
     <!-- Launcher -->
@@ -77,7 +92,7 @@ if ($aiBypass) {
             <div class="ai-panel-avatar" aria-hidden="true">🤖</div>
             <div class="ai-panel-title-wrap">
                 <h2 class="ai-panel-title">مرشد عصب التقنية</h2>
-                <p class="ai-panel-subtitle">مساعدك التقني من محتوى عصب التقنية</p>
+                <p class="ai-panel-subtitle"><?= htmlspecialchars($aiSubtitle, ENT_QUOTES, 'UTF-8') ?></p>
             </div>
             <button type="button" class="ai-panel-close" id="aiPanelClose" aria-label="إغلاق المحادثة">✕</button>
         </header>
@@ -107,7 +122,7 @@ if ($aiBypass) {
             <div class="ai-panel-meta">
                 <span><?= htmlspecialchars($aiPrivacy, ENT_QUOTES, 'UTF-8') ?></span>
                 <?php if ($aiRemaining !== null): ?>
-                    <span class="ai-quota" data-counter><?= (int) $aiRemaining ?>/<?= (int) $aiLimit ?> متبقية اليوم</span>
+                    <span class="ai-quota" data-counter><?php if ($aiUnlimited): ?>بلا حد يومي<?php else: ?><?= (int) $aiRemaining ?><?= $aiDaily > 0 ? '/' . (int) $aiDaily . ' متبقية اليوم' : ' متبقية' ?><?= $aiBoost > 0 ? ' (+' . (int) $aiBoost . ' إضافية)' : '' ?><?php endif; ?></span>
                 <?php endif; ?>
             </div>
         </footer>
@@ -117,11 +132,14 @@ if ($aiBypass) {
 <script>
 window.APP_CSRF = <?= json_encode(class_exists('CSRF') ? CSRF::getToken() : '', JSON_UNESCAPED_UNICODE) ?>;
 window.AI_ASSISTANT = {
-    limit: <?= json_encode((int) $aiLimit) ?>,
+    loggedIn: <?= $aiLoggedIn ? '1' : '0' ?>,
+    limit: <?= json_encode((int) $aiDaily) ?>,
     bypass: <?= $aiBypass ? '1' : '0' ?>,
     sources: <?= $aiSourcesOn ? '1' : '0' ?>,
     welcome: <?= json_encode($aiWelcome, JSON_UNESCAPED_UNICODE) ?>,
     placeholder: <?= json_encode($aiPlaceholder, JSON_UNESCAPED_UNICODE) ?>,
-    privacy: <?= json_encode($aiPrivacy, JSON_UNESCAPED_UNICODE) ?>
+    privacy: <?= json_encode($aiPrivacy, JSON_UNESCAPED_UNICODE) ?>,
+    loginUrl: <?= json_encode(app_url('login'), JSON_UNESCAPED_UNICODE) ?>,
+    registerUrl: <?= json_encode(app_url('register'), JSON_UNESCAPED_UNICODE) ?>
 };
 </script>

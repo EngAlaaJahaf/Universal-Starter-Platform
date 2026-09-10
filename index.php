@@ -838,6 +838,10 @@ $router->post('/admin/translation-logs/{id}/delete', 'TranslationLogsController@
 $router->post('/admin/translation-logs/clear-all', 'TranslationLogsController@clearAll');
 $router->post('/admin/translation-logs/clear', 'TranslationLogsController@clearAll');
 $router->post('/admin/translation-logs/test', 'TranslationLogsController@testProvider');
+$router->get('/admin/ai-logs', 'AiLogsController@index');
+$router->get('/admin/ai-logs/conversation', 'AiLogsController@conversation');
+$router->post('/admin/ai-logs/reset', 'AiLogsController@reset');
+$router->post('/admin/ai-logs/boost', 'AiLogsController@boost');
 $router->post('/admin/ai/test-provider', 'TranslationLogsController@testProvider');
 $router->get('/admin/ai/test-provider', 'TranslationLogsController@testProvider');
 $router->get('/admin/ai/models', 'TranslationLogsController@getModels');

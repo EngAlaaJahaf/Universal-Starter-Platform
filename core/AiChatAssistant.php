@@ -25,7 +25,7 @@ class AiChatAssistant
 
     /**
      * Whether the daily-login-quota migration columns exist on users.
-     * Fail-open (no quota) until the admin runs migrate_ai_daily_quota.sql.
+     * Fail-open (no quota) until the admin runs the migration files.
      */
     public static function quotaColumnsReady($db)
     {
@@ -37,10 +37,11 @@ class AiChatAssistant
             $found = $db->fetchAll(
                 "SELECT COLUMN_NAME FROM information_schema.COLUMNS
                  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users'
-                 AND COLUMN_NAME IN ('ai_quota_date','ai_quota_used')"
+                 AND COLUMN_NAME IN ('ai_quota_date','ai_quota_used','ai_quota_boost','ai_quota_daily')"
             );
             $cols = array_column($found, 'COLUMN_NAME');
-            $ready = in_array('ai_quota_date', $cols, true) && in_array('ai_quota_used', $cols, true);
+            $need = ['ai_quota_date', 'ai_quota_used', 'ai_quota_boost', 'ai_quota_daily'];
+            $ready = count(array_intersect($cols, $need)) === count($need);
         } catch (Throwable $e) {
             $ready = false;
         }
@@ -50,16 +51,46 @@ class AiChatAssistant
     /** Used count today for a user (resets when the stored day changes). */
     public static function quotaUsedToday($db, $userId)
     {
+        $s = self::userQuotaSummary($db, $userId);
+        return ['date' => $s['date'], 'used' => $s['used']];
+    }
+
+    /**
+     * Full per-user quota picture:
+     * daily = the member's daily allowance (per-user override OR global setting; 0 = unlimited),
+     * used   = consumed today (site timezone),
+     * boost  = one-time extra messages granted by an admin (consumed first, never "permanent").
+     */
+    public static function userQuotaSummary($db, $userId)
+    {
         $today = self::todaySiteDate();
-        if (!self::quotaColumnsReady($db)) {
-            return ['date' => $today, 'used' => 0];
-        }
-        $user = $db->fetch('SELECT ai_quota_date, ai_quota_used FROM users WHERE id = ? LIMIT 1', [(int) $userId]);
+        $daily = self::freeLimit();
         $used = 0;
-        if ($user && $user['ai_quota_date'] === $today) {
-            $used = (int) $user['ai_quota_used'];
+        $boost = 0;
+        $ready = self::quotaColumnsReady($db);
+        if ($ready) {
+            $user = $db->fetch(
+                "SELECT ai_quota_date, ai_quota_used, ai_quota_boost, ai_quota_daily FROM users WHERE id = ? LIMIT 1",
+                [(int) $userId]
+            );
+            if ($user) {
+                if ($user['ai_quota_daily'] !== null) {
+                    $daily = (int) $user['ai_quota_daily'];
+                }
+                if ($user['ai_quota_date'] === $today) {
+                    $used = (int) $user['ai_quota_used'];
+                }
+                $boost = (int) $user['ai_quota_boost'];
+            }
         }
-        return ['date' => $today, 'used' => $used];
+        return [
+            'date'     => $today,
+            'daily'    => $daily,
+            'used'     => $used,
+            'boost'    => $boost,
+            'remaining'=> ($daily <= 0 ? PHP_INT_MAX : max(0, $daily - $used)) + $boost,
+            'ready'    => $ready,
+        ];
     }
 
     /** Increment today's counter after a successful answer. */
@@ -75,6 +106,104 @@ class AiChatAssistant
                ai_quota_date = VALUES(ai_quota_date),
                ai_quota_used = IF(ai_quota_date = VALUES(ai_quota_date), ai_quota_used + 1, 1)",
             [(int) $userId, $today]
+        );
+    }
+
+    /**
+     * Consume exactly one question: prefer one-time admin boost messages,
+     * otherwise take one from today's daily allowance.
+     */
+    public static function consumeOne($db, $userId, array &$summary)
+    {
+        if (!self::quotaColumnsReady($db)) {
+            return;
+        }
+        if ($summary['boost'] > 0) {
+            $db->query('UPDATE users SET ai_quota_boost = ai_quota_boost - 1 WHERE id = ?', [(int) $userId]);
+            $summary['boost']--;
+            return;
+        }
+        self::bumpQuota($db, $userId);
+        $summary['used']++;
+        $summary['date'] = self::todaySiteDate();
+    }
+
+    // ---- Admin quota management helpers ----
+
+    public static function adminResetQuota($db, $userId)
+    {
+        if (!self::quotaColumnsReady($db)) {
+            return false;
+        }
+        $today = self::todaySiteDate();
+        $db->query('UPDATE users SET ai_quota_used = 0, ai_quota_date = ? WHERE id = ?', [$today, (int) $userId]);
+        return true;
+    }
+
+    public static function adminBoost($db, $userId, $amount)
+    {
+        $amount = max(0, (int) $amount);
+        if (!self::quotaColumnsReady($db) || $amount === 0) {
+            return false;
+        }
+        $db->query('UPDATE users SET ai_quota_boost = ai_quota_boost + ? WHERE id = ?', [$amount, (int) $userId]);
+        return true;
+    }
+
+    /** Set a permanent per-user daily allowance (null = back to the global setting). */
+    public static function adminSetDaily($db, $userId, $daily)
+    {
+        if (!self::quotaColumnsReady($db)) {
+            return false;
+        }
+        $daily = ($daily === null || $daily === '') ? null : max(0, (int) $daily);
+        $db->query('UPDATE users SET ai_quota_daily = ? WHERE id = ?', [$daily, (int) $userId]);
+        return true;
+    }
+
+    // ---- Conversation logging ----
+
+    public static function conversationTableReady($db)
+    {
+        static $ready = null;
+        if ($ready !== null) {
+            return $ready;
+        }
+        try {
+            $row = $db->fetch(
+                'SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?',
+                ['ai_conversations']
+            );
+            $ready = (bool) $row;
+        } catch (Throwable $e) {
+            $ready = false;
+        }
+        return $ready;
+    }
+
+    /**
+     * Persist one assistant exchange (user question + assistant answer OR the
+     * provider error) so admins can review assistant behaviour.
+     */
+    public static function logConversation($db, $userId, array $data)
+    {
+        if (!self::conversationTableReady($db)) {
+            return;
+        }
+        $answer = trim((string) ($data['answer'] ?? ''));
+        $db->query(
+            "INSERT INTO ai_conversations (user_id, question, answer, provider, status, error, sources, page_slug)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                (int) $userId,
+                mb_substr((string) ($data['question'] ?? ''), 0, 1000, 'UTF-8'),
+                $answer === '' ? null : mb_substr($answer, 0, 20000, 'UTF-8'),
+                mb_substr((string) ($data['provider'] ?? ''), 0, 60, 'UTF-8'),
+                ($data['status'] ?? 'ok') === 'error' ? 'error' : 'ok',
+                mb_substr((string) ($data['error'] ?? ''), 0, 2000, 'UTF-8'),
+                isset($data['sources']) ? json_encode($data['sources'], JSON_UNESCAPED_UNICODE) : null,
+                mb_substr((string) ($data['page_slug'] ?? ''), 0, 255, 'UTF-8'),
+            ]
         );
     }
 

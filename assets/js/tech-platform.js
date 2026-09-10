@@ -1208,6 +1208,7 @@
     const csrf = window.APP_CSRF || '';
     const base = (window.APP_BASE_URL || '/').replace(/\/$/, '');
     const cf = window.AI_ASSISTANT || {};
+    const loggedIn = cf.loggedIn === 1;
     const sourcesOn = cf.sources === 1;
     const pageSlug = (window.location.pathname.match(/\/article\/([A-Za-z0-9\-_]+)/) || [])[1] || '';
     const storageKey = 'ai_assistant_open';
@@ -1225,14 +1226,33 @@
       try { localStorage.setItem(historyKey, JSON.stringify(history.slice(-8))); } catch (e) {}
     }
 
-    function updateQuota(used) {
+    function quotaLabel(q) {
+      const daily = (q && typeof q.daily === 'number') ? q.daily : limit;
+      const used = (q && typeof q.used === 'number') ? q.used : parseInt(wrapper.getAttribute('data-used') || '0', 10);
+      const boost = (q && typeof q.boost === 'number') ? q.boost : parseInt(wrapper.getAttribute('data-boost') || '0', 10);
+      const dailyRemaining = daily > 0 ? Math.max(0, daily - used) : null;
+      let label;
+      if (dailyRemaining === null) {
+        label = boost > 0 ? (boost + ' رسالة إضافية متاحة') : 'بلا حد يومي';
+      } else {
+        label = dailyRemaining + '/' + daily + ' متبقية اليوم' + (boost > 0 ? ' (+' + boost + ' إضافية)' : '');
+      }
+      return label;
+    }
+
+    function updateQuota(q) {
       const el = wrapper.querySelector('[data-counter]');
       if (!el) return;
       if (bypass) { el.style.display = 'none'; return; }
-      const remaining = limit > 0 ? Math.max(0, limit - used) : 0;
-      el.textContent = remaining + '/' + limit + ' متبقية اليوم';
-      if (remaining <= 0) {
+      const daily = (q && typeof q.daily === 'number') ? q.daily : limit;
+      const used = (q && typeof q.used === 'number') ? q.used : parseInt(wrapper.getAttribute('data-used') || '0', 10);
+      const boost = (q && typeof q.boost === 'number') ? q.boost : parseInt(wrapper.getAttribute('data-boost') || '0', 10);
+      el.textContent = quotaLabel({ daily, used, boost });
+      el.style.color = '';
+      el.removeAttribute('title');
+      if (daily > 0 && used >= daily && boost <= 0) {
         el.style.color = '#f87171';
+        el.title = 'انتهت أسئلتك؛ عُد غداً أو اطلب زيادة من الإدارة';
       }
     }
 
@@ -1341,8 +1361,9 @@
 
     function disableQuota() {
       const el = wrapper.querySelector('[data-counter]');
+      const daily = parseInt(wrapper.getAttribute('data-daily') || limit, 10);
       if (el) {
-        el.textContent = '0/' + limit + ' متبقية اليوم';
+        el.textContent = quotaLabel({ daily, used: daily, boost: 0 });
         el.style.color = '#f87171';
         el.title = 'انتهت أسئلتك لهذا اليوم؛ عُد غداً';
       }
@@ -1358,6 +1379,19 @@
       }
 
       appendMessage('user', escapeHtml(text), null);
+
+      // Guests see the launcher, but the assistant is members-only: answer
+      // instantly with a notice instead of burning a provider call.
+      if (!loggedIn) {
+        const loginUrl = (cf.loginUrl || base + '/login');
+        const registerUrl = (cf.registerUrl || base + '/register');
+        appendMessage('ai',
+          escapeHtml('هذه الميزة متاحة للأعضاء المسجلين فقط. ') +
+          '<a href="' + loginUrl + '" class="ai-msg-login">تسجيل الدخول</a>' +
+          ((registerUrl ? ' أو ' + '<a href="' + registerUrl + '" class="ai-msg-login">إنشاء حساب</a>' : '')), null);
+        return;
+      }
+
       history.push({ role: 'user', content: text });
       persistHistory();
 
@@ -1388,19 +1422,25 @@
             appendMessage('ai', answerHtml, sources);
             history.push({ role: 'assistant', content: data.answer || '' });
             persistHistory();
-            if (typeof data.used === 'number') updateQuota(data.used);
+            updateQuota(data.quota || { used: data.used, daily: data.limit, boost: data.boost || 0 });
           } else if (data && data.auth) {
-            const loginUrl = (data.loginUrl || base + '/login');
+            const loginUrl = (data.loginUrl || cf.loginUrl || base + '/login');
+            const registerUrl = (data.registerUrl || cf.registerUrl || base + '/register');
             appendMessage('ai',
-              escapeHtml('سجّل دخولك إلى حسابك لتتمكن من سؤال مرشد عصب التقنية. ') +
-              '<a href="' + loginUrl + '" class="ai-msg-login">تسجيل الدخول</a>', null);
+              escapeHtml('هذه الميزة متاحة للأعضاء المسجلين فقط. ') +
+              '<a href="' + loginUrl + '" class="ai-msg-login">تسجيل الدخول</a>' +
+              ((registerUrl ? ' أو ' + '<a href="' + registerUrl + '" class="ai-msg-login">إنشاء حساب</a>' : '')), null);
           } else {
             const err = (data && data.error) ? data.error : 'تعذر الحصول على إجابة. حاول مجدداً بعد قليل.';
             appendMessage('ai', escapeHtml(err), null);
-            if (data && data.limit > 0 && typeof data.used === 'number' && data.used >= data.limit) {
+            if (data && data.quota) {
+              const q = data.quota;
+              if (q.daily > 0 && q.used >= q.daily && q.boost <= 0) disableQuota();
+              updateQuota(q);
+            } else if (data && data.limit > 0 && typeof data.used === 'number' && data.used >= data.limit) {
               disableQuota();
+              updateQuota({ daily: data.limit, used: data.used, boost: 0 });
             }
-            updateQuota(typeof data.used === 'number' ? data.used : 0);
           }
         })
         .catch(err => {
