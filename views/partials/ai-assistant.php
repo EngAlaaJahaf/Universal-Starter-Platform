@@ -1,11 +1,14 @@
 <?php
 /*
  * AI Assistant floating chat widget («مرشد عصب التقنية»)
- * Rendered on public pages when enabled and the display-area rule matches
- * (settings under the «المحادث الذكي» tab in the admin panel).
+ * LOGIN-ONLY: rendered for registered members only (guests never see it), and
+ * each member gets a DAILY question budget from the settings table.
  */
 if (!class_exists('AiChatAssistant') || !AiChatAssistant::enabled()) {
     return;
+}
+if (!Auth::isLoggedIn()) {
+    return; // guests are not allowed to use the assistant
 }
 
 // --- Where does the widget appear? (all / home / articles / none) ---
@@ -44,9 +47,13 @@ if ((string) Settings::get('ai_assistant_suggestions_enabled', '1') === '1') {
 }
 
 $aiLimit = AiChatAssistant::freeLimit();
-$aiUsed = (int) Session::get('ai_assistant_used', 0);
-$aiRemaining = $aiLimit > 0 ? max(0, $aiLimit - $aiUsed) : null;
 $aiBypass = Auth::isAdmin() ? 1 : 0;
+if ($aiBypass) {
+    $aiUsed = 0;
+} else {
+    $aiUsed = AiChatAssistant::quotaUsedToday(Database::getInstance(), (int) (Auth::user()['id'] ?? 0))['used'];
+}
+$aiRemaining = $aiLimit > 0 ? max(0, $aiLimit - $aiUsed) : null;
 if ($aiBypass) {
     $aiRemaining = null;
 }
@@ -100,7 +107,7 @@ if ($aiBypass) {
             <div class="ai-panel-meta">
                 <span><?= htmlspecialchars($aiPrivacy, ENT_QUOTES, 'UTF-8') ?></span>
                 <?php if ($aiRemaining !== null): ?>
-                    <span class="ai-quota" data-counter><?= (int) $aiRemaining ?>/<?= (int) $aiLimit ?> مجاناً</span>
+                    <span class="ai-quota" data-counter><?= (int) $aiRemaining ?>/<?= (int) $aiLimit ?> متبقية اليوم</span>
                 <?php endif; ?>
             </div>
         </footer>

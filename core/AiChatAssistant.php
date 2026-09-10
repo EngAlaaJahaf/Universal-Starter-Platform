@@ -17,6 +17,67 @@ class AiChatAssistant
         return !empty($active);
     }
 
+    /** Today's date in the site timezone (where a "day" resets). */
+    public static function todaySiteDate()
+    {
+        return (new DateTime('now', new DateTimeZone(site_timezone())))->format('Y-m-d');
+    }
+
+    /**
+     * Whether the daily-login-quota migration columns exist on users.
+     * Fail-open (no quota) until the admin runs migrate_ai_daily_quota.sql.
+     */
+    public static function quotaColumnsReady($db)
+    {
+        static $ready = null;
+        if ($ready !== null) {
+            return $ready;
+        }
+        try {
+            $found = $db->fetchAll(
+                "SELECT COLUMN_NAME FROM information_schema.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users'
+                 AND COLUMN_NAME IN ('ai_quota_date','ai_quota_used')"
+            );
+            $cols = array_column($found, 'COLUMN_NAME');
+            $ready = in_array('ai_quota_date', $cols, true) && in_array('ai_quota_used', $cols, true);
+        } catch (Throwable $e) {
+            $ready = false;
+        }
+        return $ready;
+    }
+
+    /** Used count today for a user (resets when the stored day changes). */
+    public static function quotaUsedToday($db, $userId)
+    {
+        $today = self::todaySiteDate();
+        if (!self::quotaColumnsReady($db)) {
+            return ['date' => $today, 'used' => 0];
+        }
+        $user = $db->fetch('SELECT ai_quota_date, ai_quota_used FROM users WHERE id = ? LIMIT 1', [(int) $userId]);
+        $used = 0;
+        if ($user && $user['ai_quota_date'] === $today) {
+            $used = (int) $user['ai_quota_used'];
+        }
+        return ['date' => $today, 'used' => $used];
+    }
+
+    /** Increment today's counter after a successful answer. */
+    public static function bumpQuota($db, $userId)
+    {
+        if (!self::quotaColumnsReady($db)) {
+            return;
+        }
+        $today = self::todaySiteDate();
+        $db->query(
+            "INSERT INTO users (id, ai_quota_date, ai_quota_used) VALUES (?, ?, 1)
+             ON DUPLICATE KEY UPDATE
+               ai_quota_date = VALUES(ai_quota_date),
+               ai_quota_used = IF(ai_quota_date = VALUES(ai_quota_date), ai_quota_used + 1, 1)",
+            [(int) $userId, $today]
+        );
+    }
+
     /**
      * Retrieve the published-article context relevant to the question
      * (lightweight RAG over the site's own content).
@@ -88,7 +149,7 @@ class AiChatAssistant
             $body = strip_tags((string) (!empty($row['content_ar']) ? $row['content_ar'] : $row['content']));
             $body = preg_replace('/\s+/u', ' ', $body);
             $snippet = mb_substr($body, 0, 1400, 'UTF-8');
-            $textParts[] = "- «{$title}» (الرابط: " . app_url('article/' . $row['slug']) . ")\n" . $snippet;
+            $textParts[] = "- «{$title}» (/article/{$row['slug']})\n" . $snippet;
             $sources[] = [
                 'title' => $title,
                 'url'   => app_url('article/' . $row['slug'])
@@ -201,8 +262,9 @@ class AiChatAssistant
             . "\n" . 'أجب دائماً باللغة العربية الفصحى، بأسلوب واضح ومختصر ومرتب، مع تنسيق بسيط بالفقرات.'
             . "\n" . 'اعتمد أولاً على «محتوى عصب التقنية المتاح للإجابة» المرفق ضمن الرسالة إن كان مطابقاً لسؤال الزائر.'
             . "\n" . 'إذا لم تجد في المحتوى المرفق ما يغطي السؤال، أجِب من معرفتك العامة ووضّح ذلك بوضوح، ولا تختلق معلومات ولا روابط.'
-            . "\n" . 'إذا اعتمدت على مقال محدد من الموقع، أضف في نهاية إجابتك سطر «المصادر:» واذكر كل مصدر بصيغة:'
-            . ' [عنوان المقال](/article/اسم-الرابط) — ولا تضع روابط خارجة عن الموقع إلا عند ذكر اسم شركة أو خدمة معروفة.'
+            . "\n" . 'إذا كان سؤالك يتعلق بمقالات المنصة، اجعل كل إحالة داخل نص إجابتك فقط بصيغة: [عنوان المقال](/article/اسم-الرابط).'
+            . "\n" . 'لا تضع أبداً روابط مطلقة (تبدأ بـ https://) لمقالات الموقع، ولا تُرفق أي قائمة ولا سطر «المصادر:» ولا «المراجع:» في نهاية إجابتك — المنصة تعرض المصادر بنفسها بجانب إجابتك.'
+            . "\n" . 'لا تضع روابط خارجية إلا عند ذكر اسم شركة أو خدمة معروفة، وبالصيغة: [الاسم](الرابط).'
             . "\n" . 'كن مهذباً، وناسب الزوار غير المختصين مع بقاء الدقة التقنية.'
             . "\n" . 'المحاذير: لا تقدم نصائح مالية أو استثمارية قطعية، ولا تعطِ آراء طبية، ولا تذكر أي تعارض مع محتوى المنصة.';
     }

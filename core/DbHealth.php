@@ -108,6 +108,31 @@ class DbHealth
             ];
         }
 
+        // Columns added by migrate_ai_daily_quota.sql: login-only daily chat quota.
+        $quotaCols = ['ai_quota_date', 'ai_quota_used'];
+        $foundQuota = [];
+        try {
+            $stmt = $pdo->query(
+                "SELECT COLUMN_NAME FROM information_schema.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users'
+                 AND COLUMN_NAME IN ('ai_quota_date','ai_quota_used')"
+            );
+            $foundQuota = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        } catch (Exception $e) {
+            $foundQuota = [];
+        }
+        foreach ($quotaCols as $col) {
+            $ok = in_array($col, $foundQuota, true);
+            $checks[] = [
+                'ok'       => $ok,
+                'label'    => 'عمود users.' . $col,
+                'hint'     => $ok
+                    ? 'موجود (ترحيل مطبق)'
+                    : 'نفّذ ملف migrate_ai_daily_quota.sql من SQL Tab (مطلوب للحصة اليومية للمسجلين).',
+                'required' => true,
+            ];
+        }
+
         $requiredOk = true;
         foreach ($checks as $c) {
             if ($c['required'] && !$c['ok']) {

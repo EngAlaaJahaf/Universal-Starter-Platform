@@ -257,6 +257,19 @@
 
 .ai-msg-ai .ai-msg-src a { color: var(--accent-primary, #00f2fe); font-weight: 700; }
 
+.ai-msg-login {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent-primary, #00f2fe), #9d4edd);
+  color: #080c14 !important;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ai-msg-login:hover { opacity: 0.9; text-decoration: none; }
+
 .ai-typing {
   display: none;
   align-items: center;

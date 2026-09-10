@@ -18,6 +18,18 @@ class AiAssistantController extends Controller
             return;
         }
 
+        // Login-only: only registered members may ask the assistant.
+        if (!Auth::isLoggedIn()) {
+            http_response_code(401);
+            echo json_encode([
+                'success'  => false,
+                'auth'     => true,
+                'error'    => 'سجّل دخولك إلى حسابك لتتمكن من سؤال مرشد عصب التقنية.',
+                'loginUrl' => app_url('login')
+            ], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
         CSRF::validate();
 
         $raw = file_get_contents('php://input');
@@ -38,13 +50,20 @@ class AiAssistantController extends Controller
         }
 
         $limit = AiChatAssistant::freeLimit();
-        $used = (int) Session::get('ai_assistant_used', 0);
+        $user = Auth::user();
+        $userId = (int) ($user['id'] ?? 0);
         $isAdmin = Auth::isAdmin();
 
+        // Per-user DAILY budget (reset at the site's midnight).
+        $db = Database::getInstance();
+        $quota = AiChatAssistant::quotaUsedToday($db, $userId);
+        $used = $quota['used'];
+
         if (!$isAdmin && $limit > 0 && $used >= $limit) {
+            http_response_code(403);
             echo json_encode([
                 'success' => false,
-                'error'   => 'استنفدت رسائلك المجانية لهذه الجلسة.',
+                'error'   => 'استنفدت أسئلتك الثلاثة لهذا اليوم. عُد غداً وقدّمت لك 3 أسئلة جديدة.',
                 'limit'   => $limit,
                 'used'    => $used
             ], JSON_UNESCAPED_UNICODE);
@@ -54,14 +73,15 @@ class AiAssistantController extends Controller
         $result = AiChatAssistant::ask($question, $history, ['page_slug' => $pageSlug]);
 
         if (!empty($result['success'])) {
-            Session::set('ai_assistant_used', $used + 1);
+            AiChatAssistant::bumpQuota($db, $userId);
             echo json_encode([
                 'success'  => true,
                 'answer'   => $result['answer'],
                 'provider' => $result['provider'] ?? '',
                 'sources'  => $result['sources'] ?? [],
                 'used'     => $used + 1,
-                'limit'    => $limit
+                'limit'    => $limit,
+                'resetAt'  => AiChatAssistant::todaySiteDate()
             ], JSON_UNESCAPED_UNICODE);
             return;
         }

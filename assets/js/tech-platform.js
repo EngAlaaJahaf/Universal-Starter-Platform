@@ -1230,7 +1230,7 @@
       if (!el) return;
       if (bypass) { el.style.display = 'none'; return; }
       const remaining = limit > 0 ? Math.max(0, limit - used) : 0;
-      el.textContent = remaining + '/' + limit + ' مجاناً';
+      el.textContent = remaining + '/' + limit + ' متبقية اليوم';
       if (remaining <= 0) {
         el.style.color = '#f87171';
       }
@@ -1261,6 +1261,30 @@
       // Bold
       html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
       return html;
+    }
+
+    // The model sometimes stubbornly appends its own «المصادر:» listing even
+    // though we render structured sources; drop that redundant trailing block
+    // (relative/absolute/broken forms) to avoid the garbled duplicated list.
+    function stripRedundantSources(text, hasStructured) {
+      if (!hasStructured) return text;
+      const rawLines = String(text).split(/\r?\n/);
+      let cut = -1;
+      for (let i = 0; i < rawLines.length; i++) {
+        if (/^\s*(المصادر|المراجع|Sources?|References)\s*:+/i.test(rawLines[i])) cut = i;
+      }
+      if (cut > -1) {
+        text = rawLines.slice(0, cut).join('\n');
+      }
+      const lines = text.split(/\r?\n/);
+      let end = lines.length;
+      while (end > 0) {
+        const last = lines[end - 1].trim();
+        if (!last) { end--; continue; }
+        if (/^(?:[-*]\s*)?(https?:\/\/|\[[^\]]+\]\([^)\s]+\)\s*$)/i.test(last)) { end--; continue; }
+        break;
+      }
+      return lines.slice(0, end).join('\n').replace(/\n{3,}/g, '\n\n').trim();
     }
 
     function appendMessage(role, contentHtml, sources) {
@@ -1318,9 +1342,9 @@
     function disableQuota() {
       const el = wrapper.querySelector('[data-counter]');
       if (el) {
-        el.textContent = '0/0 مجاناً';
+        el.textContent = '0/' + limit + ' متبقية اليوم';
         el.style.color = '#f87171';
-        el.title = 'استنفدت حصتك المجانية لهذه الجلسة';
+        el.title = 'انتهت أسئلتك لهذا اليوم؛ عُد غداً';
       }
       suggestions ? suggestions.style.display = 'none' : null;
     }
@@ -1357,10 +1381,19 @@
           setBusy(false);
 
           if (data && data.success) {
-            appendMessage('ai', renderAnswer(data.answer || ''), data.sources || []);
+            const sources = data.sources || [];
+            const answerHtml = (sourcesOn && sources.length > 0)
+              ? renderAnswer(stripRedundantSources(data.answer || '', true))
+              : renderAnswer(data.answer || '');
+            appendMessage('ai', answerHtml, sources);
             history.push({ role: 'assistant', content: data.answer || '' });
             persistHistory();
             if (typeof data.used === 'number') updateQuota(data.used);
+          } else if (data && data.auth) {
+            const loginUrl = (data.loginUrl || base + '/login');
+            appendMessage('ai',
+              escapeHtml('سجّل دخولك إلى حسابك لتتمكن من سؤال مرشد عصب التقنية. ') +
+              '<a href="' + loginUrl + '" class="ai-msg-login">تسجيل الدخول</a>', null);
           } else {
             const err = (data && data.error) ? data.error : 'تعذر الحصول على إجابة. حاول مجدداً بعد قليل.';
             appendMessage('ai', escapeHtml(err), null);
