@@ -1508,6 +1508,7 @@
         if (k === next) b.classList.add('active-' + k);
       });
       storeReaction(cid, next);
+      if (!cid) return;
       fetch(base + '/ai-assistant/reaction', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrf, 'X-Requested-With': 'XMLHttpRequest' },
@@ -1591,7 +1592,7 @@
           cb.addEventListener('click', () => copyText(rawText, cb));
           actions.appendChild(cb);
         }
-        if (role === 'ai' && convId) {
+        if (role === 'ai') {
           actions.appendChild(reactionButtons(convId));
         }
         if (actions.childNodes.length) meta.appendChild(actions);
