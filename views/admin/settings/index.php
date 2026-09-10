@@ -4,6 +4,7 @@ $groupTitles = [
  'general' => 'الإعدادات العامة',
  'ai_translation' => 'مزودو الذكاء والترجمة',
  'appearance' => ' المظهر والتصميم',
+  'ai_assistant' => ' المحادث الذكي',
  'articles' => 'المقالات والتحرير',
  'comments' => 'التعليقات والمراجعة',
  'users' => 'المستخدمون والمصادقة',
@@ -58,18 +59,41 @@ $selectDropdowns = [
  'Y-m-d' => '2026-08-16 (تاريخ فقط)',
  ],
 
- // AI & Translation Provider Management
- 'ai_provider' => [
- 'omniroute' => 'نفق Omniroute المباشر (Omniroute Gateway & Tunnel - متصل وجاهز)',
- 'gemini' => 'Google Gemini (1.5 Flash / 2.0 Flash / Pro)',
- 'groq' => 'Groq Cloud (Llama 3.3 70B / 8B - فائق السرعة مجاناً)',
- 'deepseek' => 'DeepSeek (DeepSeek V3 / R1)',
- 'openai' => 'OpenAI (GPT-4o / GPT-4o-mini)',
- 'custom_api' => 'مزود مخصص (OpenRouter / Ollama / Local Endpoint)',
- 'mymemory' => 'المترجم المجاني المدمج (MyMemory + القاموس التقني - متاح دائماً)',
- 'gtx' => 'Google Translate Web (احتياطي)',
- ],
- 'omniroute_model' => [
+// AI & Translation Provider Management
+  'ai_provider' => [
+  'omniroute' => 'نفق Omniroute المباشر (Omniroute Gateway & Tunnel - متصل وجاهز)',
+  'gemini' => 'Google Gemini (1.5 Flash / 2.0 Flash / Pro)',
+  'groq' => 'Groq Cloud (Llama 3.3 70B / 8B - فائق السرعة مجاناً)',
+  'deepseek' => 'DeepSeek (DeepSeek V3 / R1)',
+  'openai' => 'OpenAI (GPT-4o / GPT-4o-mini)',
+  'custom_api' => 'مزود مخصص (OpenRouter / Ollama / Local Endpoint)',
+  'mymemory' => 'المترجم المجاني المدمج (MyMemory + القاموس التقني - متاح دائماً)',
+  'gtx' => 'Google Translate Web (احتياطي)',
+  ],
+
+  // AI Assistant Chat
+  'ai_assistant_provider' => [
+  'default' => 'نفس مزود المنصة العام (يُفضَّل)',
+  'omniroute' => 'نفق Omniroute المباشر',
+  'gemini' => 'Google Gemini',
+  'groq' => 'Groq Cloud',
+  'openai' => 'OpenAI',
+  'deepseek' => 'DeepSeek',
+  'custom_api' => 'خادم API مخصص',
+  ],
+  'ai_assistant_tone' => [
+  'balanced' => 'متوازن (سرع ما هو قياسي)',
+  'friendly' => 'ودود وخفيف',
+  'formal' => 'رسمي وصحفي',
+  'educational' => 'تعليمي مبسّط للقراء',
+  ],
+  'ai_assistant_pages' => [
+  'all' => 'كل صفحات الموقع',
+  'home' => 'الرئيسية فقط',
+  'articles' => 'صفحات المقالات فقط',
+  'none' => 'معطل - لا يظهر في أي صفحة',
+  ],
+  'omniroute_model' => [
  'antigravity/gemini-3.7-flash-high' => 'antigravity/gemini-3.7-flash-high (Gemini 3.7 Flash High - موصى به)',
  'opencode/gemini-3.7-flash' => 'opencode/gemini-3.7-flash (Gemini 3.7 Flash - متصل)',
  'auto/gemini' => 'auto/gemini (تلقائي - أسرع نموذج Gemini متاح)',

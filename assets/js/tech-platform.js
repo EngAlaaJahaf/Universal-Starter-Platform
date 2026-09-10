@@ -1207,6 +1207,9 @@
     const bypass = wrapper.getAttribute('data-bypass') === '1';
     const csrf = window.APP_CSRF || '';
     const base = (window.APP_BASE_URL || '/').replace(/\/$/, '');
+    const cf = window.AI_ASSISTANT || {};
+    const sourcesOn = cf.sources === 1;
+    const pageSlug = (window.location.pathname.match(/\/article\/([A-Za-z0-9\-_]+)/) || [])[1] || '';
     const storageKey = 'ai_assistant_open';
     const historyKey = 'ai_assistant_history';
     let history = [];
@@ -1269,7 +1272,7 @@
       text.className = 'ai-msg-text';
       text.innerHTML = contentHtml;
       bubble.appendChild(text);
-      if (Array.isArray(sources) && sources.length > 0 && role === 'ai') {
+      if (Array.isArray(sources) && sources.length > 0 && role === 'ai' && sourcesOn) {
         const src = document.createElement('div');
         src.className = 'ai-msg-src';
         src.textContent = 'المصادر: ';
@@ -1346,7 +1349,7 @@
           'X-CSRF-Token': csrf,
           'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({ question: text, history: history.slice(-8) })
+        body: JSON.stringify({ question: text, history: history.slice(-8), page: pageSlug })
       })
         .then(res => res.json().catch(() => ({ success: false, error: 'استجابة غير صالحة من الخادم.' })))
         .then(data => {

@@ -55,10 +55,10 @@ $this->renderAdmin('admin/settings/index', [
   * templates exist in the settings table. Settings rows ship as data, so a
   * database that predates a feature would otherwise silently miss its toggle.
   */
-  private function ensureCoreRows($db)
+private function ensureCoreRows($db)
   {
   $core = [
-'breaking_ticker_enabled' => [
+  'breaking_ticker_enabled' => [
   'group' => 'appearance',
   'value' => '1',
   'value_type' => 'boolean',
@@ -69,33 +69,195 @@ $this->renderAdmin('admin/settings/index', [
   'sort_order' => 2,
   ],
   'ai_assistant_enabled' => [
-  'group' => 'appearance',
+  'group' => 'ai_assistant',
   'value' => '1',
   'value_type' => 'boolean',
-  'label_ar' => 'مرشد عصب التقنية (المحادث الذكي)',
-  'label_en' => 'AsabTech AI Assistant',
-  'description_ar' => 'إظهار نافذة المحادث الذكي العائمة التي تجيب الزوار من محتوى مقالات المنصة',
-  'description_en' => 'Show the floating AI chat assistant that answers visitors from the site articles.',
+  'label_ar' => 'تفعيل المحادث الذكي',
+  'label_en' => 'Enable AI Assistant',
+  'description_ar' => 'إظهار نافذة «مرشد عصب التقنية» العائمة التي تجيب الزوار من محتوى مقالات المنصة',
+  'description_en' => 'Show the floating AsabTech AI chat assistant that answers from site articles.',
+  'sort_order' => 1,
+  ],
+  'ai_assistant_pages' => [
+  'group' => 'ai_assistant',
+  'value' => 'all',
+  'value_type' => 'select',
+  'label_ar' => 'أماكن ظهور المحادث',
+  'label_en' => 'Assistant Display Areas',
+  'description_ar' => 'حدد الصفحات التي يظهر فيها زر المحادث الذكي',
+  'description_en' => 'Choose which pages show the chat launcher.',
+  'sort_order' => 2,
+  ],
+  'ai_assistant_provider' => [
+  'group' => 'ai_assistant',
+  'value' => 'default',
+  'value_type' => 'select',
+  'label_ar' => 'مزود الذكاء الاصطناعي للمحادث',
+  'label_en' => 'Assistant AI Provider',
+  'description_ar' => 'مزود خاص بالمحادث، أو «نفس مزود المنصة» لاستخدام ما هو مضبوط في تبويب الذكاء والترجمة',
+  'description_en' => 'Dedicated provider for the chat, or follow the global AI provider.',
   'sort_order' => 3,
   ],
+  'ai_assistant_model' => [
+  'group' => 'ai_assistant',
+  'value' => '',
+  'value_type' => 'text',
+  'label_ar' => 'نموذج مخصص (اختياري)',
+  'label_en' => 'Custom Model (optional)',
+  'description_ar' => 'اسم النموذج لمزود المحادث. اتركه فارغاً لاستخدام النموذج الافتراضي للمزود',
+  'description_en' => 'Model id for the assistant provider. Empty = provider default.',
+  'sort_order' => 4,
+  ],
+  'ai_assistant_temperature' => [
+  'group' => 'ai_assistant',
+  'value' => '',
+  'value_type' => 'text',
+  'label_ar' => 'درجة الإبداع (Temperature)',
+  'label_en' => 'Creativity (Temperature)',
+  'description_ar' => 'قيمة من 0 إلى 1.5. فارغ = الإعداد العام للمنصة',
+  'description_en' => 'Between 0 and 1.5. Empty = global setting.',
+  'sort_order' => 5,
+  ],
+  'ai_assistant_tone' => [
+  'group' => 'ai_assistant',
+  'value' => 'balanced',
+  'value_type' => 'select',
+  'label_ar' => 'نبرة الردود',
+  'label_en' => 'Reply Tone',
+  'description_ar' => 'الأسلوب العام الذي يعتمد عليه المرشد في صياغة إجاباته',
+  'description_en' => 'General writing style of the answers.',
+  'sort_order' => 6,
+  ],
+  'ai_assistant_context_articles' => [
+  'group' => 'ai_assistant',
+  'value' => '4',
+  'value_type' => 'text',
+  'label_ar' => 'عدد المقالات المسترجعة كسياق',
+  'label_en' => 'Context Articles Count',
+  'description_ar' => 'كم مقالاً يبحث المرشد عنه ويعتمد عليه في الإجابة (من 1 إلى 6)',
+  'description_en' => 'How many articles the assistant retrieves as context (1 to 6).',
+  'sort_order' => 7,
+  ],
+  'ai_assistant_include_page' => [
+  'group' => 'ai_assistant',
+  'value' => '1',
+  'value_type' => 'boolean',
+  'label_ar' => 'تضمين المقال المفتوح حالياً',
+  'label_en' => 'Include Current Article',
+  'description_ar' => 'عند فتح المحادث من صفحة مقال، يُدرج محتوى المقال ضمن السياق حتى يجيب عنه مباشرة',
+  'description_en' => 'When opened on an article page, include that article in the context.',
+  'sort_order' => 8,
+  ],
+  'ai_assistant_fallback_enabled' => [
+  'group' => 'ai_assistant',
+  'value' => '1',
+  'value_type' => 'boolean',
+  'label_ar' => 'الاحتياط التلقائي بين المزودين',
+  'label_en' => 'Auto Provider Fallback',
+  'description_ar' => 'إذا فشل المزود المحدد، جرّب المزودات الأخرى المتاحة (Omniroute، Gemini، OpenAI...) تلقائياً',
+  'description_en' => 'Try other configured providers automatically if the selected one fails.',
+  'sort_order' => 9,
+  ],
   'ai_assistant_free_limit' => [
-  'group' => 'appearance',
+  'group' => 'ai_assistant',
   'value' => '3',
   'value_type' => 'text',
-  'label_ar' => 'حد رسائل المحادث المجانية للزائر',
-  'label_en' => 'Free Assistant Messages Per Visitor',
-  'description_ar' => 'عدد الرسائل المجانية لكل زائر في الجلسة (0 = بلا حد)',
-  'description_en' => 'Free messages per visitor per session (0 = unlimited).',
-  'sort_order' => 4,
+  'label_ar' => 'الرسائل المجانية لكل زائر',
+  'label_en' => 'Free Messages Per Visitor',
+  'description_ar' => 'عدد الرسائل المجانية لكل زائر في الجلسة (0 = بدون حد). المسؤولون معفون دائماً',
+  'description_en' => 'Free messages per visitor session (0 = unlimited). Admins are always exempt.',
+  'sort_order' => 10,
+  ],
+  'ai_assistant_welcome_message' => [
+  'group' => 'ai_assistant',
+  'value' => 'مرحباً 👋 أنا مرشد عصب التقنية. اسألني عن آخر أخبار التقنية والمقالات المنشورة في المنصة.',
+  'value_type' => 'text',
+  'label_ar' => 'رسالة الترحيب',
+  'label_en' => 'Welcome Message',
+  'description_ar' => 'الرسالة الترحيبية التي تظهر عند فتح نافذة المحادث',
+  'description_en' => 'Welcome message shown when the chat opens.',
+  'sort_order' => 11,
+  ],
+  'ai_assistant_placeholder' => [
+  'group' => 'ai_assistant',
+  'value' => 'اسأل مرشد عصب التقنية...',
+  'value_type' => 'text',
+  'label_ar' => 'نص حقل الإدخال',
+  'label_en' => 'Input Placeholder',
+  'description_ar' => 'النص الإرشادي داخل حقل كتابة السؤال',
+  'description_en' => 'Placeholder text inside the question input.',
+  'sort_order' => 12,
+  ],
+  'ai_assistant_suggestions_enabled' => [
+  'group' => 'ai_assistant',
+  'value' => '1',
+  'value_type' => 'boolean',
+  'label_ar' => 'إظهار الاقتراحات السريعة',
+  'label_en' => 'Show Quick Suggestions',
+  'description_ar' => 'أزرار أسئلة جاهزة يضغطها الزائر لبدء المحادثة',
+  'description_en' => 'Ready-to-click question chips for visitors.',
+  'sort_order' => 13,
+  ],
+  'ai_assistant_suggestion_1' => [
+  'group' => 'ai_assistant',
+  'value' => 'ما آخر أخبار الذكاء الاصطناعي؟',
+  'value_type' => 'text',
+  'label_ar' => 'الاقتراح 1',
+  'label_en' => 'Suggestion 1',
+  'description_ar' => 'نص أول اقتراح سريع',
+  'description_en' => 'First quick suggestion text.',
+  'sort_order' => 14,
+  ],
+  'ai_assistant_suggestion_2' => [
+  'group' => 'ai_assistant',
+  'value' => 'ما أحدث الهواتف الذكية؟',
+  'value_type' => 'text',
+  'label_ar' => 'الاقتراح 2',
+  'label_en' => 'Suggestion 2',
+  'description_ar' => 'نص ثاني اقتراح سريع',
+  'description_en' => 'Second quick suggestion text.',
+  'sort_order' => 15,
+  ],
+  'ai_assistant_suggestion_3' => [
+  'group' => 'ai_assistant',
+  'value' => 'ما جديد الأمن السيبراني؟',
+  'value_type' => 'text',
+  'label_ar' => 'الاقتراح 3',
+  'label_en' => 'Suggestion 3',
+  'description_ar' => 'نص ثالث اقتراح سريع',
+  'description_en' => 'Third quick suggestion text.',
+  'sort_order' => 16,
+  ],
+  'ai_assistant_sources_enabled' => [
+  'group' => 'ai_assistant',
+  'value' => '1',
+  'value_type' => 'boolean',
+  'label_ar' => 'إظهار المصادر أسفل الإجابة',
+  'label_en' => 'Show Sources',
+  'description_ar' => 'عرض روابط المقالات التي اعتمد عليها المرشد في إجابته',
+  'description_en' => 'Show article links the answer relied on.',
+  'sort_order' => 17,
+  ],
+  'ai_assistant_privacy_note' => [
+  'group' => 'ai_assistant',
+  'value' => 'يعتمد مرشد عصب التقنية على المقالات المنشورة محلياً.',
+  'value_type' => 'text',
+  'label_ar' => 'ملاحظة أسفل المحادث',
+  'label_en' => 'Footer Note',
+  'description_ar' => 'سطر صغير يظهر أسفل نافذة المحادث',
+  'description_en' => 'Small line at the bottom of the chat window.',
+  'sort_order' => 18,
   ],
 ];
 
   foreach ($core as $key => $row) {
-  $check = $db->prepare("SELECT id FROM settings WHERE `group` = ? AND `key` = ? LIMIT 1");
-  $check->execute([$row['group'], $key]);
-  if ($check->fetch(PDO::FETCH_COLUMN)) {
-  continue;
-  }
+  // One row per key (any group): find all matches, dedupe to a single canonical
+  // row in $row['group'], and normalize metas without touching user-set values.
+  $list = $db->prepare("SELECT id, `group` FROM settings WHERE `key` = ? ORDER BY id ASC");
+  $list->execute([$key]);
+  $found = $list->fetchAll(PDO::FETCH_ASSOC);
+
+  if (empty($found)) {
   $stmt = $db->prepare(
   "INSERT INTO settings (`group`, `key`, `value`, `value_type`, `label_ar`, `label_en`, `description_ar`, `description_en`, `sort_order`)
   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -110,6 +272,40 @@ $this->renderAdmin('admin/settings/index', [
   $row['description_ar'],
   $row['description_en'],
   $row['sort_order']
+  ]);
+  continue;
+  }
+
+  // Keep the row already in the target group (else the first one) …
+  $keepId = null;
+  foreach ($found as $f) {
+  if ($f['group'] === $row['group']) {
+  $keepId = (int) $f['id'];
+  break;
+  }
+  }
+  if ($keepId === null) {
+  $keepId = (int) $found[0]['id'];
+  }
+  // … and remove any extra duplicates (they only corrupt the settings page).
+  foreach ($found as $f) {
+  if ((int) $f['id'] !== $keepId) {
+  $del = $db->prepare("DELETE FROM settings WHERE id = ?");
+  $del->execute([(int) $f['id']]);
+  }
+  }
+  $upd = $db->prepare(
+  "UPDATE settings SET `group` = ?, sort_order = ?, value_type = ?, label_ar = ?, label_en = ?, description_ar = ?, description_en = ? WHERE id = ?"
+  );
+  $upd->execute([
+  $row['group'],
+  $row['sort_order'],
+  $row['value_type'],
+  $row['label_ar'],
+  $row['label_en'],
+  $row['description_ar'],
+  $row['description_en'],
+  $keepId
   ]);
   }
   }

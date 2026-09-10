@@ -21,8 +21,26 @@ class AiChatAssistant
      * Retrieve the published-article context relevant to the question
      * (lightweight RAG over the site's own content).
      */
-    public static function retrieveContext($db, $question)
+    public static function retrieveContext($db, $question, $limit = 4, $pageSlug = '')
     {
+        $limit = max(1, min(6, (int) $limit));
+        $rows = [];
+
+        // 1) Force-include the article currently open on the page (if any).
+        if ($pageSlug !== '') {
+            $page = $db->fetch(
+                "SELECT id, slug, title, title_ar, excerpt, excerpt_ar, content, content_ar
+                 FROM articles
+                 WHERE slug = ? AND status = 'published' AND published_at IS NOT NULL
+                 LIMIT 1",
+                [$pageSlug]
+            );
+            if ($page) {
+                $rows[] = $page;
+            }
+        }
+
+        // 2) Lightweight keyword RAG over the site's own published content.
         $terms = preg_split('/[\s،,؟?.:!\n]+/u', strip_tags($question));
         $terms = array_values(array_filter(array_map(function ($t) {
             return trim($t);
@@ -31,28 +49,37 @@ class AiChatAssistant
         }));
         $terms = array_slice(array_unique($terms), 0, 6);
 
-        if (empty($terms)) {
-            return ['articles' => [], 'text' => '', 'sources' => []];
-        }
+        $already = $rows ? array_map(function ($r) {
+            return (int) $r['id'];
+        }, $rows) : [];
 
-        $where = [];
-        $params = [];
-        $fields = ['title', 'title_ar', 'excerpt', 'excerpt_ar', 'content', 'content_ar'];
-        foreach ($terms as $t) {
-            foreach ($fields as $f) {
-                $where[] = "`{$f}` LIKE ?";
-                $params[] = '%' . $t . '%';
+        if (!empty($terms)) {
+            $where = [];
+            $params = [];
+            $fields = ['title', 'title_ar', 'excerpt', 'excerpt_ar', 'content', 'content_ar'];
+            foreach ($terms as $t) {
+                foreach ($fields as $f) {
+                    $where[] = "`{$f}` LIKE ?";
+                    $params[] = '%' . $t . '%';
+                }
             }
+            if ($already) {
+                $placeholders = implode(',', array_fill(0, count($already), '?'));
+                $where[] = 'id NOT IN (' . $placeholders . ')';
+                $params = array_merge($params, $already);
+            }
+
+            $sql = "SELECT id, slug, title, title_ar, excerpt, excerpt_ar, content, content_ar
+                    FROM articles
+                    WHERE status = 'published' AND published_at IS NOT NULL
+                      AND (" . implode(' OR ', $where) . ")
+                    ORDER BY is_featured DESC, is_editors_pick DESC, views_count DESC, published_at DESC
+                    LIMIT " . (int) $limit . ";
+                    ";
+            $rows = array_merge($rows, $db->fetchAll($sql, $params));
         }
 
-        $sql = "SELECT id, slug, title, title_ar, excerpt, excerpt_ar, content, content_ar
-                FROM articles
-                WHERE status = 'published' AND published_at IS NOT NULL
-                  AND (" . implode(' OR ', $where) . ")
-                ORDER BY is_featured DESC, is_editors_pick DESC, views_count DESC, published_at DESC
-                LIMIT 4;
-                ";
-        $rows = $db->fetchAll($sql, $params);
+        $rows = array_slice($rows, 0, $limit);
 
         $textParts = [];
         $sources = [];
@@ -75,7 +102,7 @@ class AiChatAssistant
         ];
     }
 
-    public static function ask($question, array $history = [])
+    public static function ask($question, array $history = [], array $options = [])
     {
         $db = new Database();
         $keys = [
@@ -83,18 +110,37 @@ class AiChatAssistant
             'omniroute_endpoint', 'omniroute_api_key', 'omniroute_model',
             'groq_api_key', 'groq_model', 'deepseek_api_key', 'deepseek_model',
             'custom_api_endpoint', 'custom_api_key', 'custom_api_model',
-            'ai_fallback_enabled', 'ai_temperature'
+            'ai_fallback_enabled', 'ai_temperature',
+            'ai_assistant_provider', 'ai_assistant_model', 'ai_assistant_temperature',
+            'ai_assistant_tone', 'ai_assistant_context_articles', 'ai_assistant_include_page',
+            'ai_assistant_fallback_enabled'
         ];
         $inClause = "'" . implode("','", $keys) . "'";
         $settingsRow = $db->fetchAll("SELECT `key`, `value` FROM settings WHERE `key` IN ({$inClause})");
         $cfg = array_column($settingsRow, 'value', 'key');
 
-        $activeProvider = $cfg['ai_provider'] ?? 'omniroute';
+        $activeProvider = ($cfg['ai_assistant_provider'] ?? 'default') !== 'default'
+            ? $cfg['ai_assistant_provider']
+            : ($cfg['ai_provider'] ?? 'omniroute');
 
-        $context = self::retrieveContext($db, $question);
+        if (($cfg['ai_assistant_temperature'] ?? '') !== '' && is_numeric($cfg['ai_assistant_temperature'])) {
+            $cfg['ai_temperature'] = (string) (float) $cfg['ai_assistant_temperature'];
+        }
+
+        $overrideModel = trim((string) ($cfg['ai_assistant_model'] ?? ''));
+        if ($overrideModel !== '') {
+            $cfg[$activeProvider . '_model'] = $overrideModel;
+        }
+
+        $limit = (int) ($cfg['ai_assistant_context_articles'] ?? 4);
+        $pageSlug = (($cfg['ai_assistant_include_page'] ?? '1') === '1')
+            ? trim((string) ($options['page_slug'] ?? ''))
+            : '';
+
+        $context = self::retrieveContext($db, $question, $limit, $pageSlug);
 
         $messages = [
-            ['role' => 'system', 'content' => self::systemPrompt()]
+            ['role' => 'system', 'content' => self::systemPrompt((string) ($cfg['ai_assistant_tone'] ?? 'balanced'))]
         ];
         if (!empty($context['text'])) {
             $messages[] = ['role' => 'system', 'content' => 'محتوى عصب التقنية المتاح للإجابة (إن وجد مطابقاً):' . "\n" . mb_substr($context['text'], 0, 7000, 'UTF-8')];
@@ -109,7 +155,7 @@ class AiChatAssistant
         }
         $messages[] = ['role' => 'user', 'content' => mb_substr($question, 0, 500, 'UTF-8')];
 
-        $fallbackOn = ($cfg['ai_fallback_enabled'] ?? '1') == '1';
+        $fallbackOn = ($cfg['ai_assistant_fallback_enabled'] ?? ($cfg['ai_fallback_enabled'] ?? '1')) == '1';
 
         $res = self::callProvider($activeProvider, $messages, $cfg);
         if ($res['success']) {
@@ -142,15 +188,22 @@ class AiChatAssistant
         ];
     }
 
-    private static function systemPrompt()
+    private static function systemPrompt($tone = 'balanced')
     {
+        $toneLine = [
+            'formal'     => 'كن رسمياً وصحفياً: لغة خبرية دقيقة، جُمل موجزة، بلا مزاح أو مصطلحات عامية.',
+            'friendly'   => 'كن ودوداً وخفيف الظل: نبرة ودّية قريبة من القارئ، مع بقاء المحتوى مفيداً ودقيقاً.',
+            'educational'=> 'كن معلّماً مبسّطاً: اشرح المصطلحات التقنية بلغة سهلة يناسبها الزائر غير المختص، مع أمثلة عملية قصيرة.',
+            'balanced'   => 'كن متوازناً: واضحاً ومرتّباً وسهل العبارة، ودقيقاً تقنياً في آن واحد.',
+        ];
         return 'أنت «مرشد عصب التقنية» (AsabTech AI Advisor)، المساعد الذكي لمنصة عصب التقنية العربية المختصة بأخبار التقنية والذكاء الاصطناعي والهواتف والعتاد والبرمجيات والأمن السيبراني.'
+            . "\n" . ($toneLine[$tone] ?? $toneLine['balanced'])
             . "\n" . 'أجب دائماً باللغة العربية الفصحى، بأسلوب واضح ومختصر ومرتب، مع تنسيق بسيط بالفقرات.'
             . "\n" . 'اعتمد أولاً على «محتوى عصب التقنية المتاح للإجابة» المرفق ضمن الرسالة إن كان مطابقاً لسؤال الزائر.'
             . "\n" . 'إذا لم تجد في المحتوى المرفق ما يغطي السؤال، أجِب من معرفتك العامة ووضّح ذلك بوضوح، ولا تختلق معلومات ولا روابط.'
             . "\n" . 'إذا اعتمدت على مقال محدد من الموقع، أضف في نهاية إجابتك سطر «المصادر:» واذكر كل مصدر بصيغة:'
             . ' [عنوان المقال](/article/اسم-الرابط) — ولا تضع روابط خارجة عن الموقع إلا عند ذكر اسم شركة أو خدمة معروفة.'
-            . "\n" . 'كن مهذباً وسهل العبارة، وناسب الزوار غير المختصين مع بقاء الدقة التقنية.'
+            . "\n" . 'كن مهذباً، وناسب الزوار غير المختصين مع بقاء الدقة التقنية.'
             . "\n" . 'المحاذير: لا تقدم نصائح مالية أو استثمارية قطعية، ولا تعطِ آراء طبية، ولا تذكر أي تعارض مع محتوى المنصة.';
     }
 

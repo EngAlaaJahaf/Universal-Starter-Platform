@@ -28,6 +28,8 @@ class AiAssistantController extends Controller
 
         $question = trim((string) ($body['question'] ?? ($_POST['question'] ?? '')));
         $history = is_array($body['history'] ?? null) ? $body['history'] : [];
+        $pageSlug = trim((string) ($body['page'] ?? ''));
+        $pageSlug = preg_replace('/[^a-zA-Z0-9\-\_]/', '', $pageSlug);
 
         $len = mb_strlen($question, 'UTF-8');
         if ($len < 2 || $len > 500) {
@@ -49,7 +51,7 @@ class AiAssistantController extends Controller
             return;
         }
 
-        $result = AiChatAssistant::ask($question, $history);
+        $result = AiChatAssistant::ask($question, $history, ['page_slug' => $pageSlug]);
 
         if (!empty($result['success'])) {
             Session::set('ai_assistant_used', $used + 1);
