@@ -4,10 +4,14 @@ class SettingsController extends AdminController
 {
  public function index()
  {
- $db = Database::getInstance();
- $group = trim($_GET['group'] ?? 'general');
+$db = Database::getInstance();
+  $group = trim($_GET['group'] ?? 'general');
 
- // Smart Alias Resolver for URL groups
+  // Self-heal: guarantee rows required by current templates exist in the DB,
+  // otherwise hosts whose settings table predates the feature never show them.
+  $this->ensureCoreRows($db);
+
+  // Smart Alias Resolver for URL groups
  $aliases = [
  'ai' => 'ai_translation',
  'ai-translation' => 'ai_translation',
@@ -39,25 +43,69 @@ class SettingsController extends AdminController
  $groupsStmt = $db->query("SELECT DISTINCT `group` FROM settings ORDER BY `group` ASC");
  $allGroups = $groupsStmt->fetchAll(PDO::FETCH_COLUMN);
 
- $this->renderAdmin('admin/settings/index', [
- 'settings' => $settings,
- 'currentGroup' => $group,
- 'allGroups' => $allGroups
- ]);
- }
+$this->renderAdmin('admin/settings/index', [
+  'settings' => $settings,
+  'currentGroup' => $group,
+  'allGroups' => $allGroups
+  ]);
+  }
 
- public function update()
- {
- if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
- header('Location: ' . app_url('admin/settings'));
- exit;
- }
+  /**
+  * Idempotent self-heal migration: ensures DB rows required by the public
+  * templates exist in the settings table. Settings rows ship as data, so a
+  * database that predates a feature would otherwise silently miss its toggle.
+  */
+  private function ensureCoreRows($db)
+  {
+  $core = [
+  'breaking_ticker_enabled' => [
+  'group' => 'appearance',
+  'value' => '1',
+  'value_type' => 'boolean',
+  'label_ar' => 'شريط المستجدات العاجلة',
+  'label_en' => 'Breaking News Ticker',
+  'description_ar' => 'إظهار أو إخفاء شريط أحدث المستجدات وأيقونات التواصل أعلى الموقع',
+  'description_en' => 'Show or hide the breaking headlines ticker and social icons at the top of the site.',
+  'sort_order' => 2,
+  ],
+  ];
 
- CSRF::validate($_POST['_csrf'] ?? '');
- $db = Database::getInstance();
- $group = $_POST['_group'] ?? 'general';
+  foreach ($core as $key => $row) {
+  $check = $db->prepare("SELECT id FROM settings WHERE `group` = ? AND `key` = ? LIMIT 1");
+  $check->execute([$row['group'], $key]);
+  if ($check->fetch(PDO::FETCH_COLUMN)) {
+  continue;
+  }
+  $stmt = $db->prepare(
+  "INSERT INTO settings (`group`, `key`, `value`, `value_type`, `label_ar`, `label_en`, `description_ar`, `description_en`, `sort_order`)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+  );
+  $stmt->execute([
+  $row['group'],
+  $key,
+  $row['value'],
+  $row['value_type'],
+  $row['label_ar'],
+  $row['label_en'],
+  $row['description_ar'],
+  $row['description_en'],
+  $row['sort_order']
+  ]);
+  }
+  }
 
- // 1. Process regular settings input
+  public function update()
+  {
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  header('Location: ' . app_url('admin/settings'));
+exit;
+  }
+
+  CSRF::validate($_POST['_csrf'] ?? '');
+  $db = Database::getInstance();
+  $group = $_POST['_group'] ?? 'general';
+
+  // 1. Process regular settings input
  if (!empty($_POST['settings']) && is_array($_POST['settings'])) {
  foreach ($_POST['settings'] as $key => $value) {
  if (is_array($value)) {
