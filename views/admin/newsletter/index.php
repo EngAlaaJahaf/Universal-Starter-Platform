@@ -203,7 +203,15 @@ $mailFromName = Settings::get('mail_from_name', 'عصب التقنية');
  <div class="row g-4">
  <div class="col-12">
  <?php $mailTransport = Mailer::transport(); ?>
- <?php if ($mailTransport === 'brevo'): ?>
+ <?php if ($mailTransport === 'brevo' && !Mailer::brevoSenderValid()): ?>
+ <div class="alert alert-danger d-flex align-items-start gap-2 rounded-4 border-0 shadow-sm mb-0">
+ <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+ <div>
+ <strong>العنوان المرسل منه غير مسجّل في Brevo — البريد لن يصل!</strong><br>
+ <small class="text-muted">حقل From حالياً: <code><?= admin_e($mailFromAddress) ?></code> — غير موجود في قائمة Senders لحساب Brevo. غيّره إلى <code>kasperkey106@gmail.com</code> أو سجّل البريد الحالي والتحقق منه من لوحة Brevo (Senders) قبل أي إرسال.</small>
+ </div>
+ </div>
+ <?php elseif ($mailTransport === 'brevo'): ?>
  <div class="alert alert-success d-flex align-items-start gap-2 rounded-4 border-0 shadow-sm mb-0">
  <i class="bi bi-check-circle-fill fs-5"></i>
  <div>

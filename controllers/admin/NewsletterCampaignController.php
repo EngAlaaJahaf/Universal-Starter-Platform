@@ -73,6 +73,14 @@ class NewsletterCampaignController extends AdminController
  return $this->redirect('admin/newsletter');
  }
 
+ // Brevo only accepts well-known senders: if the configured From-address is not
+ // registered in the account, every message is silently rejected by Brevo.
+ $fromAddress = Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@technews.local');
+ if ($transport === 'brevo' && !Mailer::brevoSenderValid()) {
+ Session::flash('error', 'لن يُرسل أي بريد: العنوان «البريد المرسل منه» من (' . $fromAddress . ') غير مسجّل في حساب Brevo. قم بتسجيله والتحقق منه من لوحة Brevo (Senders)، أو غيّر حقل From في تبويب SMTP إلى بريد مسجّل مثل kasperkey106@gmail.com.');
+ return $this->redirect('admin/newsletter');
+ }
+
  $sent = 0;
  $failed = 0;
  $lastMsgId = null;
@@ -208,10 +216,16 @@ class NewsletterCampaignController extends AdminController
  <h2 style="color:#0284c7;margin-top:0">تهانينا! الاتصال بخادم SMTP يعمل بنجاح</h2>
  <p style="font-size:15px;color:#334155;line-height:1.6">تم استلام هذه الرسالة بنجاح كرسالة اختبارية من ' . htmlspecialchars($siteName) . '.</p>
  <hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0">
- <small style="color:#64748b">تاريخ ووقت الاختبار: ' . date('Y-m-d H:i:s') . '</small>
+<small style="color:#64748b">تاريخ ووقت الاختبار: ' . date('Y-m-d H:i:s') . '</small>
  </div>';
 
-  if (Mailer::send($testEmail, $subject, $body)) {
+ $fromAddress = Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@technews.local');
+ if (Mailer::transport() === 'brevo' && !Mailer::brevoSenderValid()) {
+ Session::flash('error', "فشل تنفيذ الاختبار: العنوان المرسل منه ($fromAddress) غير مسجّل في حساب Brevo. سجّله من لوحة Brevo (Senders) أو غيّر حقل From في تبويب SMTP إلى بريد مسجّل مثل kasperkey106@gmail.com.");
+ return $this->redirect('admin/newsletter?tab=smtp');
+ }
+
+ if (Mailer::send($testEmail, $subject, $body)) {
   Session::flash('success', "تم إرسال البريد التجريبي بنجاح إلى: {$testEmail} ");
   } else {
   Session::flash('error', "فشل إرسال البريد التجريبي. تحقق من مفتاح Brevo API أو من صحة إعدادات SMTP (المضيف، المنفذ، المستخدم، كلمة المرور).");

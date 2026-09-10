@@ -10,6 +10,66 @@ class Mailer
 
     /** Last HTTP status returned by Brevo (or null if not used). */
     public static $lastBrevoHttpCode = null;
+
+    /** Emails listed as usable senders in the Brevo account (`/v3/senders`). */
+    private static $brevoValidSenders = null;
+
+    /**
+     * Returns the list of sender emails registered/valid in the Brevo account.
+     * Returns array() if not configured or on API failure.
+     */
+    public static function brevoValidSenders()
+    {
+        if (self::$brevoValidSenders !== null) {
+            return self::$brevoValidSenders;
+        }
+        self::$brevoValidSenders = array();
+        $brewkey = trim((string) Settings::get('brevo_api_key', (defined('BREVO_API_KEY') ? BREVO_API_KEY : '')));
+        if ($brewkey === '') {
+            return self::$brevoValidSenders;
+        }
+        try {
+            $ch = curl_init('https://api.brevo.com/v3/senders');
+            if ($ch === false) {
+                return self::$brevoValidSenders;
+            }
+            curl_setopt_array($ch, array(
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 15,
+                CURLOPT_HTTPHEADER => array('Accept: application/json', 'api-key: ' . $brewkey),
+            ));
+            $result = curl_exec($ch);
+            $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($result === false || $httpCode !== 200) {
+                return self::$brevoValidSenders;
+            }
+            $parsed = json_decode($result, true);
+            foreach (($parsed['senders'] ?? array()) as $s) {
+                if (!empty($s['email'])) {
+                    self::$brevoValidSenders[strtolower(trim($s['email']))] = true;
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('Brevo senders check failed: ' . $e->getMessage());
+        }
+        return self::$brevoValidSenders;
+    }
+
+    /**
+     * True when the configured From-address is usable by the Brevo account.
+     * Only meaningful when transport() === 'brevo'.
+     */
+    public static function brevoSenderValid()
+    {
+        if (self::transport() !== 'brevo') {
+            return false;
+        }
+        $fromEmail = strtolower(trim((string) Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@technews.local')));
+        $valid = self::brevoValidSenders();
+        return isset($valid[$fromEmail]);
+    }
+
     /**
      * Returns the transport that will be used: 'brevo', 'smtp' or 'simulate'.
      * 'simulate' means NO real mail server is configured (mail is only logged).
