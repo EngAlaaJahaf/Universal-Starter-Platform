@@ -3165,14 +3165,44 @@ body.zen-reading-mode .article-card-main {
   }
 
   /* Article page layout */
-  .article-page-wrap {
+  .article-page-wrap,
+  [data-template="bento_grid"] .article-page-wrap,
+  [data-template="digital_broadsheet"] .article-page-wrap,
+  [data-template="minimal_techcrunch"] .article-page-wrap,
+  [data-template="classic_techwd"] .article-page-wrap,
+  [data-template="cyber_futuristic"] .article-page-wrap {
     margin: 16px auto 50px;
     gap: 24px;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 95% !important;
+    max-width: 100% !important;
   }
 
-  .article-card-main {
-    padding: 20px 16px;
-    border-radius: 14px;
+  .article-card-main,
+  [data-template="bento_grid"] .article-card-main,
+  [data-template="digital_broadsheet"] .article-card-main,
+  [data-template="minimal_techcrunch"] .article-card-main,
+  [data-template="classic_techwd"] .article-card-main,
+  [data-template="cyber_futuristic"] .article-card-main {
+    padding: 20px 16px !important;
+    border-radius: 14px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  [data-template="bento_grid"] .bento-article-header-box {
+    padding: 16px 14px !important;
+    margin-bottom: 20px !important;
+    border-radius: 14px !important;
+  }
+
+  .sidebar-sticky-wrap {
+    position: static !important;
+    margin-top: 16px;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .article-headline {
@@ -4638,8 +4668,14 @@ body.zen-reading-mode .article-card-main {
 /* 1. Bento Grid Article Reader Layout */
 [data-template="bento_grid"] .article-page-wrap {
   width: min(1360px, 94%);
-  grid-template-columns: minmax(0, 1fr) 380px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 32px;
+}
+
+@media (min-width: 992px) {
+  [data-template="bento_grid"] .article-page-wrap {
+    grid-template-columns: minmax(0, 1fr) 380px;
+  }
 }
 
 [data-template="bento_grid"] .article-card-main {
@@ -4661,8 +4697,14 @@ body.zen-reading-mode .article-card-main {
 /* 2. Digital Broadsheet Article Reader Layout */
 [data-template="digital_broadsheet"] .article-page-wrap {
   width: min(1280px, 94%);
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 40px;
+}
+
+@media (min-width: 992px) {
+  [data-template="digital_broadsheet"] .article-page-wrap {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
 }
 
 [data-template="digital_broadsheet"] .article-card-main {
