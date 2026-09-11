@@ -576,7 +576,7 @@ document.addEventListener('DOMContentLoaded', function () {
  class="w-100 h-100" 
  style="object-fit:cover" 
  alt="<?= admin_e($item['title']) ?>"
- onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80';">
+ onerror="this.onerror=null;this.src='<?= admin_e(\FallbackImage::general()) ?>';">
  <?php else: ?>
  <div class="w-100 h-100 d-grid place-items-center text-white" style="background:linear-gradient(135deg,#1e293b,#0f172a);font-size:2rem"></div>
  <?php endif; ?>

@@ -33,7 +33,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                             📸 <?= (int)$tut['steps_count'] ?> خطوات مصورة
                         </span>
                         <?php if (!empty($tut['featured_image'])): ?>
-                            <img src="<?= view_e(app_url($tut['featured_image'])) ?>" alt="<?= view_e($tut['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80';">
+                            <img src="<?= view_e(app_url($tut['featured_image'])) ?>" alt="<?= view_e($tut['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='<?= view_e(\FallbackImage::general()) ?>';">
                         <?php else: ?>
                             <div style="width:100%;height:100%;background:var(--bg-surface-elevated);display:grid;place-items:center;color:var(--accent-primary);font-size:2.5rem">🎓</div>
                         <?php endif; ?>

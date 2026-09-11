@@ -81,7 +81,7 @@ class FetchOg
     {
         $u = trim((string) $url);
         if ($u === '') return true;
-        return str_contains($u, 'photo-1518770660439-4636190af475');
+        return \FallbackImage::isPlaceholder($u);
     }
 
     /** تكبير صور كاش Google (lh3/ggpht) من العرض الصغير إلى 1200px */

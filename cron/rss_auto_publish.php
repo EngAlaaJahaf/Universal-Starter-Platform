@@ -24,9 +24,11 @@ set_time_limit(0);
 $root = dirname(__DIR__);
 require_once $root . '/config/database.php';
 require_once $root . '/core/Database.php';
+require_once $root . '/core/Settings.php';
 require_once $root . '/core/AiTranslator.php';
 require_once $root . '/core/CategoryClassifier.php';
 require_once $root . '/core/FeedFetcher.php';
+require_once $root . '/core/FallbackImage.php';
 require_once $root . '/core/FetchOg.php';
 
 // Datetimes stored/compared in UTC (see Database.php); keep PHP parsing consistent.
@@ -607,17 +609,6 @@ function getCategoryFallbackImage(int $categoryId, array $catSlugMap): string
 {
     $reverseMap = array_flip($catSlugMap);
     $slug = $reverseMap[$categoryId] ?? 'general-tech';
-
-    switch ($slug) {
-        case 'artificial-intelligence':
-            return 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=80'; // AI Neural
-        case 'cybersecurity':
-            return 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&q=80'; // Cyber Matrix
-        case 'hardware-devices':
-            return 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80'; // Hardware Microchip
-        case 'software-development':
-            return 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&q=80'; // Code / IDE
-        default:
-            return 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&q=80'; // Global Tech
-    }
+    // الروابط تُضبط من لوحة الإدارة ← الإعدادات ← المظهر والتصميم
+    return \FallbackImage::forCategory($slug);
 }

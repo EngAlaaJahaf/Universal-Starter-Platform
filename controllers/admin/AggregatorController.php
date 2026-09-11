@@ -3,9 +3,9 @@
 class AggregatorController extends AdminController
 {
  /**
-  * تصنيف تلقائي ذكي للمقال المنشور عبر لوحة المجمّع مع مراعاة المصدر
-  * والمحتوى ورابط المقال (نفس محرك التصنيف المستخدم في الـ Cron).
-  * يقع على المصدر المسجل أو الفئة الافتراضية إن تعذّر التصنيف.
+  * طھطµظ†ظٹظپ طھظ„ظ‚ط§ط¦ظٹ ط°ظƒظٹ ظ„ظ„ظ…ظ‚ط§ظ„ ط§ظ„ظ…ظ†ط´ظˆط± ط¹ط¨ط± ظ„ظˆط­ط© ط§ظ„ظ…ط¬ظ…ظ‘ط¹ ظ…ط¹ ظ…ط±ط§ط¹ط§ط© ط§ظ„ظ…طµط¯ط±
+  * ظˆط§ظ„ظ…ط­طھظˆظ‰ ظˆط±ط§ط¨ط· ط§ظ„ظ…ظ‚ط§ظ„ (ظ†ظپط³ ظ…ط­ط±ظƒ ط§ظ„طھطµظ†ظٹظپ ط§ظ„ظ…ط³طھط®ط¯ظ… ظپظٹ ط§ظ„ظ€ Cron).
+  * ظٹظ‚ط¹ ط¹ظ„ظ‰ ط§ظ„ظ…طµط¯ط± ط§ظ„ظ…ط³ط¬ظ„ ط£ظˆ ط§ظ„ظپط¦ط© ط§ظ„ط§ظپطھط±ط§ط¶ظٹط© ط¥ظ† طھط¹ط°ظ‘ط± ط§ظ„طھطµظ†ظٹظپ.
   */
  private function resolveCategoryId($db, $titleEn, $titleAr, $content, $sourceName, $sourceUrl, $fallbackCatId)
  {
@@ -38,8 +38,8 @@ class AggregatorController extends AdminController
  }
 
  /**
-  * يردّ JSON عندما يكون الطلب قادماً من واجهة AJAX (نشر بدون إعادة تحميل الصفحة)،
-  * ويعيد false ليتابع المُحدِّث مسار الـ redirect المعتاد في المتصفح العادي.
+  * ظٹط±ط¯ظ‘ JSON ط¹ظ†ط¯ظ…ط§ ظٹظƒظˆظ† ط§ظ„ط·ظ„ط¨ ظ‚ط§ط¯ظ…ط§ظ‹ ظ…ظ† ظˆط§ط¬ظ‡ط© AJAX (ظ†ط´ط± ط¨ط¯ظˆظ† ط¥ط¹ط§ط¯ط© طھط­ظ…ظٹظ„ ط§ظ„طµظپط­ط©)طŒ
+  * ظˆظٹط¹ظٹط¯ false ظ„ظٹطھط§ط¨ط¹ ط§ظ„ظ…ظڈط­ط¯ظگظ‘ط« ظ…ط³ط§ط± ط§ظ„ظ€ redirect ط§ظ„ظ…ط¹طھط§ط¯ ظپظٹ ط§ظ„ظ…طھطµظپط­ ط§ظ„ط¹ط§ط¯ظٹ.
   */
  private function ajaxOut(array $payload)
  {
@@ -85,7 +85,7 @@ class AggregatorController extends AdminController
 
  if (!empty($customFeedUrl)) {
  $activeFeedUrl = $customFeedUrl;
- $activeSourceName = parse_url($customFeedUrl, PHP_URL_HOST) ?: 'مصدر مخصص';
+ $activeSourceName = parse_url($customFeedUrl, PHP_URL_HOST) ?: 'ظ…طµط¯ط± ظ…ط®طµطµ';
  } elseif ($selectedSourceId > 0) {
  foreach ($sources as $s) {
  if ((int) $s['id'] === $selectedSourceId) {
@@ -120,14 +120,14 @@ class AggregatorController extends AdminController
  }
  unset($it);
 
-// عدّاد الأخبار الجديدة غير المنشورة (لكل بطاقة + للمصدر المحدد)
+// ط¹ط¯ظ‘ط§ط¯ ط§ظ„ط£ط®ط¨ط§ط± ط§ظ„ط¬ط¯ظٹط¯ط© ط؛ظٹط± ط§ظ„ظ…ظ†ط´ظˆط±ط© (ظ„ظƒظ„ ط¨ط·ط§ظ‚ط© + ظ„ظ„ظ…طµط¯ط± ط§ظ„ظ…ط­ط¯ط¯)
   foreach ($items as $it) {
   if (($it['import_status'] ?? null) !== 'published') $unpublishedCount++;
   }
 
-  // تسخين كاش الصور للمعاينة: نحل مباشرة عدداً محدوداً من العناصر بلا صور
-  // ضمن ميزانية زمنية قصيرة حتى لا تبطئ الصفحة؛ والباقي يُكمل عند النشر أو
-  // التحميلات التالية (الكاش مخزّن على القرص في storage/cache).
+  // طھط³ط®ظٹظ† ظƒط§ط´ ط§ظ„طµظˆط± ظ„ظ„ظ…ط¹ط§ظٹظ†ط©: ظ†ط­ظ„ ظ…ط¨ط§ط´ط±ط© ط¹ط¯ط¯ط§ظ‹ ظ…ط­ط¯ظˆط¯ط§ظ‹ ظ…ظ† ط§ظ„ط¹ظ†ط§طµط± ط¨ظ„ط§ طµظˆط±
+  // ط¶ظ…ظ† ظ…ظٹط²ط§ظ†ظٹط© ط²ظ…ظ†ظٹط© ظ‚طµظٹط±ط© ط­طھظ‰ ظ„ط§ طھط¨ط·ط¦ ط§ظ„طµظپط­ط©ط› ظˆط§ظ„ط¨ط§ظ‚ظٹ ظٹظڈظƒظ…ظ„ ط¹ظ†ط¯ ط§ظ„ظ†ط´ط± ط£ظˆ
+  // ط§ظ„طھط­ظ…ظٹظ„ط§طھ ط§ظ„طھط§ظ„ظٹط© (ط§ظ„ظƒط§ط´ ظ…ط®ط²ظ‘ظ† ط¹ظ„ظ‰ ط§ظ„ظ‚ط±طµ ظپظٹ storage/cache).
   $warmDeadline = microtime(true) + 8;
   $warmedCount = 0;
   foreach ($items as &$it) {
@@ -144,7 +144,7 @@ class AggregatorController extends AdminController
   }
   unset($it);
 
-  // تحديث عدّاد خلاصة المصدر المسجّل فقط (وليس رابط مخصص عابر)
+  // طھط­ط¯ظٹط« ط¹ط¯ظ‘ط§ط¯ ط®ظ„ط§طµط© ط§ظ„ظ…طµط¯ط± ط§ظ„ظ…ط³ط¬ظ‘ظ„ ظپظ‚ط· (ظˆظ„ظٹط³ ط±ط§ط¨ط· ظ…ط®طµطµ ط¹ط§ط¨ط±)
  if (empty($customFeedUrl) && $selectedSourceId > 0) {
  $publishedLinks = [];
  foreach ($items as $it) {
@@ -187,19 +187,19 @@ class AggregatorController extends AdminController
 
  $title = $this->cleanTextEntity(trim($data['title'] ?? ''));
  $sourceUrl = trim($data['source_url'] ?? '');
- $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'مصدر خارجي'));
+ $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'ظ…طµط¯ط± ط®ط§ط±ط¬ظٹ'));
  $content = $this->cleanTextEntity($_POST['content'] ?? ($data['excerpt'] ?? ''));
- $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, '…', 'UTF-8')));
+ $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, 'â€¦', 'UTF-8')));
 $featuredImage = trim($data['featured_image'] ?? '');
   // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
   if (strlen($featuredImage) > 1000) $featuredImage = '';
-  // عناصر خلاصات مثل Google News لا تحمل صوراً داخل XML؛ نجلب الصورة البارزة
-  // الحقيقية من صفحة المقال الأصلية (og:image مع كاش على القرص) عند غيابها.
+  // ط¹ظ†ط§طµط± ط®ظ„ط§طµط§طھ ظ…ط«ظ„ Google News ظ„ط§ طھط­ظ…ظ„ طµظˆط±ط§ظ‹ ط¯ط§ط®ظ„ XMLط› ظ†ط¬ظ„ط¨ ط§ظ„طµظˆط±ط© ط§ظ„ط¨ط§ط±ط²ط©
+  // ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ظ…ظ† طµظپط­ط© ط§ظ„ظ…ظ‚ط§ظ„ ط§ظ„ط£طµظ„ظٹط© (og:image ظ…ط¹ ظƒط§ط´ ط¹ظ„ظ‰ ط§ظ„ظ‚ط±طµ) ط¹ظ†ط¯ ط؛ظٹط§ط¨ظ‡ط§.
   $featuredImage = FetchOg::resolveFor($sourceUrl, $featuredImage);
 
  if (empty($title)) {
- if ($this->ajaxOut(['success' => false, 'error' => 'عنوان المقال مطلوب للنشر.'])) return;
- Session::flash('error', 'عنوان المقال مطلوب للنشر.');
+ if ($this->ajaxOut(['success' => false, 'error' => 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨ ظ„ظ„ظ†ط´ط±.'])) return;
+ Session::flash('error', 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨ ظ„ظ„ظ†ط´ط±.');
  return $this->redirect('admin/news-feeds');
  }
 
@@ -280,7 +280,7 @@ $featuredImage = trim($data['featured_image'] ?? '');
  ]);
 
  $this->audit('translate_update_publish', 'article', (int) $existing['id'], null, ['source' => $sourceName, 'url' => $sourceUrl, 'title_ar' => $titleAr]);
- Session::flash('success', "تم العثور على المقال المنشور مسبقاً وتحديثه وترجمته فوراً إلى العربية بعنوان: \"{$titleAr}\"!");
+ Session::flash('success', "طھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط§ظ„ظ…ظ‚ط§ظ„ ط§ظ„ظ…ظ†ط´ظˆط± ظ…ط³ط¨ظ‚ط§ظ‹ ظˆطھط­ط¯ظٹط«ظ‡ ظˆطھط±ط¬ظ…طھظ‡ ظپظˆط±ط§ظ‹ ط¥ظ„ظ‰ ط§ظ„ط¹ط±ط¨ظٹط© ط¨ط¹ظ†ظˆط§ظ†: \"{$titleAr}\"!");
  } else {
  // Insert fresh translated article
  $db->query("
@@ -307,12 +307,12 @@ $featuredImage = trim($data['featured_image'] ?? '');
 
  $newId = $db->lastInsertId();
  $this->audit('translate_publish', 'article', $newId, null, ['source' => $sourceName, 'url' => $sourceUrl, 'title_ar' => $titleAr]);
- Session::flash('success', "تمت ترجمة وصياغة ونشر الخبر فوراً بنجاح باللغة العربية بعنوان: \"{$titleAr}\"!");
+ Session::flash('success', "طھظ…طھ طھط±ط¬ظ…ط© ظˆطµظٹط§ط؛ط© ظˆظ†ط´ط± ط§ظ„ط®ط¨ط± ظپظˆط±ط§ظ‹ ط¨ظ†ط¬ط§ط­ ط¨ط§ظ„ظ„ط؛ط© ط§ظ„ط¹ط±ط¨ظٹط© ط¨ط¹ظ†ظˆط§ظ†: \"{$titleAr}\"!");
  }
  } catch (Throwable $e) {
  error_log('translatePublish error: ' . $e->getMessage());
- if ($this->ajaxOut(['success' => false, 'error' => 'تعذر إتمام الترجمة والنشر: ' . $e->getMessage()])) return;
- Session::flash('error', 'تعذر إتمام الترجمة والنشر: ' . $e->getMessage());
+ if ($this->ajaxOut(['success' => false, 'error' => 'طھط¹ط°ط± ط¥طھظ…ط§ظ… ط§ظ„طھط±ط¬ظ…ط© ظˆط§ظ„ظ†ط´ط±: ' . $e->getMessage()])) return;
+ Session::flash('error', 'طھط¹ط°ط± ط¥طھظ…ط§ظ… ط§ظ„طھط±ط¬ظ…ط© ظˆط§ظ„ظ†ط´ط±: ' . $e->getMessage());
  }
  
  $okArticleId = (int) ($newId ?? $existing['id'] ?? 0);
@@ -320,7 +320,7 @@ $featuredImage = trim($data['featured_image'] ?? '');
  'success' => true,
  'article_id' => $okArticleId,
  'edit_url' => app_url('admin/articles/' . $okArticleId . '/edit'),
- 'message' => "تمت الترجمة والنشر بنجاح بعنوان: \"{$titleAr}\"!",
+ 'message' => "طھظ…طھ ط§ظ„طھط±ط¬ظ…ط© ظˆط§ظ„ظ†ط´ط± ط¨ظ†ط¬ط§ط­ ط¨ط¹ظ†ظˆط§ظ†: \"{$titleAr}\"!",
  ])) return;
 
  $referer = $_SERVER['HTTP_REFERER'] ?? app_url('admin/news-feeds');
@@ -339,19 +339,19 @@ $featuredImage = trim($data['featured_image'] ?? '');
 
  $title = $this->cleanTextEntity(trim($data['title'] ?? ''));
  $sourceUrl = trim($data['source_url'] ?? '');
- $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'مصدر خارجي'));
+ $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'ظ…طµط¯ط± ط®ط§ط±ط¬ظٹ'));
  $content = $this->cleanTextEntity($_POST['content'] ?? ($data['excerpt'] ?? ''));
- $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, '…', 'UTF-8')));
+ $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, 'â€¦', 'UTF-8')));
 $featuredImage = trim($data['featured_image'] ?? '');
   // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
   if (strlen($featuredImage) > 1000) $featuredImage = '';
-  // عناصر خلاصات مثل Google News لا تحمل صوراً داخل XML؛ نجلب الصورة البارزة
-  // الحقيقية من صفحة المقال الأصلية (og:image مع كاش على القرص) عند غيابها.
+  // ط¹ظ†ط§طµط± ط®ظ„ط§طµط§طھ ظ…ط«ظ„ Google News ظ„ط§ طھط­ظ…ظ„ طµظˆط±ط§ظ‹ ط¯ط§ط®ظ„ XMLط› ظ†ط¬ظ„ط¨ ط§ظ„طµظˆط±ط© ط§ظ„ط¨ط§ط±ط²ط©
+  // ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ظ…ظ† طµظپط­ط© ط§ظ„ظ…ظ‚ط§ظ„ ط§ظ„ط£طµظ„ظٹط© (og:image ظ…ط¹ ظƒط§ط´ ط¹ظ„ظ‰ ط§ظ„ظ‚ط±طµ) ط¹ظ†ط¯ ط؛ظٹط§ط¨ظ‡ط§.
   $featuredImage = FetchOg::resolveFor($sourceUrl, $featuredImage);
 
  if (empty($title)) {
- if ($this->ajaxOut(['success' => false, 'error' => 'عنوان المقال مطلوب للنشر.'])) return;
- Session::flash('error', 'عنوان المقال مطلوب للنشر.');
+ if ($this->ajaxOut(['success' => false, 'error' => 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨ ظ„ظ„ظ†ط´ط±.'])) return;
+ Session::flash('error', 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨ ظ„ظ„ظ†ط´ط±.');
  return $this->redirect('admin/news-feeds');
  }
 
@@ -410,7 +410,7 @@ $featuredImage = trim($data['featured_image'] ?? '');
             ]);
 
             $this->audit('direct_update_publish', 'article', (int) $existing['id'], null, ['source' => $sourceName, 'url' => $sourceUrl, 'title' => $title]);
-            Session::flash('success', "تم العثور على المقال المنشور مسبقاً وتحديث محتواه فوراً بعنوان: \"{$title}\"!");
+            Session::flash('success', "طھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط§ظ„ظ…ظ‚ط§ظ„ ط§ظ„ظ…ظ†ط´ظˆط± ظ…ط³ط¨ظ‚ط§ظ‹ ظˆطھط­ط¯ظٹط« ظ…ط­طھظˆط§ظ‡ ظپظˆط±ط§ظ‹ ط¨ط¹ظ†ظˆط§ظ†: \"{$title}\"!");
         } else {
             $db->query("
                 INSERT INTO articles 
@@ -432,7 +432,7 @@ $featuredImage = trim($data['featured_image'] ?? '');
 
             $newId = $db->lastInsertId();
 $this->audit('direct_publish', 'article', $newId, null, ['source' => $sourceName, 'url' => $sourceUrl, 'title' => $title]);
- Session::flash('success', "تم النشر الفوري المباشر بنجاح بدون ترجمة بعنوان: \"{$title}\"!");
+ Session::flash('success', "طھظ… ط§ظ„ظ†ط´ط± ط§ظ„ظپظˆط±ظٹ ط§ظ„ظ…ط¨ط§ط´ط± ط¨ظ†ط¬ط§ط­ ط¨ط¯ظˆظ† طھط±ط¬ظ…ط© ط¨ط¹ظ†ظˆط§ظ†: \"{$title}\"!");
  }
  
  $okArticleId = (int) ($newId ?? $existing['id'] ?? 0);
@@ -440,7 +440,7 @@ $this->audit('direct_publish', 'article', $newId, null, ['source' => $sourceName
  'success' => true,
  'article_id' => $okArticleId,
  'edit_url' => app_url('admin/articles/' . $okArticleId . '/edit'),
- 'message' => "تم النشر الفوري المباشر بنجاح بعنوان: \"{$title}\"!",
+ 'message' => "طھظ… ط§ظ„ظ†ط´ط± ط§ظ„ظپظˆط±ظٹ ط§ظ„ظ…ط¨ط§ط´ط± ط¨ظ†ط¬ط§ط­ ط¨ط¹ظ†ظˆط§ظ†: \"{$title}\"!",
  ])) return;
 
  $referer = $_SERVER['HTTP_REFERER'] ?? app_url('admin/news-feeds');
@@ -459,19 +459,19 @@ $this->audit('direct_publish', 'article', $newId, null, ['source' => $sourceName
 
         $title = $this->cleanTextEntity(trim($data['title'] ?? ''));
         $sourceUrl = trim($data['source_url'] ?? '');
-        $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'مصدر خارجي'));
+        $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'ظ…طµط¯ط± ط®ط§ط±ط¬ظٹ'));
         $content = $this->cleanTextEntity($_POST['content'] ?? ($data['excerpt'] ?? ''));
-        $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, '…', 'UTF-8')));
+        $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, 'â€¦', 'UTF-8')));
         $featuredImage = trim($data['featured_image'] ?? '');
         // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
         if (strlen($featuredImage) > 1000) $featuredImage = '';
-        // عناصر خلاصات مثل Google News لا تحمل صوراً داخل XML؛ نجلب الصورة البارزة
-        // الحقيقية من صفحة المقال الأصلية (og:image مع كاش على القرص) عند غيابها.
+        // ط¹ظ†ط§طµط± ط®ظ„ط§طµط§طھ ظ…ط«ظ„ Google News ظ„ط§ طھط­ظ…ظ„ طµظˆط±ط§ظ‹ ط¯ط§ط®ظ„ XMLط› ظ†ط¬ظ„ط¨ ط§ظ„طµظˆط±ط© ط§ظ„ط¨ط§ط±ط²ط©
+        // ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ظ…ظ† طµظپط­ط© ط§ظ„ظ…ظ‚ط§ظ„ ط§ظ„ط£طµظ„ظٹط© (og:image ظ…ط¹ ظƒط§ط´ ط¹ظ„ظ‰ ط§ظ„ظ‚ط±طµ) ط¹ظ†ط¯ ط؛ظٹط§ط¨ظ‡ط§.
         $featuredImage = FetchOg::resolveFor($sourceUrl, $featuredImage);
 
 if (empty($title)) {
- if ($this->ajaxOut(['success' => false, 'error' => 'عنوان المقال مطلوب.'])) return;
- Session::flash('error', 'عنوان المقال مطلوب.');
+ if ($this->ajaxOut(['success' => false, 'error' => 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨.'])) return;
+ Session::flash('error', 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨.');
  return $this->redirect('admin/news-feeds');
  }
 
@@ -524,7 +524,7 @@ if (empty($title)) {
 
  $newId = $db->lastInsertId();
  $this->audit('draft_article', 'article', $newId, null, ['source' => $sourceName, 'url' => $sourceUrl]);
- Session::flash('success', "تم استيراد الخبر كمسودة بنجاح! يمكنك الآن مراجعته وصياغته ونشره.");
+ Session::flash('success', "طھظ… ط§ط³طھظٹط±ط§ط¯ ط§ظ„ط®ط¨ط± ظƒظ…ط³ظˆط¯ط© ط¨ظ†ط¬ط§ط­! ظٹظ…ظƒظ†ظƒ ط§ظ„ط¢ظ† ظ…ط±ط§ط¬ط¹طھظ‡ ظˆطµظٹط§ط؛طھظ‡ ظˆظ†ط´ط±ظ‡.");
  if ($this->ajaxOut([
  'success' => true,
  'article_id' => (int) $newId,
@@ -543,7 +543,7 @@ if (empty($title)) {
  $categoryId = (int) ($data['category_id'] ?? 0) ?: null;
 
  if (empty($name) || empty($url)) {
- Session::flash('error', 'اسم المصدر ورابط الـ RSS مطلوبان.');
+ Session::flash('error', 'ط§ط³ظ… ط§ظ„ظ…طµط¯ط± ظˆط±ط§ط¨ط· ط§ظ„ظ€ RSS ظ…ط·ظ„ظˆط¨ط§ظ†.');
  return $this->redirect('admin/news-feeds');
  }
 
@@ -554,7 +554,7 @@ if (empty($title)) {
  ':category_id' => $categoryId
  ]);
 
- Session::flash('success', "تمت إضافة المصدر التقني \"{$name}\" بنجاح.");
+ Session::flash('success', "طھظ…طھ ط¥ط¶ط§ظپط© ط§ظ„ظ…طµط¯ط± ط§ظ„طھظ‚ظ†ظٹ \"{$name}\" ط¨ظ†ط¬ط§ط­.");
  return $this->redirect('admin/news-feeds');
  }
 
@@ -563,29 +563,29 @@ if (empty($title)) {
  $this->postGuard();
  $db = new Database();
  $db->query("DELETE FROM rss_sources WHERE id = :id", [':id' => (int) $id]);
- Session::flash('success', 'تم حذف المصدر بنجاح.');
+ Session::flash('success', 'طھظ… ط­ط°ظپ ط§ظ„ظ…طµط¯ط± ط¨ظ†ط¬ط§ط­.');
  return $this->redirect('admin/news-feeds');
  }
 
  /**
- * فحص صحة كل مصادر RSS المسجلة (أو مصدر واحد) وتخزين النتيجة في قاعدة البيانات.
- * يُرجع JSON لاستهلاكه من واجهة لوحة التحكم.
+ * ظپط­طµ طµط­ط© ظƒظ„ ظ…طµط§ط¯ط± RSS ط§ظ„ظ…ط³ط¬ظ„ط© (ط£ظˆ ظ…طµط¯ط± ظˆط§ط­ط¯) ظˆطھط®ط²ظٹظ† ط§ظ„ظ†طھظٹط¬ط© ظپظٹ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ.
+ * ظٹظڈط±ط¬ط¹ JSON ظ„ط§ط³طھظ‡ظ„ط§ظƒظ‡ ظ…ظ† ظˆط§ط¬ظ‡ط© ظ„ظˆط­ط© ط§ظ„طھط­ظƒظ….
  */
 public function healthCheck()
  {
  $this->guardAdmin();
 
- // ميزانية زمنية ثابتة لكل طلب: بغضّ النظر عن بطء الخلاصات نضمن إرجاع استجابة
- // كاملة قبل مهلة الاستضافة القصوى (~30 ث)، عبر تقسيم الفحص إلى دفعات صغيرة
- // تُتابعها الواجهة (offset/limit). كل طلب يعالج مصدراً واحداً على الأقل.
+ // ظ…ظٹط²ط§ظ†ظٹط© ط²ظ…ظ†ظٹط© ط«ط§ط¨طھط© ظ„ظƒظ„ ط·ظ„ط¨: ط¨ط؛ط¶ظ‘ ط§ظ„ظ†ط¸ط± ط¹ظ† ط¨ط·ط، ط§ظ„ط®ظ„ط§طµط§طھ ظ†ط¶ظ…ظ† ط¥ط±ط¬ط§ط¹ ط§ط³طھط¬ط§ط¨ط©
+ // ظƒط§ظ…ظ„ط© ظ‚ط¨ظ„ ظ…ظ‡ظ„ط© ط§ظ„ط§ط³طھط¶ط§ظپط© ط§ظ„ظ‚طµظˆظ‰ (~30 ط«)طŒ ط¹ط¨ط± طھظ‚ط³ظٹظ… ط§ظ„ظپط­طµ ط¥ظ„ظ‰ ط¯ظپط¹ط§طھ طµط؛ظٹط±ط©
+ // طھظڈطھط§ط¨ط¹ظ‡ط§ ط§ظ„ظˆط§ط¬ظ‡ط© (offset/limit). ظƒظ„ ط·ظ„ط¨ ظٹط¹ط§ظ„ط¬ ظ…طµط¯ط±ط§ظ‹ ظˆط§ط­ط¯ط§ظ‹ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„.
  $started = microtime(true);
- $budget = 10; // ثوانٍ كحدّ أقصى لمعالجة طلب واحد
+ $budget = 10; // ط«ظˆط§ظ†ظچ ظƒط­ط¯ظ‘ ط£ظ‚طµظ‰ ظ„ظ…ط¹ط§ظ„ط¬ط© ط·ظ„ط¨ ظˆط§ط­ط¯
  @set_time_limit($budget + 20);
 
  $db = new Database();
  $singleId = isset($_GET['id']) ? (int) $_GET['id'] : (isset($_POST['id']) ? (int) $_POST['id'] : 0);
 
- // Batching: shared hosting caps max_execution_time (30–60s), so the full
+ // Batching: shared hosting caps max_execution_time (30â€“60s), so the full
  // 31-source scan is split into small requests the frontend chains together.
  $offset = max(0, (int) ($_GET['offset'] ?? 0));
  $limit  = max(0, (int) ($_GET['limit'] ?? 0));
@@ -608,15 +608,15 @@ public function healthCheck()
  $didWork = false;
 
  foreach ($sources as $s) {
-  // نضمن معالجة مصدر واحد على الأقل، ثم نتوقف عند اقتراب الميزانية
-  // لترك الدفعة التالية (done=false) تكمل الباقي قبل وصول PHP للمهلة.
+  // ظ†ط¶ظ…ظ† ظ…ط¹ط§ظ„ط¬ط© ظ…طµط¯ط± ظˆط§ط­ط¯ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„طŒ ط«ظ… ظ†طھظˆظ‚ظپ ط¹ظ†ط¯ ط§ظ‚طھط±ط§ط¨ ط§ظ„ظ…ظٹط²ط§ظ†ظٹط©
+  // ظ„طھط±ظƒ ط§ظ„ط¯ظپط¹ط© ط§ظ„طھط§ظ„ظٹط© (done=false) طھظƒظ…ظ„ ط§ظ„ط¨ط§ظ‚ظٹ ظ‚ط¨ظ„ ظˆطµظˆظ„ PHP ظ„ظ„ظ…ظ‡ظ„ط©.
   if ($didWork && (microtime(true) - $started) >= $budget) {
   break;
   }
   $didWork = true;
 
-  // الفحص الجماعي: وضع سريع مع تقليص مهلة هذا المصدر بما تبقّى من الميزانية؛
-  // الفحص المفرد: مهلة عليا 15 ث حتى لا تتجاوز مهلة الاستضافة.
+  // ط§ظ„ظپط­طµ ط§ظ„ط¬ظ…ط§ط¹ظٹ: ظˆط¶ط¹ ط³ط±ظٹط¹ ظ…ط¹ طھظ‚ظ„ظٹطµ ظ…ظ‡ظ„ط© ظ‡ط°ط§ ط§ظ„ظ…طµط¯ط± ط¨ظ…ط§ طھط¨ظ‚ظ‘ظ‰ ظ…ظ† ط§ظ„ظ…ظٹط²ط§ظ†ظٹط©ط›
+  // ط§ظ„ظپط­طµ ط§ظ„ظ…ظپط±ط¯: ظ…ظ‡ظ„ط© ط¹ظ„ظٹط§ 15 ط« ط­طھظ‰ ظ„ط§ طھطھط¬ط§ظˆط² ظ…ظ‡ظ„ط© ط§ظ„ط§ط³طھط¶ط§ظپط©.
   $remainingMs = (int) (($budget - (microtime(true) - $started)) * 1000);
   $fetch = FeedFetcher::fetchRaw($s['url'], $singleId > 0 ? false : true, $singleId > 0 ? 15000 : max(1000, min(6000, $remainingMs)));
 
@@ -642,7 +642,7 @@ public function healthCheck()
  $status = 'ok';
  $error = '';
  } else {
- // خلاصة XML غير صالحة — جرّب الكاشط الذكي كخيار احتياطي
+ // ط®ظ„ط§طµط© XML ط؛ظٹط± طµط§ظ„ط­ط© â€” ط¬ط±ظ‘ط¨ ط§ظ„ظƒط§ط´ط· ط§ظ„ط°ظƒظٹ ظƒط®ظٹط§ط± ط§ط­طھظٹط§ط·ظٹ
  $scraped = $this->scrapeHtmlPage($fetch['body'], $s['url']);
  if (!empty($scraped)) {
  $status = 'ok';
@@ -651,15 +651,15 @@ public function healthCheck()
  $error = '';
  } else {
  $status = 'empty';
- $error = 'تم الاتصال بنجاح لكن لم يُعثر على عناصر إخبارية داخل الخلاصة.';
+ $error = 'طھظ… ط§ظ„ط§طھطµط§ظ„ ط¨ظ†ط¬ط§ط­ ظ„ظƒظ† ظ„ظ… ظٹظڈط¹ط«ط± ط¹ظ„ظ‰ ط¹ظ†ط§طµط± ط¥ط®ط¨ط§ط±ظٹط© ط¯ط§ط®ظ„ ط§ظ„ط®ظ„ط§طµط©.';
  }
  }
  }
 
 $suggestions = [];
   if ($status !== 'ok' && $singleId > 0 && (microtime(true) - $started) < 6) {
-  // اقتراحات البدائل تحتاج طلبات شبكة إضافية؛ تُنفَّذ فقط في الفحص المفرد،
-  // وفقط إذا بقي من الميزانية متّسع، حتى لا تطلق المهلة على الاستضافة.
+  // ط§ظ‚طھط±ط§ط­ط§طھ ط§ظ„ط¨ط¯ط§ط¦ظ„ طھط­طھط§ط¬ ط·ظ„ط¨ط§طھ ط´ط¨ظƒط© ط¥ط¶ط§ظپظٹط©ط› طھظڈظ†ظپظژظ‘ط° ظپظ‚ط· ظپظٹ ط§ظ„ظپط­طµ ط§ظ„ظ…ظپط±ط¯طŒ
+  // ظˆظپظ‚ط· ط¥ط°ط§ ط¨ظ‚ظٹ ظ…ظ† ط§ظ„ظ…ظٹط²ط§ظ†ظٹط© ظ…طھظ‘ط³ط¹طŒ ط­طھظ‰ ظ„ط§ طھط·ظ„ظ‚ ط§ظ„ظ…ظ‡ظ„ط© ط¹ظ„ظ‰ ط§ظ„ط§ط³طھط¶ط§ظپط©.
   $suggestions = array_slice(FeedFetcher::suggestAlternatives($s['url']), 0, 4);
   }
 
@@ -703,8 +703,8 @@ $suggestions = [];
  ];
  }
 
-// done صحيح فقط عند استكمال كل المصادر (أو انتهاء الدفعة بلا بقيّة)؛
-  // أما إذا توقفنا بسبب الميزانية فتُكمّل الواجهة من offset الناتج.
+// done طµط­ظٹط­ ظپظ‚ط· ط¹ظ†ط¯ ط§ط³طھظƒظ…ط§ظ„ ظƒظ„ ط§ظ„ظ…طµط§ط¯ط± (ط£ظˆ ط§ظ†طھظ‡ط§ط، ط§ظ„ط¯ظپط¹ط© ط¨ظ„ط§ ط¨ظ‚ظٹظ‘ط©)ط›
+  // ط£ظ…ط§ ط¥ط°ط§ طھظˆظ‚ظپظ†ط§ ط¨ط³ط¨ط¨ ط§ظ„ظ…ظٹط²ط§ظ†ظٹط© ظپطھظڈظƒظ…ظ‘ظ„ ط§ظ„ظˆط§ط¬ظ‡ط© ظ…ظ† offset ط§ظ„ظ†ط§طھط¬.
   $done = ($offset + count($results)) >= $sourceCount;
 
  header('Content-Type: application/json; charset=utf-8');
@@ -721,7 +721,7 @@ $suggestions = [];
   exit;
  }
 
- /** تسمية مقروءة لوكيل المستخدم الذي نجح في الجلب */
+ /** طھط³ظ…ظٹط© ظ…ظ‚ط±ظˆط،ط© ظ„ظˆظƒظٹظ„ ط§ظ„ظ…ط³طھط®ط¯ظ… ط§ظ„ط°ظٹ ظ†ط¬ط­ ظپظٹ ط§ظ„ط¬ظ„ط¨ */
  private function uaLabel($ua)
  {
  if (str_contains($ua, 'Googlebot')) return 'Googlebot';
@@ -744,7 +744,7 @@ $suggestions = [];
  echo '<opml version="2.0">' . "\n";
  echo ' <head><title>AsabTech RSS Feeds</title><dateCreated>' . date('r') . '</dateCreated></head>' . "\n";
  echo ' <body>' . "\n";
- echo ' <outline text="مصادر الأخبار التقنية المعتمدة" title="Tech Feeds">' . "\n";
+ echo ' <outline text="ظ…طµط§ط¯ط± ط§ظ„ط£ط®ط¨ط§ط± ط§ظ„طھظ‚ظ†ظٹط© ط§ظ„ظ…ط¹طھظ…ط¯ط©" title="Tech Feeds">' . "\n";
  foreach ($sources as $s) {
  $name = htmlspecialchars($s['name'], ENT_QUOTES, 'UTF-8');
  $url = htmlspecialchars($s['url'], ENT_QUOTES, 'UTF-8');
@@ -791,9 +791,9 @@ $suggestions = [];
  }
 
  if ($importedCount > 0) {
- Session::flash('success', "تم استيراد ({$importedCount}) مصدر RSS بنجاح إلى قائمة المصادر!");
+ Session::flash('success', "طھظ… ط§ط³طھظٹط±ط§ط¯ ({$importedCount}) ظ…طµط¯ط± RSS ط¨ظ†ط¬ط§ط­ ط¥ظ„ظ‰ ظ‚ط§ط¦ظ…ط© ط§ظ„ظ…طµط§ط¯ط±!");
  } else {
- Session::flash('error', "لم يتم العثور على روابط RSS صالحة في الملف أو النص المدخل.");
+ Session::flash('error', "ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط±ظˆط§ط¨ط· RSS طµط§ظ„ط­ط© ظپظٹ ط§ظ„ظ…ظ„ظپ ط£ظˆ ط§ظ„ظ†طµ ط§ظ„ظ…ط¯ط®ظ„.");
  }
 
  return $this->redirect('admin/news-feeds');
@@ -810,7 +810,7 @@ $suggestions = [];
  $list = $json['sources'] ?? $json;
  foreach ($list as $item) {
  if (is_array($item) && !empty($item['url'])) {
- $name = trim($item['name'] ?? parse_url($item['url'], PHP_URL_HOST) ?: 'مصدر مستورد');
+ $name = trim($item['name'] ?? parse_url($item['url'], PHP_URL_HOST) ?: 'ظ…طµط¯ط± ظ…ط³طھظˆط±ط¯');
  $url = trim($item['url']);
  $catId = !empty($item['category_id']) ? (int) $item['category_id'] : 1;
  $db->query("INSERT INTO rss_sources (name, url, category_id, auto_fetch) VALUES (:name, :url, :cat, 1)", [
@@ -832,7 +832,7 @@ $suggestions = [];
  $outlines = $xml->xpath('//outline[@xmlUrl]');
  foreach ($outlines as $out) {
  $url = (string) $out['xmlUrl'];
- $name = (string) ($out['text'] ?? $out['title'] ?? parse_url($url, PHP_URL_HOST) ?: 'مصدر RSS');
+ $name = (string) ($out['text'] ?? $out['title'] ?? parse_url($url, PHP_URL_HOST) ?: 'ظ…طµط¯ط± RSS');
  if (!empty($url)) {
  $db->query("INSERT INTO rss_sources (name, url, category_id, auto_fetch) VALUES (:name, :url, 1, 1)", [
  ':name' => trim($name),
@@ -850,7 +850,7 @@ $suggestions = [];
  foreach ($lines as $line) {
  $line = trim($line);
  if (filter_var($line, FILTER_VALIDATE_URL)) {
- $host = parse_url($line, PHP_URL_HOST) ?: 'مصدر تقني';
+ $host = parse_url($line, PHP_URL_HOST) ?: 'ظ…طµط¯ط± طھظ‚ظ†ظٹ';
  $db->query("INSERT INTO rss_sources (name, url, category_id, auto_fetch) VALUES (:name, :url, 1, 1)", [
  ':name' => $host,
  ':url' => $line
@@ -864,8 +864,8 @@ $suggestions = [];
 
  private function fetchRss($url)
  {
- // محرك مقاوم للحجب: يدوّر وكيل المستخدم عند 403، ويعيد المحاولة عند 429،
- // ويكشف التحويلات إلى خدمات متوقفة مثل FeedBurner.
+ // ظ…ط­ط±ظƒ ظ…ظ‚ط§ظˆظ… ظ„ظ„ط­ط¬ط¨: ظٹط¯ظˆظ‘ط± ظˆظƒظٹظ„ ط§ظ„ظ…ط³طھط®ط¯ظ… ط¹ظ†ط¯ 403طŒ ظˆظٹط¹ظٹط¯ ط§ظ„ظ…ط­ط§ظˆظ„ط© ط¹ظ†ط¯ 429طŒ
+ // ظˆظٹظƒط´ظپ ط§ظ„طھط­ظˆظٹظ„ط§طھ ط¥ظ„ظ‰ ط®ط¯ظ…ط§طھ ظ…طھظˆظ‚ظپط© ظ…ط«ظ„ FeedBurner.
  $fetch = FeedFetcher::fetchRaw($url);
 
  if (!$fetch['success']) {
@@ -873,7 +873,7 @@ $suggestions = [];
  if ((int) $fetch['http_code'] === 410 || (int) $fetch['http_code'] === 404) {
  $alts = FeedFetcher::suggestAlternatives($url);
  if ($alts) {
- $hint = ' — روابط مقترحة للتجربة: ' . implode(' ، ', array_slice($alts, 0, 3));
+ $hint = ' â€” ط±ظˆط§ط¨ط· ظ…ظ‚طھط±ط­ط© ظ„ظ„طھط¬ط±ط¨ط©: ' . implode(' طŒ ', array_slice($alts, 0, 3));
  }
  }
  return ['success' => false, 'error' => $fetch['error'] . $hint];
@@ -890,7 +890,7 @@ $suggestions = [];
  if (!empty($htmlItems)) {
  return ['success' => true, 'items' => $htmlItems, 'is_html_scraped' => true];
  }
- return ['success' => false, 'error' => 'تعذر استخراج مقالات من الرابط (لا تتوفر خلاصة XML صالحة أو تعذر استخراج عناصر HTML).'];
+ return ['success' => false, 'error' => 'طھط¹ط°ط± ط§ط³طھط®ط±ط§ط¬ ظ…ظ‚ط§ظ„ط§طھ ظ…ظ† ط§ظ„ط±ط§ط¨ط· (ظ„ط§ طھطھظˆظپط± ط®ظ„ط§طµط© XML طµط§ظ„ط­ط© ط£ظˆ طھط¹ط°ط± ط§ط³طھط®ط±ط§ط¬ ط¹ظ†ط§طµط± HTML).'];
  }
 
  $items = [];
@@ -914,7 +914,7 @@ $suggestions = [];
  if (!empty($htmlItems)) {
  return ['success' => true, 'items' => $htmlItems, 'is_html_scraped' => true];
  }
- return ['success' => false, 'error' => 'لم يتم العثور على أي عناصر إخبارية داخل ملف الخلاصة.'];
+ return ['success' => false, 'error' => 'ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط£ظٹ ط¹ظ†ط§طµط± ط¥ط®ط¨ط§ط±ظٹط© ط¯ط§ط®ظ„ ظ…ظ„ظپ ط§ظ„ط®ظ„ط§طµط©.'];
  }
 
  return ['success' => true, 'items' => array_slice($items, 0, 30)];
@@ -991,9 +991,9 @@ $suggestions = [];
 'title' => $title,
   'link' => $href,
   'pubDate' => fmt_date('now', 'Y-m-d H:i'),
- 'excerpt' => mb_strimwidth($desc, 0, 220, '…', 'UTF-8'),
+ 'excerpt' => mb_strimwidth($desc, 0, 220, 'â€¦', 'UTF-8'),
  'content' => $desc,
- 'featured_image' => $image ?: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80'
+ 'featured_image' => $image ?: \FallbackImage::general()
  ];
 
  if (count($items) >= 25) break 2;
@@ -1028,8 +1028,8 @@ $suggestions = [];
   if (!$image && preg_match('/<img[^>]+src=[\'"]([^\'"]+)[\'"]/i', $content ?: $description, $m)) {
   $image = $m[1];
   }
-  // خلاصات مثل Google News بلا صور داخل XML: نستعين بكاش الصور المخزّن مسبقاً
-  // (حل فوري بلا شبكة) ونتيح للمعاينة عرض الصور الحقيقية متى توافرت.
+  // ط®ظ„ط§طµط§طھ ظ…ط«ظ„ Google News ط¨ظ„ط§ طµظˆط± ط¯ط§ط®ظ„ XML: ظ†ط³طھط¹ظٹظ† ط¨ظƒط§ط´ ط§ظ„طµظˆط± ط§ظ„ظ…ط®ط²ظ‘ظ† ظ…ط³ط¨ظ‚ط§ظ‹
+  // (ط­ظ„ ظپظˆط±ظٹ ط¨ظ„ط§ ط´ط¨ظƒط©) ظˆظ†طھظٹط­ ظ„ظ„ظ…ط¹ط§ظٹظ†ط© ط¹ط±ط¶ ط§ظ„طµظˆط± ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ظ…طھظ‰ طھظˆط§ظپط±طھ.
   if (empty($image) && !empty(trim($link))) {
   $cachedImg = FetchOg::cacheGet(trim($link));
   if ($cachedImg !== '') $image = $cachedImg;
@@ -1042,9 +1042,9 @@ $suggestions = [];
   'title' => $this->cleanTextEntity($title),
   'link' => trim($link),
   'pubDate' => $pubDate ? fmt_date($pubDate, 'Y-m-d H:i') : fmt_date('now', 'Y-m-d H:i'),
-  'excerpt' => mb_strimwidth($cleanDesc ?: $cleanContent, 0, 220, '…', 'UTF-8'),
+  'excerpt' => mb_strimwidth($cleanDesc ?: $cleanContent, 0, 220, 'â€¦', 'UTF-8'),
   'content' => $cleanContent,
-  'featured_image' => $image ?: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+  'featured_image' => $image ?: \FallbackImage::general(),
   ];
   }
 
@@ -1074,9 +1074,9 @@ $image = '';
  'title' => $this->cleanTextEntity($title),
  'link' => trim($link),
  'pubDate' => $pubDate ? fmt_date($pubDate, 'Y-m-d H:i') : fmt_date('now', 'Y-m-d H:i'),
- 'excerpt' => mb_strimwidth($cleanSummary, 0, 220, '…', 'UTF-8'),
+ 'excerpt' => mb_strimwidth($cleanSummary, 0, 220, 'â€¦', 'UTF-8'),
  'content' => $cleanSummary,
- 'featured_image' => $image ?: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+ 'featured_image' => $image ?: \FallbackImage::general(),
  ];
  }
 
@@ -1086,8 +1086,8 @@ $image = '';
  $text = html_entity_decode((string) $text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
  $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
  $replacements = [
- '&#8211;' => '–',
- '&#8212;' => '—',
+ '&#8211;' => 'â€“',
+ '&#8212;' => 'â€”',
  '&#8216;' => "'",
  '&#8217;' => "'",
  '&#8220;' => '"',
@@ -1097,10 +1097,10 @@ $image = '';
  '&quot;' => '"',
  '&amp;' => '&',
  '&nbsp;' => ' ',
- '&ndash;' => '–',
- '&mdash;' => '—',
- 'amp;#8211;' => '–',
- 'amp;#8212;' => '—',
+ '&ndash;' => 'â€“',
+ '&mdash;' => 'â€”',
+ 'amp;#8211;' => 'â€“',
+ 'amp;#8212;' => 'â€”',
  'amp;#039;' => "'",
  'amp;#39;' => "'",
  'amp;quot;' => '"',
@@ -1111,10 +1111,10 @@ $image = '';
  $text = preg_replace('/&#(\d+);?/', ' ', $text);
 
  // Strip boilerplate RSS feeder intro/outro phrases
- $text = preg_replace('/^هذا الموضوع\s+/u', '', $text);
- $text = preg_replace('/ظهر هذا الموضوع أولاً على.*/u', '', $text);
- $text = preg_replace('/ظهر على التقنية بلا حدود.*/u', '', $text);
- $text = preg_replace('/ظهرت أولاً على.*/u', '', $text);
+ $text = preg_replace('/^ظ‡ط°ط§ ط§ظ„ظ…ظˆط¶ظˆط¹\s+/u', '', $text);
+ $text = preg_replace('/ط¸ظ‡ط± ظ‡ط°ط§ ط§ظ„ظ…ظˆط¶ظˆط¹ ط£ظˆظ„ط§ظ‹ ط¹ظ„ظ‰.*/u', '', $text);
+ $text = preg_replace('/ط¸ظ‡ط± ط¹ظ„ظ‰ ط§ظ„طھظ‚ظ†ظٹط© ط¨ظ„ط§ ط­ط¯ظˆط¯.*/u', '', $text);
+ $text = preg_replace('/ط¸ظ‡ط±طھ ط£ظˆظ„ط§ظ‹ ط¹ظ„ظ‰.*/u', '', $text);
  $text = preg_replace('/The post .* appeared first on .*/i', '', $text);
  $text = preg_replace('/This article was originally published on .*/i', '', $text);
 

@@ -292,7 +292,7 @@ require_once APP_ROOT . '/views/partials/header.php';
         <!-- Featured Image Hero -->
         <?php if (!empty($article['featured_image'])): ?>
             <div class="article-hero-banner">
-                <img src="<?= article_e(app_url($article['featured_image'])) ?>" alt="<?= article_e($article['title']) ?>" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80';">
+                <img src="<?= article_e(app_url($article['featured_image'])) ?>" alt="<?= article_e($article['title']) ?>" onerror="this.onerror=null;this.src='<?= article_e(\FallbackImage::general()) ?>';">
             </div>
         <?php endif; ?>
 
@@ -509,7 +509,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                             <a class="related-story-item" href="<?= article_e(app_url('article/' . $rel['slug'])) ?>" <?= news_card_attrs($rel) ?>>
                                 <span class="related-story-thumb-wrap">
                                     <?php if (!empty($rel['featured_image'])): ?>
-                                        <img class="related-story-thumb" src="<?= article_e(app_url($rel['featured_image'])) ?>" alt="<?= article_e($rel['title']) ?>" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&q=70';">
+                                        <img class="related-story-thumb" src="<?= article_e(app_url($rel['featured_image'])) ?>" alt="<?= article_e($rel['title']) ?>" onerror="this.onerror=null;this.src='<?= article_e(\FallbackImage::general()) ?>';">
                                     <?php else: ?>
                                         <div class="related-story-thumb" style="background:var(--bg-surface-elevated);display:grid;place-items:center;color:var(--accent-primary);font-size:1.2rem">📰</div>
                                     <?php endif; ?>

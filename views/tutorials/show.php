@@ -77,7 +77,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <!-- Step Image (If exists) -->
                 <?php if (!empty($step['image_url'])): ?>
                     <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border-subtle);margin:20px 0;background:#000;box-shadow:var(--shadow-sm)">
-                        <img src="<?= view_e(app_url($step['image_url'])) ?>" alt="<?= view_e($step['title']) ?>" style="width:100%;height:auto;display:block;object-fit:contain" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=1000&q=80';">
+                        <img src="<?= view_e(app_url($step['image_url'])) ?>" alt="<?= view_e($step['title']) ?>" style="width:100%;height:auto;display:block;object-fit:contain" onerror="this.onerror=null;this.src='<?= view_e(\FallbackImage::general()) ?>';">
                         <?php if (!empty($step['image_caption'])): ?>
                             <div style="padding:10px 16px;background:rgba(0,0,0,0.7);border-top:1px solid var(--border-subtle);font-size:0.82rem;color:#d1d5db;text-align:center">
                                 📷 <?= view_e($step['image_caption']) ?>

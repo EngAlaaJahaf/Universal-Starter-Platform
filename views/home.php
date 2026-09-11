@@ -70,7 +70,7 @@ require_once APP_ROOT . '/views/partials/header.php';
             <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:20px">
                 <?php if ($featured): ?>
                     <div style="grid-column: span 2; position:relative; min-height:380px; border-radius:12px; overflow:hidden; background:#000; box-shadow:var(--shadow-sm)" <?= news_card_attrs($featured) ?>>
-                        <img src="<?= e(app_url($featured['featured_image'])) ?>" alt="<?= e($featured['title']) ?>" style="width:100%;height:100%;object-fit:cover;opacity:0.85" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=1000&q=80';">
+                        <img src="<?= e(app_url($featured['featured_image'])) ?>" alt="<?= e($featured['title']) ?>" style="width:100%;height:100%;object-fit:cover;opacity:0.85" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                         <div style="position:absolute;inset:0;background:linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.9) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:28px">
                             <span class="badge-tag" style="background:#c5162a;align-self:flex-start;margin-bottom:10px;display:inline-flex;align-items:center;gap:5px">
                                 <?= ui_icon('flame', '', 14) ?> <?= e($featured['category_name'] ?: 'أخبار مميزة') ?>
@@ -90,7 +90,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <div style="display:flex;flex-direction:column;gap:20px">
                     <?php foreach ($subFeatured as $sf): ?>
                         <div style="position:relative; min-height:180px; border-radius:12px; overflow:hidden; background:#000; flex:1; box-shadow:var(--shadow-sm)" <?= news_card_attrs($sf) ?>>
-                            <img src="<?= e(app_url($sf['featured_image'])) ?>" alt="<?= e($sf['title']) ?>" style="width:100%;height:100%;object-fit:cover;opacity:0.85" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80';">
+                            <img src="<?= e(app_url($sf['featured_image'])) ?>" alt="<?= e($sf['title']) ?>" style="width:100%;height:100%;object-fit:cover;opacity:0.85" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                             <div style="position:absolute;inset:0;background:linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.9) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:16px">
                                 <span class="badge-tag" style="background:#c5162a;font-size:0.7rem;padding:3px 8px;align-self:flex-start;margin-bottom:6px;display:inline-flex;align-items:center;gap:4px">
                                     <?= ui_icon('general', '', 12) ?> <?= e($sf['category_name'] ?: 'تقارير') ?>
@@ -127,7 +127,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                             <div class="card-img-wrap">
                                 <span class="card-tag"><?= e($article['category_name'] ?: 'بيانات صحفية') ?></span>
                                 <?php if (!empty($article['featured_image'])): ?>
-                                    <img src="<?= e(app_url($article['featured_image'])) ?>" alt="<?= e($article['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80';">
+                                    <img src="<?= e(app_url($article['featured_image'])) ?>" alt="<?= e($article['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                                 <?php else: ?>
                                     <div style="width:100%;height:100%;background:var(--bg-surface-elevated);display:grid;place-items:center;color:var(--accent-primary);font-size:2rem"><?= ui_icon('general', '', 32) ?></div>
                                 <?php endif; ?>
@@ -224,7 +224,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                     <div class="bento-cell bento-cell-spotlight" <?= news_card_attrs($sArt) ?>>
                         <?php if (!empty($sArt['featured_image'])): ?>
                             <div class="bento-spotlight-img">
-                                <img src="<?= e(app_url($sArt['featured_image'])) ?>" alt="<?= e($sArt['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80';">
+                                <img src="<?= e(app_url($sArt['featured_image'])) ?>" alt="<?= e($sArt['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                             </div>
                         <?php endif; ?>
                         <div class="bento-spotlight-body">
@@ -290,7 +290,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                         <div class="card-img-wrap">
                             <span class="card-tag"><?= e($article['category_name'] ?: 'تقنية') ?></span>
                             <?php if (!empty($article['featured_image'])): ?>
-                                <img src="<?= e(app_url($article['featured_image'])) ?>" alt="<?= e($article['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80';">
+                                <img src="<?= e(app_url($article['featured_image'])) ?>" alt="<?= e($article['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                             <?php else: ?>
                                 <div style="width:100%;height:100%;background:var(--bg-surface-elevated);display:grid;place-items:center;color:var(--accent-primary);font-size:2rem"><?= ui_icon('general', '', 32) ?></div>
                             <?php endif; ?>
@@ -350,7 +350,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                         </h2>
                         <?php if (!empty($featured['featured_image'])): ?>
                             <div class="broadsheet-manchette-img">
-                                <img src="<?= e(app_url($featured['featured_image'])) ?>" alt="<?= e($featured['title']) ?>" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80';">
+                                <img src="<?= e(app_url($featured['featured_image'])) ?>" alt="<?= e($featured['title']) ?>" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                             </div>
                         <?php endif; ?>
                         <p class="broadsheet-manchette-lead">
@@ -508,7 +508,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                                     data-category="<?= e($article['category_name'] ?: 'تقنية') ?>"
                                     title="حفظ للقراءة"><?= ui_icon('bookmark-star', '', 14) ?></button>
                             <?php if (!empty($article['featured_image'])): ?>
-                                <img src="<?= e(app_url($article['featured_image'])) ?>" alt="<?= e($article['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80';">
+                                <img src="<?= e(app_url($article['featured_image'])) ?>" alt="<?= e($article['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                             <?php else: ?>
                                 <div style="width:100%;height:100%;background:var(--bg-surface-elevated);display:grid;place-items:center;color:var(--accent-primary);font-size:2rem"><?= ui_icon('general', '', 32) ?></div>
                             <?php endif; ?>
@@ -550,7 +550,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                                     <?= ui_icon('tutorials', '', 12) ?> <?= (int)$tut['steps_count'] ?> خطوات مصورة
                                 </span>
                                 <?php if (!empty($tut['featured_image'])): ?>
-                                    <img src="<?= e(app_url($tut['featured_image'])) ?>" alt="<?= e($tut['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80';">
+                                    <img src="<?= e(app_url($tut['featured_image'])) ?>" alt="<?= e($tut['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                                 <?php else: ?>
                                     <div style="width:100%;height:100%;background:var(--bg-surface-elevated);display:grid;place-items:center;color:var(--accent-primary);font-size:2.5rem"><?= ui_icon('tutorials', '', 36) ?></div>
                                 <?php endif; ?>

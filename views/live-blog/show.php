@@ -158,7 +158,7 @@ $currentUser = Auth::user();
                                     <?php if ($entry['entry_type'] === 'video' || preg_match('/\.(mp4|webm|ogv)$/i', $entry['media_url'])): ?>
                                         <video src="<?= view_e(str_starts_with($entry['media_url'], 'http') ? $entry['media_url'] : app_url($entry['media_url'])) ?>" controls style="width:100%;max-height:420px;border-radius:12px;background:#000"></video>
                                     <?php else: ?>
-                                        <img src="<?= view_e(str_starts_with($entry['media_url'], 'http') ? $entry['media_url'] : app_url($entry['media_url'])) ?>" alt="مرفق التغطية" loading="lazy" style="width:100%;max-height:420px;object-fit:cover;border-radius:12px" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80';">
+                                        <img src="<?= view_e(str_starts_with($entry['media_url'], 'http') ? $entry['media_url'] : app_url($entry['media_url'])) ?>" alt="مرفق التغطية" loading="lazy" style="width:100%;max-height:420px;object-fit:cover;border-radius:12px" onerror="this.onerror=null;this.src='<?= view_e(\FallbackImage::general()) ?>';">
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>

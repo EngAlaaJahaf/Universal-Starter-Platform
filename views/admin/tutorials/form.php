@@ -187,7 +187,7 @@ $existingSteps = !empty($steps) ? $steps : [
  
  <!-- Image Preview -->
  <div class="mb-3 text-center">
- <img id="featuredImagePreview" src="<?= !empty($tutorial['featured_image']) ? admin_e(app_url($tutorial['featured_image'])) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&q=80' ?>" class="rounded-4 w-100 shadow-sm border" style="max-height:180px;object-fit:cover" alt="Featured Image Preview">
+ <img id="featuredImagePreview" src="<?= !empty($tutorial['featured_image']) ? admin_e(app_url($tutorial['featured_image'])) : '<?= admin_e(\FallbackImage::general()) ?>' ?>" class="rounded-4 w-100 shadow-sm border" style="max-height:180px;object-fit:cover" alt="Featured Image Preview">
  </div>
 
  <!-- Direct File Upload -->
@@ -199,7 +199,7 @@ $existingSteps = !empty($steps) ? $steps : [
  <!-- Image URL fallback -->
  <div>
  <label class="form-label small fw-bold">أو رابط صورة مباشر (URL)</label>
- <input type="text" name="featured_image" id="featuredImageUrl" class="form-control form-control-sm" placeholder="https://..." value="<?= admin_e($tutorial['featured_image'] ?? '') ?>" oninput="document.getElementById('featuredImagePreview').src = this.value || 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&q=80'">
+ <input type="text" name="featured_image" id="featuredImageUrl" class="form-control form-control-sm" placeholder="https://..." value="<?= admin_e($tutorial['featured_image'] ?? '') ?>" oninput="document.getElementById('featuredImagePreview').src = this.value || '<?= admin_e(\FallbackImage::general()) ?>'">
  </div>
 
  </div>

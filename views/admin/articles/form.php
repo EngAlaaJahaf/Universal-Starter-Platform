@@ -224,7 +224,7 @@ $defFeaturedImage = $article['featured_image'] ?? ($_GET['q_img'] ?? '');
  </div>
  <?php if (!empty($defFeaturedImage)): ?>
  <div class="mt-2 border rounded p-1 text-center bg-light">
- <img src="<?= admin_e(app_url($defFeaturedImage)) ?>" class="img-fluid rounded" style="max-height:160px;object-fit:cover" alt="معاينة" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80';">
+ <img src="<?= admin_e(app_url($defFeaturedImage)) ?>" class="img-fluid rounded" style="max-height:160px;object-fit:cover" alt="معاينة" onerror="this.onerror=null;this.src='<?= admin_e(\FallbackImage::general()) ?>';">
  </div>
  <?php endif; ?>
  </div>

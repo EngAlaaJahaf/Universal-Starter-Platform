@@ -122,7 +122,7 @@
  <td class="ps-4">
  <div class="d-flex align-items-center gap-3">
  <?php if (!empty($t['featured_image'])): ?>
- <img src="<?= admin_e(app_url($t['featured_image'])) ?>" class="rounded-3 shadow-sm" style="width:54px;height:42px;object-fit:cover" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518770660439-4636190af475?w=100&q=70';">
+ <img src="<?= admin_e(app_url($t['featured_image'])) ?>" class="rounded-3 shadow-sm" style="width:54px;height:42px;object-fit:cover" onerror="this.onerror=null;this.src='<?= admin_e(\FallbackImage::general()) ?>';">
  <?php else: ?>
  <div class="rounded-3 bg-primary bg-opacity-10 text-primary d-grid place-items-center fw-bold" style="width:54px;height:42px;font-size:1.3rem">
  
