@@ -432,9 +432,9 @@ require_once APP_ROOT . '/views/partials/header.php';
                                     التعليق بحساب: <strong style="color:var(--accent-primary)"><?= article_e($currentUser['username']) ?></strong>
                                 </div>
                             <?php else: ?>
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-                                    <input type="text" name="guest_name" placeholder="اسمك أو لقبك" required style="background:var(--bg-surface-elevated);border:1px solid var(--border-subtle);padding:10px 14px;border-radius:var(--radius-btn);color:var(--text-main);font-size:0.9rem">
-                                    <input type="email" name="guest_email" placeholder="بريدك الإلكتروني (اختياري)" style="background:var(--bg-surface-elevated);border:1px solid var(--border-subtle);padding:10px 14px;border-radius:var(--radius-btn);color:var(--text-main);font-size:0.9rem">
+                                <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px">
+                                    <input type="text" name="guest_name" placeholder="اسمك أو لقبك" required style="min-width:0;background:var(--bg-surface-elevated);border:1px solid var(--border-subtle);padding:10px 14px;border-radius:var(--radius-btn);color:var(--text-main);font-size:0.9rem">
+                                    <input type="email" name="guest_email" placeholder="بريدك الإلكتروني (اختياري)" style="min-width:0;background:var(--bg-surface-elevated);border:1px solid var(--border-subtle);padding:10px 14px;border-radius:var(--radius-btn);color:var(--text-main);font-size:0.9rem">
                                 </div>
                             <?php endif; ?>
 

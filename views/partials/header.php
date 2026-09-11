@@ -159,7 +159,7 @@ $ga4Id              = Settings::get('google_analytics_id');
 
     <?= site_favicon_tag() ?>
     <?= site_head_injections() ?>
-    <link rel="stylesheet" href="<?= view_e(app_url('assets/css/site.css')) ?>">
+    <link rel="stylesheet" href="<?= view_e(app_url('assets/css/site.css') . '?v=' . @filemtime(__DIR__ . '/../../assets/css/site.css')) ?>">
 </head>
 <body>
 
