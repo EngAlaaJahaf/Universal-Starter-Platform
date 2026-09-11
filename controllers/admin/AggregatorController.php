@@ -120,12 +120,31 @@ class AggregatorController extends AdminController
  }
  unset($it);
 
- // عدّاد الأخبار الجديدة غير المنشورة (لكل بطاقة + للمصدر المحدد)
- foreach ($items as $it) {
- if (($it['import_status'] ?? null) !== 'published') $unpublishedCount++;
- }
+// عدّاد الأخبار الجديدة غير المنشورة (لكل بطاقة + للمصدر المحدد)
+  foreach ($items as $it) {
+  if (($it['import_status'] ?? null) !== 'published') $unpublishedCount++;
+  }
 
- // تحديث عدّاد خلاصة المصدر المسجّل فقط (وليس رابط مخصص عابر)
+  // تسخين كاش الصور للمعاينة: نحل مباشرة عدداً محدوداً من العناصر بلا صور
+  // ضمن ميزانية زمنية قصيرة حتى لا تبطئ الصفحة؛ والباقي يُكمل عند النشر أو
+  // التحميلات التالية (الكاش مخزّن على القرص في storage/cache).
+  $warmDeadline = microtime(true) + 8;
+  $warmedCount = 0;
+  foreach ($items as &$it) {
+  $itImg = trim((string) ($it['featured_image'] ?? ''));
+  if (!empty($itImg) && !FetchOg::isPlaceholder($itImg)) continue;
+  if (microtime(true) >= $warmDeadline || $warmedCount >= 8) break;
+  $itLink = trim((string) ($it['link'] ?? ''));
+  if ($itLink === '' || !filter_var($itLink, FILTER_VALIDATE_URL)) continue;
+  $resolvedImg = FetchOg::resolve($itLink);
+  if ($resolvedImg !== '') {
+  $it['featured_image'] = $resolvedImg;
+  $warmedCount++;
+  }
+  }
+  unset($it);
+
+  // تحديث عدّاد خلاصة المصدر المسجّل فقط (وليس رابط مخصص عابر)
  if (empty($customFeedUrl) && $selectedSourceId > 0) {
  $publishedLinks = [];
  foreach ($items as $it) {
@@ -171,9 +190,12 @@ class AggregatorController extends AdminController
  $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'مصدر خارجي'));
  $content = $this->cleanTextEntity($_POST['content'] ?? ($data['excerpt'] ?? ''));
  $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, '…', 'UTF-8')));
- $featuredImage = trim($data['featured_image'] ?? '');
- // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
- if (strlen($featuredImage) > 1000) $featuredImage = '';
+$featuredImage = trim($data['featured_image'] ?? '');
+  // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
+  if (strlen($featuredImage) > 1000) $featuredImage = '';
+  // عناصر خلاصات مثل Google News لا تحمل صوراً داخل XML؛ نجلب الصورة البارزة
+  // الحقيقية من صفحة المقال الأصلية (og:image مع كاش على القرص) عند غيابها.
+  $featuredImage = FetchOg::resolveFor($sourceUrl, $featuredImage);
 
  if (empty($title)) {
  if ($this->ajaxOut(['success' => false, 'error' => 'عنوان المقال مطلوب للنشر.'])) return;
@@ -320,9 +342,12 @@ class AggregatorController extends AdminController
  $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'مصدر خارجي'));
  $content = $this->cleanTextEntity($_POST['content'] ?? ($data['excerpt'] ?? ''));
  $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, '…', 'UTF-8')));
- $featuredImage = trim($data['featured_image'] ?? '');
- // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
- if (strlen($featuredImage) > 1000) $featuredImage = '';
+$featuredImage = trim($data['featured_image'] ?? '');
+  // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
+  if (strlen($featuredImage) > 1000) $featuredImage = '';
+  // عناصر خلاصات مثل Google News لا تحمل صوراً داخل XML؛ نجلب الصورة البارزة
+  // الحقيقية من صفحة المقال الأصلية (og:image مع كاش على القرص) عند غيابها.
+  $featuredImage = FetchOg::resolveFor($sourceUrl, $featuredImage);
 
  if (empty($title)) {
  if ($this->ajaxOut(['success' => false, 'error' => 'عنوان المقال مطلوب للنشر.'])) return;
@@ -440,6 +465,9 @@ $this->audit('direct_publish', 'article', $newId, null, ['source' => $sourceName
         $featuredImage = trim($data['featured_image'] ?? '');
         // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
         if (strlen($featuredImage) > 1000) $featuredImage = '';
+        // عناصر خلاصات مثل Google News لا تحمل صوراً داخل XML؛ نجلب الصورة البارزة
+        // الحقيقية من صفحة المقال الأصلية (og:image مع كاش على القرص) عند غيابها.
+        $featuredImage = FetchOg::resolveFor($sourceUrl, $featuredImage);
 
 if (empty($title)) {
  if ($this->ajaxOut(['success' => false, 'error' => 'عنوان المقال مطلوب.'])) return;
@@ -996,23 +1024,29 @@ $suggestions = [];
  if (!$image && isset($item->children('media', true)->thumbnail)) {
  $image = (string) $item->children('media', true)->thumbnail->attributes()->url;
  }
- // Check <img> in content or description
- if (!$image && preg_match('/<img[^>]+src=[\'"]([^\'"]+)[\'"]/i', $content ?: $description, $m)) {
- $image = $m[1];
- }
+// Check <img> in content or description
+  if (!$image && preg_match('/<img[^>]+src=[\'"]([^\'"]+)[\'"]/i', $content ?: $description, $m)) {
+  $image = $m[1];
+  }
+  // خلاصات مثل Google News بلا صور داخل XML: نستعين بكاش الصور المخزّن مسبقاً
+  // (حل فوري بلا شبكة) ونتيح للمعاينة عرض الصور الحقيقية متى توافرت.
+  if (empty($image) && !empty(trim($link))) {
+  $cachedImg = FetchOg::cacheGet(trim($link));
+  if ($cachedImg !== '') $image = $cachedImg;
+  }
 
- $cleanDesc = $this->cleanTextEntity(strip_tags($description ?: $content));
- $cleanContent = $this->cleanTextEntity(strip_tags($content ?: $description));
+  $cleanDesc = $this->cleanTextEntity(strip_tags($description ?: $content));
+  $cleanContent = $this->cleanTextEntity(strip_tags($content ?: $description));
 
- return [
- 'title' => $this->cleanTextEntity($title),
- 'link' => trim($link),
- 'pubDate' => $pubDate ? fmt_date($pubDate, 'Y-m-d H:i') : fmt_date('now', 'Y-m-d H:i'),
- 'excerpt' => mb_strimwidth($cleanDesc ?: $cleanContent, 0, 220, '…', 'UTF-8'),
- 'content' => $cleanContent,
- 'featured_image' => $image ?: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
- ];
- }
+  return [
+  'title' => $this->cleanTextEntity($title),
+  'link' => trim($link),
+  'pubDate' => $pubDate ? fmt_date($pubDate, 'Y-m-d H:i') : fmt_date('now', 'Y-m-d H:i'),
+  'excerpt' => mb_strimwidth($cleanDesc ?: $cleanContent, 0, 220, '…', 'UTF-8'),
+  'content' => $cleanContent,
+  'featured_image' => $image ?: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+  ];
+  }
 
  private function parseAtomItem($entry)
  {
@@ -1025,12 +1059,16 @@ $suggestions = [];
  $pubDate = (string) ($entry->published ?? $entry->updated ?? '');
  $summary = (string) ($entry->summary ?? $entry->content ?? '');
 
- $image = '';
- if (preg_match('/<img[^>]+src=[\'"]([^\'"]+)[\'"]/i', (string) $entry->content, $m)) {
- $image = $m[1];
- }
+$image = '';
+  if (preg_match('/<img[^>]+src=[\'"]([^\'"]+)[\'"]/i', (string) $entry->content, $m)) {
+  $image = $m[1];
+  }
+  if (empty($image) && !empty(trim($link))) {
+  $cachedImg = FetchOg::cacheGet(trim($link));
+  if ($cachedImg !== '') $image = $cachedImg;
+  }
 
- $cleanSummary = $this->cleanTextEntity(strip_tags($summary));
+  $cleanSummary = $this->cleanTextEntity(strip_tags($summary));
 
  return [
  'title' => $this->cleanTextEntity($title),

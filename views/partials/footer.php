@@ -132,7 +132,7 @@ window.TNP_READER = <?= json_encode([
     'newHours'      => max(1, (int) Settings::get('reader_new_badge_hours', 24)),
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 </script>
-<script src="<?= view_e(app_url('assets/js/tech-platform.js')) ?>"></script>
+<script src="<?= view_e(app_url('assets/js/tech-platform.js') . '?v=' . @filemtime(__DIR__ . '/../../assets/js/tech-platform.js')) ?>"></script>
 <?= site_footer_injections() ?>
 </body>
 </html>

@@ -27,6 +27,7 @@ require_once $root . '/core/Database.php';
 require_once $root . '/core/AiTranslator.php';
 require_once $root . '/core/CategoryClassifier.php';
 require_once $root . '/core/FeedFetcher.php';
+require_once $root . '/core/FetchOg.php';
 
 // Datetimes stored/compared in UTC (see Database.php); keep PHP parsing consistent.
 date_default_timezone_set('UTC');
@@ -300,11 +301,10 @@ try {
             if ($slugCheck) $slug .= '-' . time();
 
             // ─── تحديد الصورة البارزة الذكية ───────────────────
-            $featuredImage = trim($item['featured_image'] ?? '');
+            // FetchOg يحل الصورة من الكاش أولاً ثم من og:image صفحة الأصل
+            // (يكبّر صور كاش Google ويتجاهل الصور الاحتياطية العامة) عند غيابها.
+            $featuredImage = FetchOg::resolveFor($itemUrl, trim($item['featured_image'] ?? ''));
             if (empty($featuredImage) || !filter_var($featuredImage, FILTER_VALIDATE_URL)) {
-                $featuredImage = fetchOgImage($itemUrl);
-            }
-            if (empty($featuredImage)) {
                 $featuredImage = getCategoryFallbackImage($finalCategoryId, $catSlugMap);
             }
             // Drop absurdly long image URLs (feed junk) so the INSERT never

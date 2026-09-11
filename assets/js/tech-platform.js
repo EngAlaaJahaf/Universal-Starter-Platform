@@ -1854,7 +1854,7 @@
       }
     });
     if (history.length && suggestions) suggestions.style.display = 'none';
-    setOpen(wasOpen === '1' || bypass);
+    setOpen(wasOpen === '1');
     scrollToBottom();
   })();
 
