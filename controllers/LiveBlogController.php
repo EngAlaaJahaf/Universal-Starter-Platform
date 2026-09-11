@@ -271,4 +271,19 @@ class LiveBlogController extends Controller
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
+
+    public function sendChatMessage($id)
+    {
+        return $this->sendChat($id);
+    }
+
+    public function fetchChat($id)
+    {
+        return $this->poll($id);
+    }
+
+    public function fetchUpdates($id)
+    {
+        return $this->poll($id);
+    }
 }

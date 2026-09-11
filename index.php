@@ -565,9 +565,12 @@ $router->get('/tutorials/{slug}', 'TutorialController@show');
 // Live Blog Coverage
 $router->get('/live-blog', 'LiveBlogController@index');
 $router->get('/live-blog/{id}', 'LiveBlogController@show');
-$router->get('/live-blog/{id}/updates', 'LiveBlogController@fetchUpdates');
-$router->get('/live-blog/{id}/chat-messages', 'LiveBlogController@fetchChat');
-$router->post('/live-blog/{id}/chat/send', 'LiveBlogController@sendChatMessage');
+$router->get('/live-blog/{id}/poll', 'LiveBlogController@poll');
+$router->get('/live-blog/{id}/updates', 'LiveBlogController@poll');
+$router->get('/live-blog/{id}/chat-messages', 'LiveBlogController@poll');
+$router->post('/live-blog/{id}/chat/send', 'LiveBlogController@sendChat');
+$router->post('/live-blog/{id}/chat', 'LiveBlogController@sendChat');
+$router->post('/live-blog/{id}/reaction', 'LiveBlogController@react');
 
 // Series & Topic Hubs
 $router->get('/series', 'SeriesController@index');

@@ -318,7 +318,7 @@ $currentUser = Auth::user();
 // High-Frequency Real-Time Sync & Live Interactive Reply Suite
 (function() {
     const blogId = <?= json_encode((int) $blog['id']) ?>;
-    const csrfToken = document.querySelector('input[name="_csrf"]').value;
+    const csrfToken = document.querySelector('input[name="_csrf"]')?.value || document.querySelector('input[name="_csrf_token"]')?.value || <?= json_encode(CSRF::generate()) ?>;
     const stream = document.getElementById('live-entries-stream');
     const pinnedContainer = document.getElementById('pinned-entries-container');
     const chatContainer = document.getElementById('live-chat-messages');

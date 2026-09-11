@@ -49,6 +49,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Clean up git and dev files before FTP upload
+        run: |
+          rm -rf .git
+          rm -rf .github
+          rm -rf docs
+          rm -rf scratch
+          rm -rf storage/logs/*
+          rm -rf storage/sessions/*
+          rm -rf storage/cache/*
+
       - name: Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
@@ -58,9 +68,13 @@ jobs:
           server-dir: ${{ secrets.FTP_SERVER_DIR }}
           protocol: ftp
           exclude: |
+            **/.git/**
             **/.git*
+            .git/**
+            .git*
             **/.github/**
-            .env
+            .github/**
+            .env*
             config/hosting.php
             check_db.php
             health_check.php
@@ -72,21 +86,21 @@ jobs:
             run.sh
             run.txt
             *.md
+            **/*.md
             *.txt
+            **/*.txt
             tech_concept_preview.html
             tech_sources.txt
             1300
             *.sql
+            **/*.sql
             *.zip
+            **/*.zip
             tech_platform_*.json
-            storage/logs/*
-            storage/sessions/*
-            storage/cache/rate_login_*
+            storage/logs/**
+            storage/sessions/**
+            storage/cache/**
             storage/cron_status.json
-            scratch/
-            uploads/articles/
-            uploads/avatars/
-            uploads/brand/
-            uploads/live-blog/
-            uploads/media/
-            docs/
+            scratch/**
+            uploads/**
+            docs/**
