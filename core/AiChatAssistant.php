@@ -209,6 +209,29 @@ class AiChatAssistant
     }
 
     /**
+     * Recover the latest assistant exchange for a user (used to restore an
+     * answer that was cut off because the page was left/navigated while the
+     * provider call was still running — it completes server-side and is
+     * picked up again on the next page load).
+     */
+    public static function latestConversation($db, $userId, $lookbackSeconds = 900)
+    {
+        if (!self::conversationTableReady($db)) {
+            return null;
+        }
+        $lookback = max(60, (int) $lookbackSeconds);
+        $row = $db->fetch(
+            'SELECT id, question, answer, status, error, sources, provider
+             FROM ai_conversations
+             WHERE user_id = ? AND created_at >= (NOW() - INTERVAL ' . $lookback . ' SECOND)
+             ORDER BY id DESC
+             LIMIT 1',
+            [(int) $userId]
+        );
+        return $row ?: null;
+    }
+
+    /**
      * Retrieve the published-article context relevant to the question
      * (lightweight RAG over the site's own content).
      */

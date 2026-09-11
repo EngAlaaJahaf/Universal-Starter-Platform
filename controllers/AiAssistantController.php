@@ -40,6 +40,11 @@ class AiAssistantController extends Controller
     {
         header('Content-Type: application/json; charset=utf-8');
 
+        // Keep generating even if the member closes/navigates away mid-reply:
+        // the answer is logged to ai_conversations and picked up again by the
+        // client (GET /ai-assistant/pending) on the next page load.
+        ignore_user_abort(true);
+
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'error' => 'الطريقة غير مسموحة.'], JSON_UNESCAPED_UNICODE);
@@ -109,6 +114,10 @@ class AiAssistantController extends Controller
             return;
         }
 
+        // Session is read-only from here on: release the lock so other page
+        // loads on the same session don't block while the provider answers.
+        session_write_close();
+
         $result = AiChatAssistant::ask($question, $history, ['page_slug' => $pageSlug]);
 
         if (!empty($result['success'])) {
@@ -152,6 +161,57 @@ class AiAssistantController extends Controller
             'quota'   => $quota,
             'used'    => $used,
             'limit'   => $daily
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    /** Recover a reply that was generated server-side while the member left the page. */
+    public function pending()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'error' => 'الطريقة غير مسموحة.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        if (!class_exists('AiChatAssistant') || !AiChatAssistant::enabled()) {
+            echo json_encode(['success' => false, 'pending' => false], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        if (!Auth::isLoggedIn()) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'auth' => true, 'pending' => false], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $userId = (int) (Auth::user()['id'] ?? 0);
+        if ($userId <= 0) {
+            echo json_encode(['success' => false, 'pending' => false], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $row = AiChatAssistant::latestConversation(Database::getInstance(), $userId, 900);
+        if (!$row) {
+            echo json_encode(['success' => false, 'pending' => false], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $sources = json_decode((string) ($row['sources'] ?? ''), true);
+        if (!is_array($sources)) {
+            $sources = [];
+        }
+
+        echo json_encode([
+            'success'  => true,
+            'pending'  => true,
+            'convId'   => (int) $row['id'],
+            'question' => (string) $row['question'],
+            'answer'   => (string) ($row['answer'] ?? ''),
+            'status'   => (string) $row['status'],
+            'error'    => (string) ($row['error'] ?? ''),
+            'sources'  => $sources,
         ], JSON_UNESCAPED_UNICODE);
     }
 

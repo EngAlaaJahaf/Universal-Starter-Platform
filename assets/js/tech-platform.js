@@ -1268,6 +1268,7 @@
     const pageSlug = (window.location.pathname.match(/\/article\/([A-Za-z0-9\-_]+)/) || [])[1] || '';
     const storageKey = 'ai_assistant_open';
     const historyKey = 'ai_assistant_history';
+    const pendingKey = 'ai_assistant_pending';
     let history = [];
     let sending = false;
 
@@ -1279,6 +1280,10 @@
 
     function persistHistory() {
       try { localStorage.setItem(historyKey, JSON.stringify(history.slice(-8))); } catch (e) {}
+    }
+
+    function clearPending() {
+      try { localStorage.removeItem(pendingKey); } catch (e) {}
     }
 
     function quotaLabel(q) {
@@ -1725,12 +1730,19 @@
       history.push({ role: 'user', content: text, rid: userRid });
       persistHistory();
 
+      // Mark this question as awaiting an answer so it can be recovered on the
+      // next page load if the reply is cut off by closing/navigating away.
+      try { localStorage.setItem(pendingKey, JSON.stringify({ q: text, ts: Date.now() })); } catch (e) {}
+
       if (input) input.value = '';
       setBusy(true);
       showTyping();
 
       fetch(base + '/ai-assistant/ask', {
         method: 'POST',
+        // keepalive: the POST survives page navigation, so the server finishes
+        // generating + logging the reply even if this page goes away.
+        keepalive: true,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -1741,6 +1753,7 @@
       })
         .then(res => res.json().catch(() => ({ success: false, error: 'استجابة غير صالحة من الخادم.' })))
         .then(data => {
+          clearPending();
           removeTyping();
           setBusy(false);
 
@@ -1805,6 +1818,7 @@
     function resetChat() {
       history = [];
       persistHistory();
+      clearPending();
       if (!messages) return;
       messages.querySelectorAll('.ai-msg, .ai-suggestions').forEach((n) => n.remove());
       messages.appendChild(buildWelcomeRow());
@@ -1856,6 +1870,72 @@
     if (history.length && suggestions) suggestions.style.display = 'none';
     setOpen(wasOpen === '1');
     scrollToBottom();
+
+    // Resume an answer that was cut off: the member left the page while the
+    // AI call was still running (page unload aborted the fetch), but the
+    // server kept generating and logged it. The pending marker in localStorage
+    // lets us fetch it from /ai-assistant/pending and re-paint it here.
+    (function resumePending() {
+      if (!loggedIn) return;
+      let pending = null;
+      try {
+        const raw = localStorage.getItem(pendingKey);
+        if (raw) { const p = JSON.parse(raw); if (p && typeof p.q === 'string') pending = p; }
+      } catch (e) { pending = null; }
+      if (!pending) return;
+      // Only resume when the chat still ends with the member's question
+      // (i.e. no reply was received yet).
+      if (history.length === 0 || history[history.length - 1].role !== 'user') { clearPending(); return; }
+      const knownConv = new Set(history.map(m => m.convId).filter(Boolean));
+      const pendingTs = pending.ts || 0;
+      let attempts = 0;
+      const MAX_ATTEMPTS = 8;
+      function paint(row) {
+        if (knownConv.has(row.convId)) { clearPending(); return; }
+        knownConv.add(row.convId);
+        const text = row.status === 'error'
+          ? (row.error || 'تعذر الحصول على إجابة. حاول مجدداً.')
+          : (row.answer || '');
+        if (!text) { clearPending(); return; }
+        const clean = (sourcesOn && Array.isArray(row.sources) && row.sources.length > 0)
+          ? stripRedundantSources(text, true)
+          : text;
+        const rid = appendMessage('ai', renderMarkdown(clean), row.sources || [], clean, row.convId);
+        history.push({ role: 'assistant', content: clean, convId: row.convId, rid: rid });
+        persistHistory();
+        if (suggestions) suggestions.style.display = 'none';
+        updateQuota();
+        clearPending();
+        removeTyping();
+        if (window.showToast) showToast('اكتمل الرد الذي انقطع سابقاً.', '🤖');
+      }
+      function tryFetch() {
+        attempts++;
+        fetch(base + '/ai-assistant/pending', {
+          headers: { 'Accept': 'application/json' },
+          credentials: 'same-origin'
+        })
+          .then(res => res.json().catch(() => ({ success: false, pending: false })))
+          .then(data => {
+            if (data && data.success && data.pending && data.convId) {
+              paint(data);
+              return;
+            }
+            // Not ready yet (still generating) or never received: retry while
+            // fresh, then give up so long-stale markers don't linger forever.
+            const stale = (Date.now() - pendingTs) > 15 * 60 * 1000;
+            if (!stale && attempts < MAX_ATTEMPTS) {
+              setTimeout(tryFetch, Math.min(2500 * attempts, 15000));
+            } else {
+              clearPending();
+            }
+          })
+          .catch(() => {
+            if (attempts < MAX_ATTEMPTS) setTimeout(tryFetch, 15000);
+          });
+      }
+      tryFetch();
+    })();
   })();
 
 })();
