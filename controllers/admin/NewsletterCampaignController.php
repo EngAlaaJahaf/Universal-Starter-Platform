@@ -122,19 +122,33 @@ class NewsletterCampaignController extends AdminController
  return $this->redirect('admin/newsletter?tab=subscribers');
  }
 
- $db = new Database();
- $db->query("
- INSERT INTO newsletters (email, name, status) 
- VALUES (:email, :name, 'active') 
- ON DUPLICATE KEY UPDATE name = VALUES(name), status = 'active', unsubscribed_at = NULL
- ", array(
- ':email' => $email,
- ':name' => $name
- ));
+        $db = new Database();
+        $existing = $db->fetch("SELECT id, status FROM newsletters WHERE email = :email", [':email' => $email]);
+        if ($existing && ($existing['status'] ?? '') === 'active') {
+            Session::flash('info', 'هذا البريد الإلكتروني مسجل ومشترك بالفعل في النشرة البريدية.');
+            return $this->redirect('admin/newsletter?tab=subscribers');
+        }
+        if ($existing && ($existing['status'] ?? '') === 'unsubscribed') {
+            $db->query("UPDATE newsletters SET status = 'active', unsubscribed_at = NULL, name = COALESCE(NULLIF(:name, ''), name) WHERE id = :id", [
+                ':name' => $name,
+                ':id' => $existing['id']
+            ]);
+            $this->audit('update', 'newsletter_subscriber', (int) $existing['id'], null, ['email' => $email, 'status' => 'active']);
+            Session::flash('success', 'تمت إعادة تفعيل اشتراك هذا البريد في النشرة البريدية بنجاح.');
+            return $this->redirect('admin/newsletter?tab=subscribers');
+        }
 
- $this->audit('create', 'newsletter_subscriber', null, null, ['email' => $email, 'name' => $name]);
- Session::flash('success', 'تمت إضافة المشترك إلى النشرة البريدية بنجاح.');
- return $this->redirect('admin/newsletter?tab=subscribers');
+        $db->query("
+            INSERT INTO newsletters (email, name, status, subscribed_at) 
+            VALUES (:email, :name, 'active', CURRENT_TIMESTAMP)
+        ", array(
+            ':email' => $email,
+            ':name' => $name
+        ));
+
+        $this->audit('create', 'newsletter_subscriber', null, null, ['email' => $email, 'name' => $name]);
+        Session::flash('success', 'تمت إضافة المشترك إلى النشرة البريدية بنجاح.');
+        return $this->redirect('admin/newsletter?tab=subscribers');
  }
 
  public function toggleSubscriber($id)

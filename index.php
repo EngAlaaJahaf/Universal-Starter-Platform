@@ -363,6 +363,8 @@ if (!function_exists('ui_icon')) {
                 return '<svg ' . $baseAttr . '><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
             case 'check':
                 return '<svg ' . $baseAttr . '><polyline points="20 6 9 17 4 12"/></svg>';
+            case 'info':
+                return '<svg ' . $baseAttr . '><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>';
             case 'alert':
                 return '<svg ' . $baseAttr . '><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>';
             case 'play':

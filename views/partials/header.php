@@ -345,6 +345,16 @@ if (!$isArticlePage) {
             <?= ui_icon('check', 'text-success flex-shrink-0', 18) ?> <span><?= view_e($msg) ?></span>
         </div>
     <?php endif; ?>
+    <?php if ($info = Session::getFlash('info')): ?>
+        <div class="toast" style="position:static;animation:none;margin-bottom:15px;background:rgba(14,165,233,0.12);border-color:#0ea5e9;color:#0ea5e9;display:flex;align-items:center;gap:8px">
+            <?= ui_icon('info', 'text-info flex-shrink-0', 18) ?> <span><?= view_e($info) ?></span>
+        </div>
+    <?php endif; ?>
+    <?php if ($warn = Session::getFlash('warning')): ?>
+        <div class="toast" style="position:static;animation:none;margin-bottom:15px;background:rgba(245,158,11,0.12);border-color:#f59e0b;color:#f59e0b;display:flex;align-items:center;gap:8px">
+            <?= ui_icon('alert', 'text-warning flex-shrink-0', 18) ?> <span><?= view_e($warn) ?></span>
+        </div>
+    <?php endif; ?>
     <?php if ($err = Session::getFlash('error')): ?>
         <div class="toast" style="position:static;animation:none;margin-bottom:15px;background:rgba(244,63,94,0.12);border-color:#f43f5e;color:#f43f5e;display:flex;align-items:center;gap:8px">
             <?= ui_icon('alert', 'text-danger flex-shrink-0', 18) ?> <span><?= view_e($err) ?></span>

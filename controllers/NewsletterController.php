@@ -20,17 +20,64 @@ class NewsletterController extends Controller
         }
 
         $db = Database::getInstance();
+        $existing = $db->fetch("SELECT id, name, status FROM newsletters WHERE email = ?", [$email]);
+
+        // 1. إذا كان مشتركاً بالفعل وحالته نشطة: لا نرسل له بريداً مكرراً ونبلغه باشتراكه المسبق
+        if ($existing && ($existing['status'] ?? '') === 'active') {
+            if ($name !== '' && empty($existing['name'])) {
+                $db->query("UPDATE newsletters SET name = ? WHERE id = ?", [$name, $existing['id']]);
+            }
+
+            if ($this->isAjax()) {
+                return $this->json([
+                    'ok' => true,
+                    'already_subscribed' => true,
+                    'message' => 'أنت مشترك بالفعل في النشرة البريدية من قبل! 📬'
+                ]);
+            }
+
+            Session::flash('info', 'أنت مشترك بالفعل في النشرة البريدية من قبل! 📬');
+            $referer = $_SERVER['HTTP_REFERER'] ?? app_url();
+            header('Location: ' . $referer);
+            exit;
+        }
+
+        // 2. إذا كان مشتركاً سابقاً ولكنه ألغى الاشتراك: نعيد تفعيل اشتراكه ونرسل له بريد الترحيب
+        if ($existing && ($existing['status'] ?? '') === 'unsubscribed') {
+            $db->query("
+                UPDATE newsletters 
+                SET status = 'active', unsubscribed_at = NULL, subscribed_at = CURRENT_TIMESTAMP, name = COALESCE(NULLIF(?, ''), name)
+                WHERE id = ?
+            ", [$name, $existing['id']]);
+
+            $this->sendWelcomeEmail($email, $name);
+
+            if ($this->isAjax()) {
+                return $this->json([
+                    'ok' => true,
+                    'already_subscribed' => false,
+                    'resubscribed' => true,
+                    'message' => 'تمت إعادة تفعيل اشتراكك في النشرة البريدية بنجاح! 🌟'
+                ]);
+            }
+
+            Session::flash('success', 'تمت إعادة تفعيل اشتراكك في النشرة البريدية بنجاح! 🌟');
+            $referer = $_SERVER['HTTP_REFERER'] ?? app_url();
+            header('Location: ' . $referer);
+            exit;
+        }
+
+        // 3. مشترك جديد لأول مرة: نسجله ونرسل له بريد الترحيب
         $stmt = $db->prepare("
-            INSERT INTO newsletters (email, name, status) 
-            VALUES (?, ?, 'active') 
-            ON DUPLICATE KEY UPDATE name = VALUES(name), status = 'active', unsubscribed_at = NULL
+            INSERT INTO newsletters (email, name, status, subscribed_at) 
+            VALUES (?, ?, 'active', CURRENT_TIMESTAMP)
         ");
         $stmt->execute([$email, $name]);
 
         $this->sendWelcomeEmail($email, $name);
 
         if ($this->isAjax()) {
-            return $this->json(['ok' => true, 'message' => 'تم الاشتراك في النشرة البريدية بنجاح.']);
+            return $this->json(['ok' => true, 'already_subscribed' => false, 'message' => 'شكراً لاشتراكك في النشرة البريدية بنجاح! 📬']);
         }
 
         Session::flash('success', 'شكراً لاشتراكك في النشرة البريدية بنجاح! 📬');
