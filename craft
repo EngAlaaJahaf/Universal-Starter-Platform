@@ -219,6 +219,33 @@ switch ($command) {
         cli_print("Rotation: generate a new value, deploy it, update the cron URL, done.", null);
         break;
 
+    case 'queue:work':
+        // SH-09: consume background_jobs (empty queue = no-op). Requires MySQL;
+        // without it, falls back to the volatile in-memory store.
+        $queueName = $subArgs[0] ?? 'default';
+        $maxJobs = isset($subArgs[1]) ? (int)$subArgs[1] : 10;
+        cli_print("▶ Processing [{$queueName}] queue (up to {$maxJobs} jobs) ...", 'cyan');
+        if (class_exists('Queue')) {
+            list($processed, $failed) = Queue::work($queueName, $maxJobs);
+            cli_print("✔ Processed: {$processed}   ✘ Failed: {$failed}   (pending: " . Queue::countPending($queueName) . ")", $failed ? 'yellow' : 'green');
+            if (Queue::store() === 'array') {
+                cli_print("⚠ Running with the in-memory store — apply database/migrations_sh09_queue.sql to persist jobs.", 'yellow');
+            }
+        } else {
+            cli_print("Error: Queue class not found.", 'red');
+        }
+        break;
+
+    case 'db:indexes':
+        cli_print("▶ SH-09 database index migration:", 'cyan');
+        cli_print("  database/migrations_sh09_indexes.sql  (hot-table performance indexes)", null);
+        cli_print("  database/migrations_sh09_queue.sql     (background_jobs for the queue)", null);
+        cli_print("", null);
+        cli_print("Apply with:", 'yellow');
+        cli_print("  mysql -u USER -p starter_platform_db < database/migrations_sh09_indexes.sql", null);
+        cli_print("  mysql -u USER -p starter_platform_db < database/migrations_sh09_queue.sql", null);
+        break;
+
     case 'help':
     default:
         cli_print("\n========================================================", 'cyan');
@@ -233,6 +260,8 @@ switch ($command) {
         cli_print("  php craft doctor                   Run comprehensive system health checks");
         cli_print("  php craft cron:secret                Generate a fresh CRON_SECRET (SH-02)");
         cli_print("  php craft ai:test [provider]       Test AI provider connectivity and latency");
+        cli_print("  php craft queue:work [q] [n]       Consume background jobs (SH-09)");
+        cli_print("  php craft db:indexes               Show SH-09 index/queue migrations");
         cli_print("  php craft help                     Show this help message\n");
         break;
 }

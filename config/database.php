@@ -141,3 +141,10 @@ if (!defined('API_RATE_WINDOW_MIN')) define('API_RATE_WINDOW_MIN', (int) (getenv
 if (!defined('TRUST_PROXY')) {
     define('TRUST_PROXY', (getenv('TRUST_PROXY') ?: 'false') === 'true');
 }
+
+// Cache driver (SH-09): file (default, zero-extension) | apcu | array.
+// core/Cache.php auto-falls-back to "file" when apcu is unavailable.
+if (!defined('CACHE_DRIVER')) {
+    $cacheDriverEnv = getenv('CACHE_DRIVER');
+    define('CACHE_DRIVER', ($cacheDriverEnv === false || $cacheDriverEnv === '') ? 'file' : strtolower((string) $cacheDriverEnv));
+}
