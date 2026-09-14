@@ -1,5 +1,5 @@
 # دليل إدارة الإعلانات والربح من المنصة (Monetization & Ad Management Guide)
-## عصب التقنية — Comprehensive Ad Management Suite
+## Universal Starter Platform — Comprehensive Ad Management Suite
 
 يوفر هذا النظام تحكماً كاملاً ومرناً في إدارة وعرض الإعلانات بمختلف أنواعها (Google AdSense، إعلانات الرعايات المباشرة، التسويق بالعمولة، وشبكات الـ Mediavine / Ezoic) لتحقيق أعلى عائد مالي ممكن مع الحفاظ على تجربة مستخدم سريعة وفاخرة.
 

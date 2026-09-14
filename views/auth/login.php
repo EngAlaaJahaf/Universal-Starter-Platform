@@ -1,7 +1,7 @@
 <?php
 $error = Session::getFlash('error');
 $success = Session::getFlash('success');
-$siteName = Settings::get('site_name_ar', 'عصب التقنية');
+$siteName = Settings::get('site_name_ar', 'منصتي الذكية');
 ?>
 <!doctype html>
 <html lang="ar" dir="rtl" data-theme="dark">
@@ -102,8 +102,8 @@ $siteName = Settings::get('site_name_ar', 'عصب التقنية');
         <?= CSRF::field() ?>
 
         <div class="form-group">
-            <label for="email">البريد الإلكتروني</label>
-            <input type="email" id="email" name="email" value="<?= htmlspecialchars($old['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required autocomplete="email" placeholder="name@example.com">
+            <label for="identity">اسم المستخدم أو البريد الإلكتروني</label>
+            <input type="text" id="identity" name="identity" value="<?= htmlspecialchars($old['identity'] ?? ($old['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required autocomplete="username" placeholder="اسم المستخدم أو name@example.com">
         </div>
 
         <div class="form-group">

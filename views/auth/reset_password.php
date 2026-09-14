@@ -1,7 +1,7 @@
 <?php
 $error = Session::getFlash('error') ?? ($errors['password'][0] ?? null);
 $success = Session::getFlash('success');
-$siteName = Settings::get('site_name_ar', 'عصب التقنية');
+$siteName = Settings::get('site_name_ar', 'منصتي الذكية');
 ?>
 <!doctype html>
 <html lang="ar" dir="rtl" data-theme="dark">

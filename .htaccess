@@ -1,5 +1,5 @@
 # ==============================================================================
-# AsabTech - Production Apache / LiteSpeed .htaccess Configuration
+# Starter Platform - Production Apache / LiteSpeed .htaccess Configuration
 # ==============================================================================
 
 Options -Indexes

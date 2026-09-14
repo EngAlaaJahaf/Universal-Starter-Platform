@@ -1,8 +1,8 @@
 {
   "id": "/?source=pwa",
-  "name": "عصب التقنية | AsabTech",
-  "short_name": "عصب التقنية",
-  "description": "عصب التقنية (AsabTech): منصة عربية رائدة في تغطية أحدث أخبار التقنية والذكاء الاصطناعي والعتاد والبرمجيات.",
+  "name": "منصتي الذكية | Universal Starter Platform",
+  "short_name": "منصتي الذكية",
+  "description": "منصتي الذكية: منصة محتوى عربية حديثة قابلة للتوسيع بالكامل.",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",

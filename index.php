@@ -256,8 +256,8 @@ if (!function_exists('site_favicon_tag')) {
 if (!function_exists('site_brand_logo_html')) {
     function site_brand_logo_html($imgHeight = 38, $showTagline = true)
     {
-        $siteName = Settings::get('site_name_ar', 'عصب التقنية');
-        $siteTagline = Settings::get('site_tagline', 'نبض التكنولوجيا والذكاء الاصطناعي');
+        $siteName = Settings::get('site_name_ar', 'منصتي الذكية');
+        $siteTagline = Settings::get('site_tagline', 'القالب الأساسي لتطوير تطبيقات ومواقع الويب');
         $siteLogo = Settings::get('site_logo', '');
 
         $out = '<a class="brand" href="' . htmlspecialchars(app_url(), ENT_QUOTES, 'UTF-8') . '">';
@@ -265,7 +265,7 @@ if (!function_exists('site_brand_logo_html')) {
             $logoUrl = str_starts_with($siteLogo, 'http') ? $siteLogo : app_url($siteLogo);
             $out .= '<img src="' . htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8') . '" style="height:' . (int)$imgHeight . 'px;max-width:160px;object-fit:contain;border-radius:6px">';
         } else {
-            $out .= '<div class="brand-icon">T</div>';
+            $out .= '<div class="brand-icon">⚡</div>';
         }
         $out .= '<div class="brand-text">';
         $out .= '<span class="brand-title">' . htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8') . '</span>';
@@ -466,71 +466,6 @@ if (!function_exists('site_head_injections')) {
     }
 }
 
-if (!function_exists('site_footer_injections')) {
-    function site_footer_injections()
-    {
-        $customJsFoot = Settings::get('custom_js_footer', '');
-        return !empty($customJsFoot) ? "\n<!-- Custom Footer Scripts from Settings -->\n" . $customJsFoot . "\n" : '';
-    }
-}
-
-if (!function_exists('site_ad_slot')) {
-    function site_ad_slot($slotKey, $containerClass = '')
-    {
-        // لا تُعرض الإعلانات لمشرفي المنصة (يمنع النقرات/المشاهدات الذاتية)
-        if (Auth::isLoggedIn() && Auth::isAdmin()) {
-            return '';
-        }
-        $adsEnabled = Settings::get('ads_enabled', '1');
-        if ($adsEnabled != '1') {
-            return '';
-        }
-        $code = trim((string) Settings::get($slotKey, ''));
-        if (empty($code)) {
-            return '';
-        }
-
-        return '<div class="site-ad-wrapper ' . htmlspecialchars($containerClass, ENT_QUOTES, 'UTF-8') . '" data-ad-slot="' . htmlspecialchars($slotKey, ENT_QUOTES, 'UTF-8') . '">'
-             . '  <div class="ad-badge-header"><span>إعلان</span></div>'
-             . '  <div class="ad-content-box">' . $code . '</div>'
-             . '</div>';
-    }
-}
-
-if (!function_exists('inject_in_article_ad')) {
-    function inject_in_article_ad($articleHtml)
-    {
-        $adHtml = site_ad_slot('ad_in_article_slot', 'in-article-ad-slot my-4');
-        if (empty($adHtml)) {
-            return $articleHtml;
-        }
-
-        $closingTag = '</p>';
-        $paragraphs = explode($closingTag, $articleHtml);
-        $totalP = count($paragraphs) - 1;
-
-        if ($totalP >= 3) {
-            $result = '';
-            foreach ($paragraphs as $idx => $p) {
-                if ($idx < $totalP) {
-                    $result .= $p . $closingTag;
-                    if ($idx === 1) {
-                        $result .= "\n" . $adHtml . "\n";
-                    }
-                } else {
-                    $result .= $p;
-                }
-            }
-            return $result;
-        } elseif ($totalP >= 1) {
-            $paragraphs[0] .= $closingTag . "\n" . $adHtml . "\n";
-            return implode($closingTag, array_slice($paragraphs, 0, 1)) . implode($closingTag, array_slice($paragraphs, 1));
-        }
-
-        return $articleHtml . "\n" . $adHtml;
-    }
-}
-
 if (!function_exists('get_default_category_id')) {
     function get_default_category_id($db = null)
     {
@@ -585,7 +520,7 @@ $router->get('/archive', 'ArchiveController@index');
 
 // Interactions, Comments & Newsletter
 $router->post('/comment/store', 'CommentController@store');
-$router->post('/reaction/toggle', 'ReactionController@toggle');
+$router->post('/api/reaction/{id}/{type}', 'ReactionController@react');
 $router->post('/newsletter/subscribe', 'NewsletterController@subscribe');
 $router->get('/newsletter/unsubscribe/{token}', 'NewsletterController@unsubscribe');
 
@@ -912,16 +847,10 @@ $router->get('/admin/backup/export-activity-logs-csv', 'BackupController@exportA
 // Diagnostics Center & Tools
 $router->get('/admin/diagnostics', 'DiagnosticsController@index');
 $router->get('/admin/diagnostics/seo', 'DiagnosticsController@seo');
-$router->get('/admin/diagnostics_seo.php', 'DiagnosticsController@seo');
 $router->get('/admin/diagnostics/security', 'DiagnosticsController@security');
-$router->get('/admin/diagnostics_security.php', 'DiagnosticsController@security');
 $router->get('/admin/diagnostics/database', 'DiagnosticsController@database');
-$router->get('/admin/diagnostics_database.php', 'DiagnosticsController@database');
 $router->get('/admin/diagnostics/media', 'DiagnosticsController@media');
-$router->get('/admin/diagnostics_media.php', 'DiagnosticsController@media');
 $router->get('/admin/diagnostics/health', 'DiagnosticsController@health');
-$router->get('/admin/health_check.php', 'DiagnosticsController@health');
-$router->get('/admin/diagnostics_hub.php', 'DiagnosticsController@index');
 
 // Cron Jobs & Live Auto-Publish Engine
 $router->get('/admin/cron', 'CronController@index');

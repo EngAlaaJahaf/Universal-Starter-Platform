@@ -1,6 +1,6 @@
 <?php
-$pageTitle = 'التغطيات الحية والبث المباشر | ' . Settings::get('site_name_ar', 'عصب التقنية');
-$pageDesc  = 'متابعة مستمرة وبث نصي حي لأهم المؤتمرات التقنية وإطلاقات الأجهزة والذكاء الاصطناعي.';
+$pageTitle = 'التغطيات الحية والبث المباشر | ' . Settings::get('site_name_ar', 'منصتي الذكية');
+$pageDesc  = 'متابعة مستمرة وبث نصي حي لأهم الفعاليات والأحداث لحظة بلحظة.';
 
 require_once APP_ROOT . '/views/partials/header.php';
 ?>
@@ -8,8 +8,8 @@ require_once APP_ROOT . '/views/partials/header.php';
 <main class="container page-shell" style="padding:32px 0 80px">
     <div style="margin-bottom:32px;background:var(--bg-surface);border:1px solid var(--border-subtle);padding:32px;border-radius:var(--radius-card);box-shadow:var(--shadow-sm)">
         <span class="badge-tag" style="background:#f43f5e;color:#fff">🔴 تغطية حية</span>
-        <h1 style="font-size:2.2rem;font-weight:800;margin:10px 0;color:var(--text-main)">مؤتمرات وأحداث التقنية لحظة بلحظة</h1>
-        <p style="color:var(--text-muted);font-size:1.05rem;max-width:700px;margin-bottom:0">متابعة مستمرة وبث نصي حي لأهم المؤتمرات التقنية وإطلاقات الأجهزة والذكاء الاصطناعي.</p>
+        <h1 style="font-size:2.2rem;font-weight:800;margin:10px 0;color:var(--text-main)">أحداث وفعاليات لحظة بلحظة</h1>
+        <p style="color:var(--text-muted);font-size:1.05rem;max-width:700px;margin-bottom:0">متابعة مستمرة وبث نصي حي لأهم الفعاليات والأحداث والأعمال الجارية.</p>
     </div>
 
     <div class="news-grid">

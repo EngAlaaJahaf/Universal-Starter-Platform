@@ -301,7 +301,7 @@ class BackupController extends AdminController
  $db = Database::getInstance();
  $settings = $db->query("SELECT `group`, `key`, `value`, `value_type`, `label_ar`, `description_ar`, `sort_order` FROM settings ORDER BY `group`, sort_order ASC")->fetchAll(PDO::FETCH_ASSOC);
 
- $filename = 'tech_platform_settings_package_' . date('Y-m-d') . '.json';
+ $filename = 'platform_settings_package_' . date('Y-m-d') . '.json';
  header('Content-Type: application/json; charset=utf-8');
  header('Content-Disposition: attachment; filename="' . $filename . '"');
  echo json_encode([
@@ -554,7 +554,7 @@ class BackupController extends AdminController
  ORDER BY s.id ASC
  ")->fetchAll(PDO::FETCH_ASSOC);
 
- $filename = 'tech_news_feeds_' . date('Y-m-d') . '.opml';
+ $filename = 'platform_feeds_' . date('Y-m-d') . '.opml';
  header('Content-Type: text/xml; charset=utf-8');
  header('Content-Disposition: attachment; filename="' . $filename . '"');
 

@@ -14,14 +14,14 @@ if (!isset($categories)) {
     }
 }
 
-$siteName       = Settings::get('site_name_ar', 'عصب التقنية');
-$siteTagline    = Settings::get('site_tagline', 'نبض التكنولوجيا والذكاء الاصطناعي');
+$siteName       = Settings::get('site_name_ar', 'منصتي الذكية');
+$siteTagline    = Settings::get('site_tagline', 'القالب الأساسي لتطوير تطبيقات ومواقع الويب');
 $cookieTheme    = $_COOKIE['site_theme'] ?? null;
 $themeDefault   = in_array($cookieTheme, ['dark', 'light'], true) ? $cookieTheme : Settings::get('theme_default', 'dark');
 $activeTemplate = Settings::get('site_theme_template', 'editorial_verge');
 $pageTitle      = $pageTitle ?? ($siteName . ' | ' . $siteTagline);
-$pageDesc       = $pageDesc ?? Settings::get('meta_description_default', Settings::get('meta_description', 'منصة عربية رائدة متخصصة في تغطية أحدث الأخبار والتحليلات التقنية والذكاء الاصطناعي.'));
-$metaKeywords   = $metaKeywords ?? Settings::get('meta_keywords', 'أخبار تقنية, ذكاء اصطناعي, أمن سيبراني, برمجة, تقارير تكنولوجية');
+$pageDesc       = $pageDesc ?? Settings::get('meta_description_default', Settings::get('meta_description', 'منصة ويب متقدمة مبنية بأعلى المعايير الهندسية والأمنية.'));
+$metaKeywords   = $metaKeywords ?? Settings::get('meta_keywords', 'تطبيقات ويب, لوحة تحكم, منصة ذكية, برمجة PHP');
 $currentUri     = trim(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
 $canonicalUrl   = $canonicalUrl ?? (rtrim(app_url(), '/') . ($currentUri ? '/' . $currentUri : ''));
 $ogType         = $ogType ?? 'website';
@@ -29,7 +29,7 @@ $ogImage        = $ogImage ?? Settings::get('og_default_image');
 if (empty($ogImage)) {
     $ogImage = app_url('uploads/brand/og_share.png');
 }
-$twitterHandle      = Settings::get('twitter_site_handle', '@TechNewsAr');
+$twitterHandle      = Settings::get('twitter_site_handle', '@SmartPlatform');
 // Verification codes are forgiving: accept the bare token OR a full pasted
 // <meta ... content="TOKEN" ...> tag (Search Console's copy button copies the
 // whole tag). Normalize to the token so output is always a clean single tag.
@@ -81,6 +81,9 @@ $ga4Id              = Settings::get('google_analytics_id');
     <?php if (!empty($bingVerification)): ?>
         <meta name="msvalidate.01" content="<?= view_e($bingVerification) ?>">
     <?php endif; ?>
+    <?php if ($yandexVerification = $normalizeVerification(Settings::get('yandex_site_verification'))): ?>
+        <meta name="yandex-verification" content="<?= view_e($yandexVerification) ?>">
+    <?php endif; ?>
 
     <!-- Open Graph / Facebook / WhatsApp (Rich Social Cards) -->
     <meta property="og:site_name" content="<?= view_e($siteName) ?>">
@@ -110,7 +113,7 @@ $ga4Id              = Settings::get('google_analytics_id');
                 "@id": "<?= view_e(app_url('#website')) ?>",
                 "url": "<?= view_e(app_url()) ?>",
                 "name": "<?= view_e($siteName) ?>",
-                "alternateName": "AsabTech",
+                "alternateName": "<?= view_e(Settings::get('site_name_en', 'SmartPlatform')) ?>",
                 "description": "<?= view_e($siteTagline) ?>",
                 "inLanguage": "ar",
                 "potentialAction": {
@@ -123,7 +126,7 @@ $ga4Id              = Settings::get('google_analytics_id');
                 "@type": "Organization",
                 "@id": "<?= view_e(app_url('#organization')) ?>",
                 "name": "<?= view_e($siteName) ?>",
-                "alternateName": "AsabTech",
+                "alternateName": "<?= view_e(Settings::get('site_name_en', 'SmartPlatform')) ?>",
                 "url": "<?= view_e(app_url()) ?>",
                 "logo": {
                     "@type": "ImageObject",
@@ -195,10 +198,10 @@ foreach ($breakingSocials as $net) {
 <div class="breaking-topbar">
     <div class="container breaking-topbar-inner">
         <?php if (!empty($breakingNews)): ?>
-        <div class="breaking-news" role="marquee" aria-label="أحدث المستجدات التقنية">
+        <div class="breaking-news" role="marquee" aria-label="آخر المستجدات">
             <span class="breaking-label">
                 <?= ui_icon('bolt', '', 14) ?>
-                <span class="breaking-label-text">أحدث المستجدات التقنية:</span>
+                <span class="breaking-label-text">آخر المستجدات:</span>
             </span>
             <div class="breaking-viewport" id="breaking-viewport">
                 <?php foreach ($breakingNews as $bi => $bart): ?>
@@ -230,19 +233,16 @@ foreach ($breakingSocials as $net) {
 </div>
 <?php endif; ?>
 
-<!-- Live Tech Pulse & Financials Ticker -->
+<!-- Live Ticker (Toggleable from Settings) -->
 <?php 
-$showTicker = Settings::get('enable_ticker');
-if ($showTicker === null) {
-    $showTicker = Settings::get('show_ticker', true);
-}
+$showTicker = Settings::get('tech_pulse_ticker_enabled', Settings::get('enable_ticker', '0'));
 if (!empty($showTicker) && $showTicker !== '0' && $showTicker !== false): 
 ?>
 <div class="tech-pulse-bar">
     <div class="container ticker-wrap">
         <div class="ticker-label">
             <span class="pulse-dot"></span>
-            <span>النبض التقني الحي</span>
+            <span><?= view_e(Settings::get('tech_pulse_title', 'شريط المستجدات الحية')) ?></span>
         </div>
         <div class="ticker-track" id="pulse-ticker-track"></div>
     </div>
@@ -261,7 +261,7 @@ if (!empty($showTicker) && $showTicker !== '0' && $showTicker !== false):
                 <input type="text" 
                        name="q" 
                        class="header-search-input" 
-                       placeholder="ابحث في الأخبار والتقارير والشروحات..." 
+                       placeholder="ابحث في محتوى المنصة..." 
                        value="<?= view_e($_GET['q'] ?? '') ?>" 
                        autocomplete="off" 
                        aria-label="ابحث في الموقع">

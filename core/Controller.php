@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/helpers.php';
+
 class Controller
 {
     protected function view($view, array $data = array())

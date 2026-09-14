@@ -1,5 +1,5 @@
 <?php
-$siteName = Settings::get('site_name_ar', 'عصب التقنية');
+$siteName = Settings::get('site_name_ar', 'منصتي الذكية');
 $pageTitle = ($page['title_ar'] ?? 'صفحة') . ' | ' . $siteName;
 $pageDesc  = mb_substr(strip_tags($page['content_ar'] ?? ''), 0, 160);
 

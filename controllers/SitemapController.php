@@ -8,7 +8,7 @@ class SitemapController extends Controller
     public function index()
     {
         $db = Database::getInstance();
-        $siteName = Settings::get('site_name_ar', 'عصب التقنية');
+        $siteName = Settings::get('site_name_ar', 'منصتي الذكية');
 
         // 1. Published Articles (limited to a fresh window to keep sitemap lean)
         $sitemapDays = (int) Settings::get('sitemap_days', 180);
@@ -32,7 +32,7 @@ class SitemapController extends Controller
         $pages = $db->fetchAll("SELECT slug, created_at FROM pages WHERE status = 'published'");
 
         // 4. Live Blogs
-        $liveBlogs = $db->fetchAll("SELECT id, title_ar, created_at FROM live_blogs WHERE status != 'archived'");
+        $liveBlogs = $db->fetchAll("SELECT id, title, created_at FROM live_blogs WHERE status != 'archived'");
 
         // 5. Tutorials
         $tutorials = $db->fetchAll("SELECT id, slug, title, created_at FROM tutorials WHERE status = 'published'");

@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'تعديل الملف الشخصي | ' . Settings::get('site_name_ar', 'عصب التقنية');
+$pageTitle = 'تعديل الملف الشخصي | ' . Settings::get('site_name_ar', 'منصتي الذكية');
 $pageDesc = 'تعديل بيانات الحساب وتغيير كلمة المرور';
 
 require_once APP_ROOT . '/views/partials/header.php';

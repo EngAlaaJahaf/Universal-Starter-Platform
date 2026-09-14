@@ -19,7 +19,7 @@ if (!defined('DB_HOST')) {
     define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
 }
 if (!defined('DB_NAME')) {
-    define('DB_NAME', getenv('DB_NAME') ?: 'tech_news_db');
+    define('DB_NAME', getenv('DB_NAME') ?: 'starter_platform_db');
 }
 if (!defined('DB_USER')) {
     define('DB_USER', getenv('DB_USER') ?: 'root');
@@ -102,10 +102,10 @@ if (!defined('SMTP_ENCRYPTION')) {
     define('SMTP_ENCRYPTION', getenv('SMTP_ENCRYPTION') ?: 'tls');
 }
 if (!defined('MAIL_FROM_ADDRESS')) {
-    define('MAIL_FROM_ADDRESS', getenv('MAIL_FROM_ADDRESS') ?: 'no-reply@technews.local');
+    define('MAIL_FROM_ADDRESS', getenv('MAIL_FROM_ADDRESS') ?: 'no-reply@platform.local');
 }
 if (!defined('MAIL_FROM_NAME')) {
-    define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: 'عصب التقنية');
+    define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: 'منصتي الذكية');
 }
 if (!defined('PUSH_VAPID_PUBLIC_KEY')) {
     define('PUSH_VAPID_PUBLIC_KEY', getenv('PUSH_VAPID_PUBLIC_KEY') ?: '');
@@ -114,5 +114,5 @@ if (!defined('PUSH_VAPID_PRIVATE_KEY')) {
     define('PUSH_VAPID_PRIVATE_KEY', getenv('PUSH_VAPID_PRIVATE_KEY') ?: '');
 }
 if (!defined('PUSH_VAPID_SUBJECT')) {
-    define('PUSH_VAPID_SUBJECT', getenv('PUSH_VAPID_SUBJECT') ?: 'mailto:admin@technews.local');
+    define('PUSH_VAPID_SUBJECT', getenv('PUSH_VAPID_SUBJECT') ?: 'mailto:admin@platform.local');
 }

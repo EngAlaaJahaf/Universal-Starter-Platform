@@ -1,0 +1,215 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Craft CLI Developer Tool for Universal Starter Platform
+ *
+ * Fast code scaffolding, local server, and system management tool.
+ * Usage: php craft [command] [options]
+ */
+
+if (php_sapi_name() !== 'cli') {
+    exit("This tool must be run from the command line.\n");
+}
+
+define('APP_ROOT', __DIR__);
+require_once APP_ROOT . '/config/database.php';
+
+// Spl Autoloader
+spl_autoload_register(function ($class) {
+    $paths = [
+        APP_ROOT . '/core/' . $class . '.php',
+        APP_ROOT . '/models/' . $class . '.php',
+        APP_ROOT . '/controllers/' . $class . '.php',
+        APP_ROOT . '/controllers/admin/' . $class . '.php',
+        APP_ROOT . '/controllers/api/' . $class . '.php',
+        APP_ROOT . '/controllers/api/v1/' . $class . '.php',
+    ];
+    foreach ($paths as $p) {
+        if (file_exists($p)) {
+            require_once $p;
+            return;
+        }
+    }
+});
+
+$args = array_slice($argv, 1);
+$command = $args[0] ?? 'help';
+$subArgs = array_slice($args, 1);
+
+function cli_print($msg, $color = null) {
+    $colors = [
+        'green'  => "\033[32m",
+        'cyan'   => "\033[36m",
+        'yellow' => "\033[33m",
+        'red'    => "\033[31m",
+        'bold'   => "\033[1m",
+        'reset'  => "\033[0m"
+    ];
+    if (PHP_OS_FAMILY === 'Windows' && !getenv('ANSICON') && !getenv('WT_SESSION') && !getenv('ConEmuANSI')) {
+        echo $msg . "\n";
+    } else {
+        $prefix = $colors[$color] ?? '';
+        $reset = !empty($color) ? $colors['reset'] : '';
+        echo $prefix . $msg . $reset . "\n";
+    }
+}
+
+switch ($command) {
+    case 'serve':
+        $host = $subArgs[0] ?? '127.0.0.1:8000';
+        cli_print("⚡ Starting Development Server on http://{$host} ...", 'cyan');
+        cli_print("Press Ctrl+C to stop.", 'yellow');
+        $cmd = sprintf('php -S %s "%s/dev-router.php"', $host, APP_ROOT);
+        passthru($cmd);
+        break;
+
+    case 'make:controller':
+        $name = $subArgs[0] ?? null;
+        if (!$name) {
+            cli_print("Error: Controller name is required. Example: php craft make:controller ProductsController", 'red');
+            exit(1);
+        }
+        $name = ucfirst($name);
+        if (!str_ends_with($name, 'Controller')) $name .= 'Controller';
+        $file = APP_ROOT . '/controllers/' . $name . '.php';
+        if (file_exists($file)) {
+            cli_print("Error: Controller {$name}.php already exists.", 'red');
+            exit(1);
+        }
+        $content = "<?php\n\nclass {$name} extends Controller\n{\n    public function index()\n    {\n        return \$this->view('home', [\n            'title' => '{$name}'\n        ]);\n    }\n}\n";
+        file_put_contents($file, $content);
+        cli_print("✔ Created Controller: controllers/{$name}.php", 'green');
+        break;
+
+    case 'make:api':
+        $name = $subArgs[0] ?? null;
+        if (!$name) {
+            cli_print("Error: API Controller name is required. Example: php craft make:api ApiProductsController", 'red');
+            exit(1);
+        }
+        $name = ucfirst($name);
+        if (!str_ends_with($name, 'Controller')) $name .= 'Controller';
+        $file = APP_ROOT . '/controllers/api/v1/' . $name . '.php';
+        if (file_exists($file)) {
+            cli_print("Error: API Controller {$name}.php already exists.", 'red');
+            exit(1);
+        }
+        $content = "<?php\n\nclass {$name} extends ApiV1BaseController\n{\n    public function index()\n    {\n        \$this->requireAuth();\n        return \$this->jsonSuccess([\n            'items' => []\n        ], 'Data fetched successfully');\n    }\n}\n";
+        file_put_contents($file, $content);
+        cli_print("✔ Created API Controller: controllers/api/v1/{$name}.php", 'green');
+        break;
+
+    case 'make:model':
+        $name = $subArgs[0] ?? null;
+        if (!$name) {
+            cli_print("Error: Model name is required. Example: php craft make:model Product", 'red');
+            exit(1);
+        }
+        $name = ucfirst($name);
+        $file = APP_ROOT . '/models/' . $name . '.php';
+        if (file_exists($file)) {
+            cli_print("Error: Model {$name}.php already exists.", 'red');
+            exit(1);
+        }
+        $table = strtolower($name) . 's';
+        $content = "<?php\n\nclass {$name} extends Model\n{\n    protected \$table = '{$table}';\n\n    public function getAll(\$limit = 50)\n    {\n        return \$this->db->fetchAll(\"SELECT * FROM `{\$this->table}` ORDER BY id DESC LIMIT \" . (int)\$limit);\n    }\n\n    public function find(\$id)\n    {\n        return \$this->db->fetch(\"SELECT * FROM `{\$this->table}` WHERE id = :id\", [':id' => (int)\$id]);\n    }\n}\n";
+        file_put_contents($file, $content);
+        cli_print("✔ Created Model: models/{$name}.php", 'green');
+        break;
+
+    case 'make:crud':
+        $resource = $subArgs[0] ?? null;
+        $table = $subArgs[1] ?? ($resource ? strtolower($resource) : null);
+        $title = $subArgs[2] ?? ($resource ? ucfirst($resource) : null);
+
+        if (!$resource || !$table) {
+            cli_print("Error: Resource and Table are required.\nUsage: php craft make:crud <resource_name> [table_name] [title]\nExample: php craft make:crud products products \"إدارة المنتجات\"", 'red');
+            exit(1);
+        }
+
+        $controllerName = ucfirst($resource) . 'Controller';
+        $controllerFile = APP_ROOT . '/controllers/admin/' . $controllerName . '.php';
+
+        if (file_exists($controllerFile)) {
+            cli_print("Error: Admin Controller {$controllerName}.php already exists.", 'red');
+            exit(1);
+        }
+
+        $content = "<?php\n\nclass {$controllerName} extends AdminSimpleController\n{\n    protected \$resource = '{$resource}';\n    protected \$table    = '{$table}';\n    protected \$title    = '{$title}';\n    \n    protected \$fields = [\n        'name' => ['label' => 'الاسم / العنوان', 'type' => 'text', 'required' => true],\n        'description' => ['label' => 'الوصف التفصيلي', 'type' => 'textarea'],\n        'status' => [\n            'label' => 'الحالة',\n            'type' => 'select',\n            'options' => ['active' => 'نشط', 'inactive' => 'غير نشط']\n        ],\n    ];\n}\n";
+        file_put_contents($controllerFile, $content);
+        cli_print("✔ Created Admin CRUD Controller: controllers/admin/{$controllerName}.php", 'green');
+        cli_print("⚡ Don't forget to register routes in index.php:", 'cyan');
+        cli_print("   \$router->get('/admin/{$resource}', '{$controllerName}@index');", 'yellow');
+        cli_print("   \$router->get('/admin/{$resource}/create', '{$controllerName}@create');", 'yellow');
+        cli_print("   \$router->post('/admin/{$resource}/store', '{$controllerName}@store');", 'yellow');
+        cli_print("   \$router->get('/admin/{$resource}/{id}/edit', '{$controllerName}@edit');", 'yellow');
+        cli_print("   \$router->post('/admin/{$resource}/{id}/update', '{$controllerName}@update');", 'yellow');
+        cli_print("   \$router->post('/admin/{$resource}/{id}/delete', '{$controllerName}@delete');", 'yellow');
+        break;
+
+    case 'doctor':
+        cli_print("🩺 Running Starter Platform Health Check...", 'bold');
+        cli_print("--------------------------------------------------", 'cyan');
+
+        // 1. PHP Version
+        $phpVer = phpversion();
+        $phpOk = version_compare($phpVer, '8.0.0', '>=');
+        cli_print("PHP Version: {$phpVer} " . ($phpOk ? "✔ (OK)" : "❌ (Requires PHP 8.0+)"), $phpOk ? 'green' : 'red');
+
+        // 2. Extensions
+        $requiredExts = ['pdo', 'pdo_mysql', 'curl', 'mbstring', 'json', 'openssl', 'gd'];
+        foreach ($requiredExts as $ext) {
+            $hasExt = extension_loaded($ext);
+            cli_print("Extension [{$ext}]: " . ($hasExt ? "✔ Loaded" : "❌ Missing"), $hasExt ? 'green' : 'red');
+        }
+
+        // 3. Database
+        try {
+            $db = new Database();
+            $ver = $db->fetch("SELECT VERSION() as v")['v'] ?? 'Unknown';
+            cli_print("Database Connection: ✔ Connected (MySQL {$ver})", 'green');
+        } catch (Throwable $e) {
+            cli_print("Database Connection: ❌ Failed (" . $e->getMessage() . ")", 'red');
+        }
+
+        // 4. Writable Paths
+        $writablePaths = ['uploads', 'storage', 'config'];
+        foreach ($writablePaths as $dir) {
+            $fullPath = APP_ROOT . '/' . $dir;
+            $isWritable = is_dir($fullPath) && is_writable($fullPath);
+            cli_print("Writable Directory [{$dir}]: " . ($isWritable ? "✔ Writable" : "⚠ Not Writable / Missing"), $isWritable ? 'green' : 'yellow');
+        }
+        break;
+
+    case 'ai:test':
+        $provider = $subArgs[0] ?? 'omniroute';
+        cli_print("🤖 Testing AI Provider: {$provider} ...", 'cyan');
+        if (class_exists('AiService')) {
+            $res = AiService::testProvider($provider);
+            if ($res['ok']) {
+                cli_print("✔ Success! Latency: {$res['duration_ms']}ms", 'green');
+                cli_print("Response Preview: " . $res['response'], 'cyan');
+            } else {
+                cli_print("❌ Failed: " . $res['error'], 'red');
+            }
+        } else {
+            cli_print("AiService class not found.", 'red');
+        }
+        break;
+
+    case 'help':
+    default:
+        cli_print("\n========================================================", 'cyan');
+        cli_print("  🚀 Universal Starter Platform - Craft Developer CLI", 'bold');
+        cli_print("========================================================\n", 'cyan');
+        cli_print("Available Commands:", 'yellow');
+        cli_print("  php craft serve [host:port]        Start local PHP development server");
+        cli_print("  php craft make:controller <Name>   Create a new Frontend Controller");
+        cli_print("  php craft make:api <Name>          Create a new REST API v1 Controller");
+        cli_print("  php craft make:model <Name>        Create a new Data Model");
+        cli_print("  php craft make:crud <Resource>     Generate a full Admin CRUD scaffold");
+        cli_print("  php craft doctor                   Run comprehensive system health checks");
+        cli_print("  php craft ai:test [provider]       Test AI provider connectivity and latency");
+        cli_print("  php craft help                     Show this help message\n");
+        break;
+}

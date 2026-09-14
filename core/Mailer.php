@@ -65,7 +65,7 @@ class Mailer
         if (self::transport() !== 'brevo') {
             return false;
         }
-        $fromEmail = strtolower(trim((string) Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@technews.local')));
+        $fromEmail = strtolower(trim((string) Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@platform.local')));
         $valid = self::brevoValidSenders();
         return isset($valid[$fromEmail]);
     }
@@ -90,7 +90,7 @@ class Mailer
 
     public static function send($to, $subject, $html, $text = null)
     {
-        $fromEmail = Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@technews.local');
+        $fromEmail = Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@platform.local');
         $fromName = Settings::get('mail_from_name', MAIL_FROM_NAME ?: 'عصب التقنية');
 
         // 1. Brevo HTTP API (port 443) — preferred when set, works on shared

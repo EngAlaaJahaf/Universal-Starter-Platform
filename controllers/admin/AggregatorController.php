@@ -3,9 +3,9 @@
 class AggregatorController extends AdminController
 {
  /**
-  * طھطµظ†ظٹظپ طھظ„ظ‚ط§ط¦ظٹ ط°ظƒظٹ ظ„ظ„ظ…ظ‚ط§ظ„ ط§ظ„ظ…ظ†ط´ظˆط± ط¹ط¨ط± ظ„ظˆط­ط© ط§ظ„ظ…ط¬ظ…ظ‘ط¹ ظ…ط¹ ظ…ط±ط§ط¹ط§ط© ط§ظ„ظ…طµط¯ط±
-  * ظˆط§ظ„ظ…ط­طھظˆظ‰ ظˆط±ط§ط¨ط· ط§ظ„ظ…ظ‚ط§ظ„ (ظ†ظپط³ ظ…ط­ط±ظƒ ط§ظ„طھطµظ†ظٹظپ ط§ظ„ظ…ط³طھط®ط¯ظ… ظپظٹ ط§ظ„ظ€ Cron).
-  * ظٹظ‚ط¹ ط¹ظ„ظ‰ ط§ظ„ظ…طµط¯ط± ط§ظ„ظ…ط³ط¬ظ„ ط£ظˆ ط§ظ„ظپط¦ط© ط§ظ„ط§ظپطھط±ط§ط¶ظٹط© ط¥ظ† طھط¹ط°ظ‘ط± ط§ظ„طھطµظ†ظٹظپ.
+  * ط·ع¾ط·آµط¸â€ ط¸ظ¹ط¸ظ¾ ط·ع¾ط¸â€‍ط¸â€ڑط·آ§ط·آ¦ط¸ظ¹ ط·آ°ط¸ئ’ط¸ظ¹ ط¸â€‍ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط·آ§ط¸â€‍ط¸â€¦ط¸â€ ط·آ´ط¸ث†ط·آ± ط·آ¹ط·آ¨ط·آ± ط¸â€‍ط¸ث†ط·آ­ط·آ© ط·آ§ط¸â€‍ط¸â€¦ط·آ¬ط¸â€¦ط¸â€کط·آ¹ ط¸â€¦ط·آ¹ ط¸â€¦ط·آ±ط·آ§ط·آ¹ط·آ§ط·آ© ط·آ§ط¸â€‍ط¸â€¦ط·آµط·آ¯ط·آ±
+  * ط¸ث†ط·آ§ط¸â€‍ط¸â€¦ط·آ­ط·ع¾ط¸ث†ط¸â€° ط¸ث†ط·آ±ط·آ§ط·آ¨ط·آ· ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ (ط¸â€ ط¸ظ¾ط·آ³ ط¸â€¦ط·آ­ط·آ±ط¸ئ’ ط·آ§ط¸â€‍ط·ع¾ط·آµط¸â€ ط¸ظ¹ط¸ظ¾ ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·ع¾ط·آ®ط·آ¯ط¸â€¦ ط¸ظ¾ط¸ظ¹ ط·آ§ط¸â€‍ط¸â‚¬ Cron).
+  * ط¸ظ¹ط¸â€ڑط·آ¹ ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط¸â€¦ط·آµط·آ¯ط·آ± ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·آ¬ط¸â€‍ ط·آ£ط¸ث† ط·آ§ط¸â€‍ط¸ظ¾ط·آ¦ط·آ© ط·آ§ط¸â€‍ط·آ§ط¸ظ¾ط·ع¾ط·آ±ط·آ§ط·آ¶ط¸ظ¹ط·آ© ط·آ¥ط¸â€  ط·ع¾ط·آ¹ط·آ°ط¸â€کط·آ± ط·آ§ط¸â€‍ط·ع¾ط·آµط¸â€ ط¸ظ¹ط¸ظ¾.
   */
  private function resolveCategoryId($db, $titleEn, $titleAr, $content, $sourceName, $sourceUrl, $fallbackCatId)
  {
@@ -38,8 +38,8 @@ class AggregatorController extends AdminController
  }
 
  /**
-  * ظٹط±ط¯ظ‘ JSON ط¹ظ†ط¯ظ…ط§ ظٹظƒظˆظ† ط§ظ„ط·ظ„ط¨ ظ‚ط§ط¯ظ…ط§ظ‹ ظ…ظ† ظˆط§ط¬ظ‡ط© AJAX (ظ†ط´ط± ط¨ط¯ظˆظ† ط¥ط¹ط§ط¯ط© طھط­ظ…ظٹظ„ ط§ظ„طµظپط­ط©)طŒ
-  * ظˆظٹط¹ظٹط¯ false ظ„ظٹطھط§ط¨ط¹ ط§ظ„ظ…ظڈط­ط¯ظگظ‘ط« ظ…ط³ط§ط± ط§ظ„ظ€ redirect ط§ظ„ظ…ط¹طھط§ط¯ ظپظٹ ط§ظ„ظ…طھطµظپط­ ط§ظ„ط¹ط§ط¯ظٹ.
+  * ط¸ظ¹ط·آ±ط·آ¯ط¸â€ک JSON ط·آ¹ط¸â€ ط·آ¯ط¸â€¦ط·آ§ ط¸ظ¹ط¸ئ’ط¸ث†ط¸â€  ط·آ§ط¸â€‍ط·آ·ط¸â€‍ط·آ¨ ط¸â€ڑط·آ§ط·آ¯ط¸â€¦ط·آ§ط¸â€¹ ط¸â€¦ط¸â€  ط¸ث†ط·آ§ط·آ¬ط¸â€،ط·آ© AJAX (ط¸â€ ط·آ´ط·آ± ط·آ¨ط·آ¯ط¸ث†ط¸â€  ط·آ¥ط·آ¹ط·آ§ط·آ¯ط·آ© ط·ع¾ط·آ­ط¸â€¦ط¸ظ¹ط¸â€‍ ط·آ§ط¸â€‍ط·آµط¸ظ¾ط·آ­ط·آ©)ط·إ’
+  * ط¸ث†ط¸ظ¹ط·آ¹ط¸ظ¹ط·آ¯ false ط¸â€‍ط¸ظ¹ط·ع¾ط·آ§ط·آ¨ط·آ¹ ط·آ§ط¸â€‍ط¸â€¦ط¸عˆط·آ­ط·آ¯ط¸ع¯ط¸â€کط·آ« ط¸â€¦ط·آ³ط·آ§ط·آ± ط·آ§ط¸â€‍ط¸â‚¬ redirect ط·آ§ط¸â€‍ط¸â€¦ط·آ¹ط·ع¾ط·آ§ط·آ¯ ط¸ظ¾ط¸ظ¹ ط·آ§ط¸â€‍ط¸â€¦ط·ع¾ط·آµط¸ظ¾ط·آ­ ط·آ§ط¸â€‍ط·آ¹ط·آ§ط·آ¯ط¸ظ¹.
   */
  private function ajaxOut(array $payload)
  {
@@ -85,7 +85,7 @@ class AggregatorController extends AdminController
 
  if (!empty($customFeedUrl)) {
  $activeFeedUrl = $customFeedUrl;
- $activeSourceName = parse_url($customFeedUrl, PHP_URL_HOST) ?: 'ظ…طµط¯ط± ظ…ط®طµطµ';
+ $activeSourceName = parse_url($customFeedUrl, PHP_URL_HOST) ?: 'ط¸â€¦ط·آµط·آ¯ط·آ± ط¸â€¦ط·آ®ط·آµط·آµ';
  } elseif ($selectedSourceId > 0) {
  foreach ($sources as $s) {
  if ((int) $s['id'] === $selectedSourceId) {
@@ -120,14 +120,14 @@ class AggregatorController extends AdminController
  }
  unset($it);
 
-// ط¹ط¯ظ‘ط§ط¯ ط§ظ„ط£ط®ط¨ط§ط± ط§ظ„ط¬ط¯ظٹط¯ط© ط؛ظٹط± ط§ظ„ظ…ظ†ط´ظˆط±ط© (ظ„ظƒظ„ ط¨ط·ط§ظ‚ط© + ظ„ظ„ظ…طµط¯ط± ط§ظ„ظ…ط­ط¯ط¯)
+// ط·آ¹ط·آ¯ط¸â€کط·آ§ط·آ¯ ط·آ§ط¸â€‍ط·آ£ط·آ®ط·آ¨ط·آ§ط·آ± ط·آ§ط¸â€‍ط·آ¬ط·آ¯ط¸ظ¹ط·آ¯ط·آ© ط·ط›ط¸ظ¹ط·آ± ط·آ§ط¸â€‍ط¸â€¦ط¸â€ ط·آ´ط¸ث†ط·آ±ط·آ© (ط¸â€‍ط¸ئ’ط¸â€‍ ط·آ¨ط·آ·ط·آ§ط¸â€ڑط·آ© + ط¸â€‍ط¸â€‍ط¸â€¦ط·آµط·آ¯ط·آ± ط·آ§ط¸â€‍ط¸â€¦ط·آ­ط·آ¯ط·آ¯)
   foreach ($items as $it) {
   if (($it['import_status'] ?? null) !== 'published') $unpublishedCount++;
   }
 
-  // طھط³ط®ظٹظ† ظƒط§ط´ ط§ظ„طµظˆط± ظ„ظ„ظ…ط¹ط§ظٹظ†ط©: ظ†ط­ظ„ ظ…ط¨ط§ط´ط±ط© ط¹ط¯ط¯ط§ظ‹ ظ…ط­ط¯ظˆط¯ط§ظ‹ ظ…ظ† ط§ظ„ط¹ظ†ط§طµط± ط¨ظ„ط§ طµظˆط±
-  // ط¶ظ…ظ† ظ…ظٹط²ط§ظ†ظٹط© ط²ظ…ظ†ظٹط© ظ‚طµظٹط±ط© ط­طھظ‰ ظ„ط§ طھط¨ط·ط¦ ط§ظ„طµظپط­ط©ط› ظˆط§ظ„ط¨ط§ظ‚ظٹ ظٹظڈظƒظ…ظ„ ط¹ظ†ط¯ ط§ظ„ظ†ط´ط± ط£ظˆ
-  // ط§ظ„طھط­ظ…ظٹظ„ط§طھ ط§ظ„طھط§ظ„ظٹط© (ط§ظ„ظƒط§ط´ ظ…ط®ط²ظ‘ظ† ط¹ظ„ظ‰ ط§ظ„ظ‚ط±طµ ظپظٹ storage/cache).
+  // ط·ع¾ط·آ³ط·آ®ط¸ظ¹ط¸â€  ط¸ئ’ط·آ§ط·آ´ ط·آ§ط¸â€‍ط·آµط¸ث†ط·آ± ط¸â€‍ط¸â€‍ط¸â€¦ط·آ¹ط·آ§ط¸ظ¹ط¸â€ ط·آ©: ط¸â€ ط·آ­ط¸â€‍ ط¸â€¦ط·آ¨ط·آ§ط·آ´ط·آ±ط·آ© ط·آ¹ط·آ¯ط·آ¯ط·آ§ط¸â€¹ ط¸â€¦ط·آ­ط·آ¯ط¸ث†ط·آ¯ط·آ§ط¸â€¹ ط¸â€¦ط¸â€  ط·آ§ط¸â€‍ط·آ¹ط¸â€ ط·آ§ط·آµط·آ± ط·آ¨ط¸â€‍ط·آ§ ط·آµط¸ث†ط·آ±
+  // ط·آ¶ط¸â€¦ط¸â€  ط¸â€¦ط¸ظ¹ط·آ²ط·آ§ط¸â€ ط¸ظ¹ط·آ© ط·آ²ط¸â€¦ط¸â€ ط¸ظ¹ط·آ© ط¸â€ڑط·آµط¸ظ¹ط·آ±ط·آ© ط·آ­ط·ع¾ط¸â€° ط¸â€‍ط·آ§ ط·ع¾ط·آ¨ط·آ·ط·آ¦ ط·آ§ط¸â€‍ط·آµط¸ظ¾ط·آ­ط·آ©ط·â€؛ ط¸ث†ط·آ§ط¸â€‍ط·آ¨ط·آ§ط¸â€ڑط¸ظ¹ ط¸ظ¹ط¸عˆط¸ئ’ط¸â€¦ط¸â€‍ ط·آ¹ط¸â€ ط·آ¯ ط·آ§ط¸â€‍ط¸â€ ط·آ´ط·آ± ط·آ£ط¸ث†
+  // ط·آ§ط¸â€‍ط·ع¾ط·آ­ط¸â€¦ط¸ظ¹ط¸â€‍ط·آ§ط·ع¾ ط·آ§ط¸â€‍ط·ع¾ط·آ§ط¸â€‍ط¸ظ¹ط·آ© (ط·آ§ط¸â€‍ط¸ئ’ط·آ§ط·آ´ ط¸â€¦ط·آ®ط·آ²ط¸â€کط¸â€  ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط¸â€ڑط·آ±ط·آµ ط¸ظ¾ط¸ظ¹ storage/cache).
   $warmDeadline = microtime(true) + 8;
   $warmedCount = 0;
   foreach ($items as &$it) {
@@ -144,7 +144,7 @@ class AggregatorController extends AdminController
   }
   unset($it);
 
-  // طھط­ط¯ظٹط« ط¹ط¯ظ‘ط§ط¯ ط®ظ„ط§طµط© ط§ظ„ظ…طµط¯ط± ط§ظ„ظ…ط³ط¬ظ‘ظ„ ظپظ‚ط· (ظˆظ„ظٹط³ ط±ط§ط¨ط· ظ…ط®طµطµ ط¹ط§ط¨ط±)
+  // ط·ع¾ط·آ­ط·آ¯ط¸ظ¹ط·آ« ط·آ¹ط·آ¯ط¸â€کط·آ§ط·آ¯ ط·آ®ط¸â€‍ط·آ§ط·آµط·آ© ط·آ§ط¸â€‍ط¸â€¦ط·آµط·آ¯ط·آ± ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·آ¬ط¸â€کط¸â€‍ ط¸ظ¾ط¸â€ڑط·آ· (ط¸ث†ط¸â€‍ط¸ظ¹ط·آ³ ط·آ±ط·آ§ط·آ¨ط·آ· ط¸â€¦ط·آ®ط·آµط·آµ ط·آ¹ط·آ§ط·آ¨ط·آ±)
  if (empty($customFeedUrl) && $selectedSourceId > 0) {
  $publishedLinks = [];
  foreach ($items as $it) {
@@ -187,19 +187,19 @@ class AggregatorController extends AdminController
 
  $title = $this->cleanTextEntity(trim($data['title'] ?? ''));
  $sourceUrl = trim($data['source_url'] ?? '');
- $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'ظ…طµط¯ط± ط®ط§ط±ط¬ظٹ'));
+ $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'ط¸â€¦ط·آµط·آ¯ط·آ± ط·آ®ط·آ§ط·آ±ط·آ¬ط¸ظ¹'));
  $content = $this->cleanTextEntity($_POST['content'] ?? ($data['excerpt'] ?? ''));
- $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, 'â€¦', 'UTF-8')));
+ $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, 'أ¢â‚¬آ¦', 'UTF-8')));
 $featuredImage = trim($data['featured_image'] ?? '');
   // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
   if (strlen($featuredImage) > 1000) $featuredImage = '';
-  // ط¹ظ†ط§طµط± ط®ظ„ط§طµط§طھ ظ…ط«ظ„ Google News ظ„ط§ طھط­ظ…ظ„ طµظˆط±ط§ظ‹ ط¯ط§ط®ظ„ XMLط› ظ†ط¬ظ„ط¨ ط§ظ„طµظˆط±ط© ط§ظ„ط¨ط§ط±ط²ط©
-  // ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ظ…ظ† طµظپط­ط© ط§ظ„ظ…ظ‚ط§ظ„ ط§ظ„ط£طµظ„ظٹط© (og:image ظ…ط¹ ظƒط§ط´ ط¹ظ„ظ‰ ط§ظ„ظ‚ط±طµ) ط¹ظ†ط¯ ط؛ظٹط§ط¨ظ‡ط§.
+  // ط·آ¹ط¸â€ ط·آ§ط·آµط·آ± ط·آ®ط¸â€‍ط·آ§ط·آµط·آ§ط·ع¾ ط¸â€¦ط·آ«ط¸â€‍ Google News ط¸â€‍ط·آ§ ط·ع¾ط·آ­ط¸â€¦ط¸â€‍ ط·آµط¸ث†ط·آ±ط·آ§ط¸â€¹ ط·آ¯ط·آ§ط·آ®ط¸â€‍ XMLط·â€؛ ط¸â€ ط·آ¬ط¸â€‍ط·آ¨ ط·آ§ط¸â€‍ط·آµط¸ث†ط·آ±ط·آ© ط·آ§ط¸â€‍ط·آ¨ط·آ§ط·آ±ط·آ²ط·آ©
+  // ط·آ§ط¸â€‍ط·آ­ط¸â€ڑط¸ظ¹ط¸â€ڑط¸ظ¹ط·آ© ط¸â€¦ط¸â€  ط·آµط¸ظ¾ط·آ­ط·آ© ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط·آ§ط¸â€‍ط·آ£ط·آµط¸â€‍ط¸ظ¹ط·آ© (og:image ط¸â€¦ط·آ¹ ط¸ئ’ط·آ§ط·آ´ ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط¸â€ڑط·آ±ط·آµ) ط·آ¹ط¸â€ ط·آ¯ ط·ط›ط¸ظ¹ط·آ§ط·آ¨ط¸â€،ط·آ§.
   $featuredImage = FetchOg::resolveFor($sourceUrl, $featuredImage);
 
  if (empty($title)) {
- if ($this->ajaxOut(['success' => false, 'error' => 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨ ظ„ظ„ظ†ط´ط±.'])) return;
- Session::flash('error', 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨ ظ„ظ„ظ†ط´ط±.');
+ if ($this->ajaxOut(['success' => false, 'error' => 'ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€  ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط¸â€¦ط·آ·ط¸â€‍ط¸ث†ط·آ¨ ط¸â€‍ط¸â€‍ط¸â€ ط·آ´ط·آ±.'])) return;
+ Session::flash('error', 'ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€  ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط¸â€¦ط·آ·ط¸â€‍ط¸ث†ط·آ¨ ط¸â€‍ط¸â€‍ط¸â€ ط·آ´ط·آ±.');
  return $this->redirect('admin/news-feeds');
  }
 
@@ -280,7 +280,7 @@ $featuredImage = trim($data['featured_image'] ?? '');
  ]);
 
  $this->audit('translate_update_publish', 'article', (int) $existing['id'], null, ['source' => $sourceName, 'url' => $sourceUrl, 'title_ar' => $titleAr]);
- Session::flash('success', "طھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط§ظ„ظ…ظ‚ط§ظ„ ط§ظ„ظ…ظ†ط´ظˆط± ظ…ط³ط¨ظ‚ط§ظ‹ ظˆطھط­ط¯ظٹط«ظ‡ ظˆطھط±ط¬ظ…طھظ‡ ظپظˆط±ط§ظ‹ ط¥ظ„ظ‰ ط§ظ„ط¹ط±ط¨ظٹط© ط¨ط¹ظ†ظˆط§ظ†: \"{$titleAr}\"!");
+ Session::flash('success', "ط·ع¾ط¸â€¦ ط·آ§ط¸â€‍ط·آ¹ط·آ«ط¸ث†ط·آ± ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط·آ§ط¸â€‍ط¸â€¦ط¸â€ ط·آ´ط¸ث†ط·آ± ط¸â€¦ط·آ³ط·آ¨ط¸â€ڑط·آ§ط¸â€¹ ط¸ث†ط·ع¾ط·آ­ط·آ¯ط¸ظ¹ط·آ«ط¸â€، ط¸ث†ط·ع¾ط·آ±ط·آ¬ط¸â€¦ط·ع¾ط¸â€، ط¸ظ¾ط¸ث†ط·آ±ط·آ§ط¸â€¹ ط·آ¥ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط·آ¹ط·آ±ط·آ¨ط¸ظ¹ط·آ© ط·آ¨ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€ : \"{$titleAr}\"!");
  } else {
  // Insert fresh translated article
  $db->query("
@@ -307,12 +307,12 @@ $featuredImage = trim($data['featured_image'] ?? '');
 
  $newId = $db->lastInsertId();
  $this->audit('translate_publish', 'article', $newId, null, ['source' => $sourceName, 'url' => $sourceUrl, 'title_ar' => $titleAr]);
- Session::flash('success', "طھظ…طھ طھط±ط¬ظ…ط© ظˆطµظٹط§ط؛ط© ظˆظ†ط´ط± ط§ظ„ط®ط¨ط± ظپظˆط±ط§ظ‹ ط¨ظ†ط¬ط§ط­ ط¨ط§ظ„ظ„ط؛ط© ط§ظ„ط¹ط±ط¨ظٹط© ط¨ط¹ظ†ظˆط§ظ†: \"{$titleAr}\"!");
+ Session::flash('success', "ط·ع¾ط¸â€¦ط·ع¾ ط·ع¾ط·آ±ط·آ¬ط¸â€¦ط·آ© ط¸ث†ط·آµط¸ظ¹ط·آ§ط·ط›ط·آ© ط¸ث†ط¸â€ ط·آ´ط·آ± ط·آ§ط¸â€‍ط·آ®ط·آ¨ط·آ± ط¸ظ¾ط¸ث†ط·آ±ط·آ§ط¸â€¹ ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­ ط·آ¨ط·آ§ط¸â€‍ط¸â€‍ط·ط›ط·آ© ط·آ§ط¸â€‍ط·آ¹ط·آ±ط·آ¨ط¸ظ¹ط·آ© ط·آ¨ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€ : \"{$titleAr}\"!");
  }
  } catch (Throwable $e) {
  error_log('translatePublish error: ' . $e->getMessage());
- if ($this->ajaxOut(['success' => false, 'error' => 'طھط¹ط°ط± ط¥طھظ…ط§ظ… ط§ظ„طھط±ط¬ظ…ط© ظˆط§ظ„ظ†ط´ط±: ' . $e->getMessage()])) return;
- Session::flash('error', 'طھط¹ط°ط± ط¥طھظ…ط§ظ… ط§ظ„طھط±ط¬ظ…ط© ظˆط§ظ„ظ†ط´ط±: ' . $e->getMessage());
+ if ($this->ajaxOut(['success' => false, 'error' => 'ط·ع¾ط·آ¹ط·آ°ط·آ± ط·آ¥ط·ع¾ط¸â€¦ط·آ§ط¸â€¦ ط·آ§ط¸â€‍ط·ع¾ط·آ±ط·آ¬ط¸â€¦ط·آ© ط¸ث†ط·آ§ط¸â€‍ط¸â€ ط·آ´ط·آ±: ' . $e->getMessage()])) return;
+ Session::flash('error', 'ط·ع¾ط·آ¹ط·آ°ط·آ± ط·آ¥ط·ع¾ط¸â€¦ط·آ§ط¸â€¦ ط·آ§ط¸â€‍ط·ع¾ط·آ±ط·آ¬ط¸â€¦ط·آ© ط¸ث†ط·آ§ط¸â€‍ط¸â€ ط·آ´ط·آ±: ' . $e->getMessage());
  }
  
  $okArticleId = (int) ($newId ?? $existing['id'] ?? 0);
@@ -320,7 +320,7 @@ $featuredImage = trim($data['featured_image'] ?? '');
  'success' => true,
  'article_id' => $okArticleId,
  'edit_url' => app_url('admin/articles/' . $okArticleId . '/edit'),
- 'message' => "طھظ…طھ ط§ظ„طھط±ط¬ظ…ط© ظˆط§ظ„ظ†ط´ط± ط¨ظ†ط¬ط§ط­ ط¨ط¹ظ†ظˆط§ظ†: \"{$titleAr}\"!",
+ 'message' => "ط·ع¾ط¸â€¦ط·ع¾ ط·آ§ط¸â€‍ط·ع¾ط·آ±ط·آ¬ط¸â€¦ط·آ© ط¸ث†ط·آ§ط¸â€‍ط¸â€ ط·آ´ط·آ± ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­ ط·آ¨ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€ : \"{$titleAr}\"!",
  ])) return;
 
  $referer = $_SERVER['HTTP_REFERER'] ?? app_url('admin/news-feeds');
@@ -339,19 +339,19 @@ $featuredImage = trim($data['featured_image'] ?? '');
 
  $title = $this->cleanTextEntity(trim($data['title'] ?? ''));
  $sourceUrl = trim($data['source_url'] ?? '');
- $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'ظ…طµط¯ط± ط®ط§ط±ط¬ظٹ'));
+ $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'ط¸â€¦ط·آµط·آ¯ط·آ± ط·آ®ط·آ§ط·آ±ط·آ¬ط¸ظ¹'));
  $content = $this->cleanTextEntity($_POST['content'] ?? ($data['excerpt'] ?? ''));
- $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, 'â€¦', 'UTF-8')));
+ $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, 'أ¢â‚¬آ¦', 'UTF-8')));
 $featuredImage = trim($data['featured_image'] ?? '');
   // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
   if (strlen($featuredImage) > 1000) $featuredImage = '';
-  // ط¹ظ†ط§طµط± ط®ظ„ط§طµط§طھ ظ…ط«ظ„ Google News ظ„ط§ طھط­ظ…ظ„ طµظˆط±ط§ظ‹ ط¯ط§ط®ظ„ XMLط› ظ†ط¬ظ„ط¨ ط§ظ„طµظˆط±ط© ط§ظ„ط¨ط§ط±ط²ط©
-  // ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ظ…ظ† طµظپط­ط© ط§ظ„ظ…ظ‚ط§ظ„ ط§ظ„ط£طµظ„ظٹط© (og:image ظ…ط¹ ظƒط§ط´ ط¹ظ„ظ‰ ط§ظ„ظ‚ط±طµ) ط¹ظ†ط¯ ط؛ظٹط§ط¨ظ‡ط§.
+  // ط·آ¹ط¸â€ ط·آ§ط·آµط·آ± ط·آ®ط¸â€‍ط·آ§ط·آµط·آ§ط·ع¾ ط¸â€¦ط·آ«ط¸â€‍ Google News ط¸â€‍ط·آ§ ط·ع¾ط·آ­ط¸â€¦ط¸â€‍ ط·آµط¸ث†ط·آ±ط·آ§ط¸â€¹ ط·آ¯ط·آ§ط·آ®ط¸â€‍ XMLط·â€؛ ط¸â€ ط·آ¬ط¸â€‍ط·آ¨ ط·آ§ط¸â€‍ط·آµط¸ث†ط·آ±ط·آ© ط·آ§ط¸â€‍ط·آ¨ط·آ§ط·آ±ط·آ²ط·آ©
+  // ط·آ§ط¸â€‍ط·آ­ط¸â€ڑط¸ظ¹ط¸â€ڑط¸ظ¹ط·آ© ط¸â€¦ط¸â€  ط·آµط¸ظ¾ط·آ­ط·آ© ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط·آ§ط¸â€‍ط·آ£ط·آµط¸â€‍ط¸ظ¹ط·آ© (og:image ط¸â€¦ط·آ¹ ط¸ئ’ط·آ§ط·آ´ ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط¸â€ڑط·آ±ط·آµ) ط·آ¹ط¸â€ ط·آ¯ ط·ط›ط¸ظ¹ط·آ§ط·آ¨ط¸â€،ط·آ§.
   $featuredImage = FetchOg::resolveFor($sourceUrl, $featuredImage);
 
  if (empty($title)) {
- if ($this->ajaxOut(['success' => false, 'error' => 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨ ظ„ظ„ظ†ط´ط±.'])) return;
- Session::flash('error', 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨ ظ„ظ„ظ†ط´ط±.');
+ if ($this->ajaxOut(['success' => false, 'error' => 'ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€  ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط¸â€¦ط·آ·ط¸â€‍ط¸ث†ط·آ¨ ط¸â€‍ط¸â€‍ط¸â€ ط·آ´ط·آ±.'])) return;
+ Session::flash('error', 'ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€  ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط¸â€¦ط·آ·ط¸â€‍ط¸ث†ط·آ¨ ط¸â€‍ط¸â€‍ط¸â€ ط·آ´ط·آ±.');
  return $this->redirect('admin/news-feeds');
  }
 
@@ -410,7 +410,7 @@ $featuredImage = trim($data['featured_image'] ?? '');
             ]);
 
             $this->audit('direct_update_publish', 'article', (int) $existing['id'], null, ['source' => $sourceName, 'url' => $sourceUrl, 'title' => $title]);
-            Session::flash('success', "طھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط§ظ„ظ…ظ‚ط§ظ„ ط§ظ„ظ…ظ†ط´ظˆط± ظ…ط³ط¨ظ‚ط§ظ‹ ظˆطھط­ط¯ظٹط« ظ…ط­طھظˆط§ظ‡ ظپظˆط±ط§ظ‹ ط¨ط¹ظ†ظˆط§ظ†: \"{$title}\"!");
+            Session::flash('success', "ط·ع¾ط¸â€¦ ط·آ§ط¸â€‍ط·آ¹ط·آ«ط¸ث†ط·آ± ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط·آ§ط¸â€‍ط¸â€¦ط¸â€ ط·آ´ط¸ث†ط·آ± ط¸â€¦ط·آ³ط·آ¨ط¸â€ڑط·آ§ط¸â€¹ ط¸ث†ط·ع¾ط·آ­ط·آ¯ط¸ظ¹ط·آ« ط¸â€¦ط·آ­ط·ع¾ط¸ث†ط·آ§ط¸â€، ط¸ظ¾ط¸ث†ط·آ±ط·آ§ط¸â€¹ ط·آ¨ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€ : \"{$title}\"!");
         } else {
             $db->query("
                 INSERT INTO articles 
@@ -432,7 +432,7 @@ $featuredImage = trim($data['featured_image'] ?? '');
 
             $newId = $db->lastInsertId();
 $this->audit('direct_publish', 'article', $newId, null, ['source' => $sourceName, 'url' => $sourceUrl, 'title' => $title]);
- Session::flash('success', "طھظ… ط§ظ„ظ†ط´ط± ط§ظ„ظپظˆط±ظٹ ط§ظ„ظ…ط¨ط§ط´ط± ط¨ظ†ط¬ط§ط­ ط¨ط¯ظˆظ† طھط±ط¬ظ…ط© ط¨ط¹ظ†ظˆط§ظ†: \"{$title}\"!");
+ Session::flash('success', "ط·ع¾ط¸â€¦ ط·آ§ط¸â€‍ط¸â€ ط·آ´ط·آ± ط·آ§ط¸â€‍ط¸ظ¾ط¸ث†ط·آ±ط¸ظ¹ ط·آ§ط¸â€‍ط¸â€¦ط·آ¨ط·آ§ط·آ´ط·آ± ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­ ط·آ¨ط·آ¯ط¸ث†ط¸â€  ط·ع¾ط·آ±ط·آ¬ط¸â€¦ط·آ© ط·آ¨ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€ : \"{$title}\"!");
  }
  
  $okArticleId = (int) ($newId ?? $existing['id'] ?? 0);
@@ -440,7 +440,7 @@ $this->audit('direct_publish', 'article', $newId, null, ['source' => $sourceName
  'success' => true,
  'article_id' => $okArticleId,
  'edit_url' => app_url('admin/articles/' . $okArticleId . '/edit'),
- 'message' => "طھظ… ط§ظ„ظ†ط´ط± ط§ظ„ظپظˆط±ظٹ ط§ظ„ظ…ط¨ط§ط´ط± ط¨ظ†ط¬ط§ط­ ط¨ط¹ظ†ظˆط§ظ†: \"{$title}\"!",
+ 'message' => "ط·ع¾ط¸â€¦ ط·آ§ط¸â€‍ط¸â€ ط·آ´ط·آ± ط·آ§ط¸â€‍ط¸ظ¾ط¸ث†ط·آ±ط¸ظ¹ ط·آ§ط¸â€‍ط¸â€¦ط·آ¨ط·آ§ط·آ´ط·آ± ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­ ط·آ¨ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€ : \"{$title}\"!",
  ])) return;
 
  $referer = $_SERVER['HTTP_REFERER'] ?? app_url('admin/news-feeds');
@@ -459,19 +459,19 @@ $this->audit('direct_publish', 'article', $newId, null, ['source' => $sourceName
 
         $title = $this->cleanTextEntity(trim($data['title'] ?? ''));
         $sourceUrl = trim($data['source_url'] ?? '');
-        $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'ظ…طµط¯ط± ط®ط§ط±ط¬ظٹ'));
+        $sourceName = $this->cleanTextEntity(trim($data['source_name'] ?? 'ط¸â€¦ط·آµط·آ¯ط·آ± ط·آ®ط·آ§ط·آ±ط·آ¬ط¸ظ¹'));
         $content = $this->cleanTextEntity($_POST['content'] ?? ($data['excerpt'] ?? ''));
-        $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, 'â€¦', 'UTF-8')));
+        $excerpt = $this->cleanTextEntity(trim($data['excerpt'] ?? mb_strimwidth(strip_tags($content), 0, 200, 'أ¢â‚¬آ¦', 'UTF-8')));
         $featuredImage = trim($data['featured_image'] ?? '');
         // Drop absurdly long image URLs (feed junk) so the INSERT never overflows.
         if (strlen($featuredImage) > 1000) $featuredImage = '';
-        // ط¹ظ†ط§طµط± ط®ظ„ط§طµط§طھ ظ…ط«ظ„ Google News ظ„ط§ طھط­ظ…ظ„ طµظˆط±ط§ظ‹ ط¯ط§ط®ظ„ XMLط› ظ†ط¬ظ„ط¨ ط§ظ„طµظˆط±ط© ط§ظ„ط¨ط§ط±ط²ط©
-        // ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ظ…ظ† طµظپط­ط© ط§ظ„ظ…ظ‚ط§ظ„ ط§ظ„ط£طµظ„ظٹط© (og:image ظ…ط¹ ظƒط§ط´ ط¹ظ„ظ‰ ط§ظ„ظ‚ط±طµ) ط¹ظ†ط¯ ط؛ظٹط§ط¨ظ‡ط§.
+        // ط·آ¹ط¸â€ ط·آ§ط·آµط·آ± ط·آ®ط¸â€‍ط·آ§ط·آµط·آ§ط·ع¾ ط¸â€¦ط·آ«ط¸â€‍ Google News ط¸â€‍ط·آ§ ط·ع¾ط·آ­ط¸â€¦ط¸â€‍ ط·آµط¸ث†ط·آ±ط·آ§ط¸â€¹ ط·آ¯ط·آ§ط·آ®ط¸â€‍ XMLط·â€؛ ط¸â€ ط·آ¬ط¸â€‍ط·آ¨ ط·آ§ط¸â€‍ط·آµط¸ث†ط·آ±ط·آ© ط·آ§ط¸â€‍ط·آ¨ط·آ§ط·آ±ط·آ²ط·آ©
+        // ط·آ§ط¸â€‍ط·آ­ط¸â€ڑط¸ظ¹ط¸â€ڑط¸ظ¹ط·آ© ط¸â€¦ط¸â€  ط·آµط¸ظ¾ط·آ­ط·آ© ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط·آ§ط¸â€‍ط·آ£ط·آµط¸â€‍ط¸ظ¹ط·آ© (og:image ط¸â€¦ط·آ¹ ط¸ئ’ط·آ§ط·آ´ ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط¸â€ڑط·آ±ط·آµ) ط·آ¹ط¸â€ ط·آ¯ ط·ط›ط¸ظ¹ط·آ§ط·آ¨ط¸â€،ط·آ§.
         $featuredImage = FetchOg::resolveFor($sourceUrl, $featuredImage);
 
 if (empty($title)) {
- if ($this->ajaxOut(['success' => false, 'error' => 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨.'])) return;
- Session::flash('error', 'ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظ‚ط§ظ„ ظ…ط·ظ„ظˆط¨.');
+ if ($this->ajaxOut(['success' => false, 'error' => 'ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€  ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط¸â€¦ط·آ·ط¸â€‍ط¸ث†ط·آ¨.'])) return;
+ Session::flash('error', 'ط·آ¹ط¸â€ ط¸ث†ط·آ§ط¸â€  ط·آ§ط¸â€‍ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ ط¸â€¦ط·آ·ط¸â€‍ط¸ث†ط·آ¨.');
  return $this->redirect('admin/news-feeds');
  }
 
@@ -524,7 +524,7 @@ if (empty($title)) {
 
  $newId = $db->lastInsertId();
  $this->audit('draft_article', 'article', $newId, null, ['source' => $sourceName, 'url' => $sourceUrl]);
- Session::flash('success', "طھظ… ط§ط³طھظٹط±ط§ط¯ ط§ظ„ط®ط¨ط± ظƒظ…ط³ظˆط¯ط© ط¨ظ†ط¬ط§ط­! ظٹظ…ظƒظ†ظƒ ط§ظ„ط¢ظ† ظ…ط±ط§ط¬ط¹طھظ‡ ظˆطµظٹط§ط؛طھظ‡ ظˆظ†ط´ط±ظ‡.");
+ Session::flash('success', "ط·ع¾ط¸â€¦ ط·آ§ط·آ³ط·ع¾ط¸ظ¹ط·آ±ط·آ§ط·آ¯ ط·آ§ط¸â€‍ط·آ®ط·آ¨ط·آ± ط¸ئ’ط¸â€¦ط·آ³ط¸ث†ط·آ¯ط·آ© ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­! ط¸ظ¹ط¸â€¦ط¸ئ’ط¸â€ ط¸ئ’ ط·آ§ط¸â€‍ط·آ¢ط¸â€  ط¸â€¦ط·آ±ط·آ§ط·آ¬ط·آ¹ط·ع¾ط¸â€، ط¸ث†ط·آµط¸ظ¹ط·آ§ط·ط›ط·ع¾ط¸â€، ط¸ث†ط¸â€ ط·آ´ط·آ±ط¸â€،.");
  if ($this->ajaxOut([
  'success' => true,
  'article_id' => (int) $newId,
@@ -543,7 +543,7 @@ if (empty($title)) {
  $categoryId = (int) ($data['category_id'] ?? 0) ?: null;
 
  if (empty($name) || empty($url)) {
- Session::flash('error', 'ط§ط³ظ… ط§ظ„ظ…طµط¯ط± ظˆط±ط§ط¨ط· ط§ظ„ظ€ RSS ظ…ط·ظ„ظˆط¨ط§ظ†.');
+ Session::flash('error', 'ط·آ§ط·آ³ط¸â€¦ ط·آ§ط¸â€‍ط¸â€¦ط·آµط·آ¯ط·آ± ط¸ث†ط·آ±ط·آ§ط·آ¨ط·آ· ط·آ§ط¸â€‍ط¸â‚¬ RSS ط¸â€¦ط·آ·ط¸â€‍ط¸ث†ط·آ¨ط·آ§ط¸â€ .');
  return $this->redirect('admin/news-feeds');
  }
 
@@ -554,7 +554,7 @@ if (empty($title)) {
  ':category_id' => $categoryId
  ]);
 
- Session::flash('success', "طھظ…طھ ط¥ط¶ط§ظپط© ط§ظ„ظ…طµط¯ط± ط§ظ„طھظ‚ظ†ظٹ \"{$name}\" ط¨ظ†ط¬ط§ط­.");
+ Session::flash('success', "ط·ع¾ط¸â€¦ط·ع¾ ط·آ¥ط·آ¶ط·آ§ط¸ظ¾ط·آ© ط·آ§ط¸â€‍ط¸â€¦ط·آµط·آ¯ط·آ± ط·آ§ط¸â€‍ط·ع¾ط¸â€ڑط¸â€ ط¸ظ¹ \"{$name}\" ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­.");
  return $this->redirect('admin/news-feeds');
  }
 
@@ -563,29 +563,29 @@ if (empty($title)) {
  $this->postGuard();
  $db = new Database();
  $db->query("DELETE FROM rss_sources WHERE id = :id", [':id' => (int) $id]);
- Session::flash('success', 'طھظ… ط­ط°ظپ ط§ظ„ظ…طµط¯ط± ط¨ظ†ط¬ط§ط­.');
+ Session::flash('success', 'ط·ع¾ط¸â€¦ ط·آ­ط·آ°ط¸ظ¾ ط·آ§ط¸â€‍ط¸â€¦ط·آµط·آ¯ط·آ± ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­.');
  return $this->redirect('admin/news-feeds');
  }
 
  /**
- * ظپط­طµ طµط­ط© ظƒظ„ ظ…طµط§ط¯ط± RSS ط§ظ„ظ…ط³ط¬ظ„ط© (ط£ظˆ ظ…طµط¯ط± ظˆط§ط­ط¯) ظˆطھط®ط²ظٹظ† ط§ظ„ظ†طھظٹط¬ط© ظپظٹ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ.
- * ظٹظڈط±ط¬ط¹ JSON ظ„ط§ط³طھظ‡ظ„ط§ظƒظ‡ ظ…ظ† ظˆط§ط¬ظ‡ط© ظ„ظˆط­ط© ط§ظ„طھط­ظƒظ….
+ * ط¸ظ¾ط·آ­ط·آµ ط·آµط·آ­ط·آ© ط¸ئ’ط¸â€‍ ط¸â€¦ط·آµط·آ§ط·آ¯ط·آ± RSS ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·آ¬ط¸â€‍ط·آ© (ط·آ£ط¸ث† ط¸â€¦ط·آµط·آ¯ط·آ± ط¸ث†ط·آ§ط·آ­ط·آ¯) ط¸ث†ط·ع¾ط·آ®ط·آ²ط¸ظ¹ط¸â€  ط·آ§ط¸â€‍ط¸â€ ط·ع¾ط¸ظ¹ط·آ¬ط·آ© ط¸ظ¾ط¸ظ¹ ط¸â€ڑط·آ§ط·آ¹ط·آ¯ط·آ© ط·آ§ط¸â€‍ط·آ¨ط¸ظ¹ط·آ§ط¸â€ ط·آ§ط·ع¾.
+ * ط¸ظ¹ط¸عˆط·آ±ط·آ¬ط·آ¹ JSON ط¸â€‍ط·آ§ط·آ³ط·ع¾ط¸â€،ط¸â€‍ط·آ§ط¸ئ’ط¸â€، ط¸â€¦ط¸â€  ط¸ث†ط·آ§ط·آ¬ط¸â€،ط·آ© ط¸â€‍ط¸ث†ط·آ­ط·آ© ط·آ§ط¸â€‍ط·ع¾ط·آ­ط¸ئ’ط¸â€¦.
  */
 public function healthCheck()
  {
  $this->guardAdmin();
 
- // ظ…ظٹط²ط§ظ†ظٹط© ط²ظ…ظ†ظٹط© ط«ط§ط¨طھط© ظ„ظƒظ„ ط·ظ„ط¨: ط¨ط؛ط¶ظ‘ ط§ظ„ظ†ط¸ط± ط¹ظ† ط¨ط·ط، ط§ظ„ط®ظ„ط§طµط§طھ ظ†ط¶ظ…ظ† ط¥ط±ط¬ط§ط¹ ط§ط³طھط¬ط§ط¨ط©
- // ظƒط§ظ…ظ„ط© ظ‚ط¨ظ„ ظ…ظ‡ظ„ط© ط§ظ„ط§ط³طھط¶ط§ظپط© ط§ظ„ظ‚طµظˆظ‰ (~30 ط«)طŒ ط¹ط¨ط± طھظ‚ط³ظٹظ… ط§ظ„ظپط­طµ ط¥ظ„ظ‰ ط¯ظپط¹ط§طھ طµط؛ظٹط±ط©
- // طھظڈطھط§ط¨ط¹ظ‡ط§ ط§ظ„ظˆط§ط¬ظ‡ط© (offset/limit). ظƒظ„ ط·ظ„ط¨ ظٹط¹ط§ظ„ط¬ ظ…طµط¯ط±ط§ظ‹ ظˆط§ط­ط¯ط§ظ‹ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„.
+ // ط¸â€¦ط¸ظ¹ط·آ²ط·آ§ط¸â€ ط¸ظ¹ط·آ© ط·آ²ط¸â€¦ط¸â€ ط¸ظ¹ط·آ© ط·آ«ط·آ§ط·آ¨ط·ع¾ط·آ© ط¸â€‍ط¸ئ’ط¸â€‍ ط·آ·ط¸â€‍ط·آ¨: ط·آ¨ط·ط›ط·آ¶ط¸â€ک ط·آ§ط¸â€‍ط¸â€ ط·آ¸ط·آ± ط·آ¹ط¸â€  ط·آ¨ط·آ·ط·طŒ ط·آ§ط¸â€‍ط·آ®ط¸â€‍ط·آ§ط·آµط·آ§ط·ع¾ ط¸â€ ط·آ¶ط¸â€¦ط¸â€  ط·آ¥ط·آ±ط·آ¬ط·آ§ط·آ¹ ط·آ§ط·آ³ط·ع¾ط·آ¬ط·آ§ط·آ¨ط·آ©
+ // ط¸ئ’ط·آ§ط¸â€¦ط¸â€‍ط·آ© ط¸â€ڑط·آ¨ط¸â€‍ ط¸â€¦ط¸â€،ط¸â€‍ط·آ© ط·آ§ط¸â€‍ط·آ§ط·آ³ط·ع¾ط·آ¶ط·آ§ط¸ظ¾ط·آ© ط·آ§ط¸â€‍ط¸â€ڑط·آµط¸ث†ط¸â€° (~30 ط·آ«)ط·إ’ ط·آ¹ط·آ¨ط·آ± ط·ع¾ط¸â€ڑط·آ³ط¸ظ¹ط¸â€¦ ط·آ§ط¸â€‍ط¸ظ¾ط·آ­ط·آµ ط·آ¥ط¸â€‍ط¸â€° ط·آ¯ط¸ظ¾ط·آ¹ط·آ§ط·ع¾ ط·آµط·ط›ط¸ظ¹ط·آ±ط·آ©
+ // ط·ع¾ط¸عˆط·ع¾ط·آ§ط·آ¨ط·آ¹ط¸â€،ط·آ§ ط·آ§ط¸â€‍ط¸ث†ط·آ§ط·آ¬ط¸â€،ط·آ© (offset/limit). ط¸ئ’ط¸â€‍ ط·آ·ط¸â€‍ط·آ¨ ط¸ظ¹ط·آ¹ط·آ§ط¸â€‍ط·آ¬ ط¸â€¦ط·آµط·آ¯ط·آ±ط·آ§ط¸â€¹ ط¸ث†ط·آ§ط·آ­ط·آ¯ط·آ§ط¸â€¹ ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط·آ£ط¸â€ڑط¸â€‍.
  $started = microtime(true);
- $budget = 10; // ط«ظˆط§ظ†ظچ ظƒط­ط¯ظ‘ ط£ظ‚طµظ‰ ظ„ظ…ط¹ط§ظ„ط¬ط© ط·ظ„ط¨ ظˆط§ط­ط¯
+ $budget = 10; // ط·آ«ط¸ث†ط·آ§ط¸â€ ط¸ع† ط¸ئ’ط·آ­ط·آ¯ط¸â€ک ط·آ£ط¸â€ڑط·آµط¸â€° ط¸â€‍ط¸â€¦ط·آ¹ط·آ§ط¸â€‍ط·آ¬ط·آ© ط·آ·ط¸â€‍ط·آ¨ ط¸ث†ط·آ§ط·آ­ط·آ¯
  @set_time_limit($budget + 20);
 
  $db = new Database();
  $singleId = isset($_GET['id']) ? (int) $_GET['id'] : (isset($_POST['id']) ? (int) $_POST['id'] : 0);
 
- // Batching: shared hosting caps max_execution_time (30â€“60s), so the full
+ // Batching: shared hosting caps max_execution_time (30أ¢â‚¬â€œ60s), so the full
  // 31-source scan is split into small requests the frontend chains together.
  $offset = max(0, (int) ($_GET['offset'] ?? 0));
  $limit  = max(0, (int) ($_GET['limit'] ?? 0));
@@ -608,15 +608,15 @@ public function healthCheck()
  $didWork = false;
 
  foreach ($sources as $s) {
-  // ظ†ط¶ظ…ظ† ظ…ط¹ط§ظ„ط¬ط© ظ…طµط¯ط± ظˆط§ط­ط¯ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„طŒ ط«ظ… ظ†طھظˆظ‚ظپ ط¹ظ†ط¯ ط§ظ‚طھط±ط§ط¨ ط§ظ„ظ…ظٹط²ط§ظ†ظٹط©
-  // ظ„طھط±ظƒ ط§ظ„ط¯ظپط¹ط© ط§ظ„طھط§ظ„ظٹط© (done=false) طھظƒظ…ظ„ ط§ظ„ط¨ط§ظ‚ظٹ ظ‚ط¨ظ„ ظˆطµظˆظ„ PHP ظ„ظ„ظ…ظ‡ظ„ط©.
+  // ط¸â€ ط·آ¶ط¸â€¦ط¸â€  ط¸â€¦ط·آ¹ط·آ§ط¸â€‍ط·آ¬ط·آ© ط¸â€¦ط·آµط·آ¯ط·آ± ط¸ث†ط·آ§ط·آ­ط·آ¯ ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط·آ£ط¸â€ڑط¸â€‍ط·إ’ ط·آ«ط¸â€¦ ط¸â€ ط·ع¾ط¸ث†ط¸â€ڑط¸ظ¾ ط·آ¹ط¸â€ ط·آ¯ ط·آ§ط¸â€ڑط·ع¾ط·آ±ط·آ§ط·آ¨ ط·آ§ط¸â€‍ط¸â€¦ط¸ظ¹ط·آ²ط·آ§ط¸â€ ط¸ظ¹ط·آ©
+  // ط¸â€‍ط·ع¾ط·آ±ط¸ئ’ ط·آ§ط¸â€‍ط·آ¯ط¸ظ¾ط·آ¹ط·آ© ط·آ§ط¸â€‍ط·ع¾ط·آ§ط¸â€‍ط¸ظ¹ط·آ© (done=false) ط·ع¾ط¸ئ’ط¸â€¦ط¸â€‍ ط·آ§ط¸â€‍ط·آ¨ط·آ§ط¸â€ڑط¸ظ¹ ط¸â€ڑط·آ¨ط¸â€‍ ط¸ث†ط·آµط¸ث†ط¸â€‍ PHP ط¸â€‍ط¸â€‍ط¸â€¦ط¸â€،ط¸â€‍ط·آ©.
   if ($didWork && (microtime(true) - $started) >= $budget) {
   break;
   }
   $didWork = true;
 
-  // ط§ظ„ظپط­طµ ط§ظ„ط¬ظ…ط§ط¹ظٹ: ظˆط¶ط¹ ط³ط±ظٹط¹ ظ…ط¹ طھظ‚ظ„ظٹطµ ظ…ظ‡ظ„ط© ظ‡ط°ط§ ط§ظ„ظ…طµط¯ط± ط¨ظ…ط§ طھط¨ظ‚ظ‘ظ‰ ظ…ظ† ط§ظ„ظ…ظٹط²ط§ظ†ظٹط©ط›
-  // ط§ظ„ظپط­طµ ط§ظ„ظ…ظپط±ط¯: ظ…ظ‡ظ„ط© ط¹ظ„ظٹط§ 15 ط« ط­طھظ‰ ظ„ط§ طھطھط¬ط§ظˆط² ظ…ظ‡ظ„ط© ط§ظ„ط§ط³طھط¶ط§ظپط©.
+  // ط·آ§ط¸â€‍ط¸ظ¾ط·آ­ط·آµ ط·آ§ط¸â€‍ط·آ¬ط¸â€¦ط·آ§ط·آ¹ط¸ظ¹: ط¸ث†ط·آ¶ط·آ¹ ط·آ³ط·آ±ط¸ظ¹ط·آ¹ ط¸â€¦ط·آ¹ ط·ع¾ط¸â€ڑط¸â€‍ط¸ظ¹ط·آµ ط¸â€¦ط¸â€،ط¸â€‍ط·آ© ط¸â€،ط·آ°ط·آ§ ط·آ§ط¸â€‍ط¸â€¦ط·آµط·آ¯ط·آ± ط·آ¨ط¸â€¦ط·آ§ ط·ع¾ط·آ¨ط¸â€ڑط¸â€کط¸â€° ط¸â€¦ط¸â€  ط·آ§ط¸â€‍ط¸â€¦ط¸ظ¹ط·آ²ط·آ§ط¸â€ ط¸ظ¹ط·آ©ط·â€؛
+  // ط·آ§ط¸â€‍ط¸ظ¾ط·آ­ط·آµ ط·آ§ط¸â€‍ط¸â€¦ط¸ظ¾ط·آ±ط·آ¯: ط¸â€¦ط¸â€،ط¸â€‍ط·آ© ط·آ¹ط¸â€‍ط¸ظ¹ط·آ§ 15 ط·آ« ط·آ­ط·ع¾ط¸â€° ط¸â€‍ط·آ§ ط·ع¾ط·ع¾ط·آ¬ط·آ§ط¸ث†ط·آ² ط¸â€¦ط¸â€،ط¸â€‍ط·آ© ط·آ§ط¸â€‍ط·آ§ط·آ³ط·ع¾ط·آ¶ط·آ§ط¸ظ¾ط·آ©.
   $remainingMs = (int) (($budget - (microtime(true) - $started)) * 1000);
   $fetch = FeedFetcher::fetchRaw($s['url'], $singleId > 0 ? false : true, $singleId > 0 ? 15000 : max(1000, min(6000, $remainingMs)));
 
@@ -642,7 +642,7 @@ public function healthCheck()
  $status = 'ok';
  $error = '';
  } else {
- // ط®ظ„ط§طµط© XML ط؛ظٹط± طµط§ظ„ط­ط© â€” ط¬ط±ظ‘ط¨ ط§ظ„ظƒط§ط´ط· ط§ظ„ط°ظƒظٹ ظƒط®ظٹط§ط± ط§ط­طھظٹط§ط·ظٹ
+ // ط·آ®ط¸â€‍ط·آ§ط·آµط·آ© XML ط·ط›ط¸ظ¹ط·آ± ط·آµط·آ§ط¸â€‍ط·آ­ط·آ© أ¢â‚¬â€‌ ط·آ¬ط·آ±ط¸â€کط·آ¨ ط·آ§ط¸â€‍ط¸ئ’ط·آ§ط·آ´ط·آ· ط·آ§ط¸â€‍ط·آ°ط¸ئ’ط¸ظ¹ ط¸ئ’ط·آ®ط¸ظ¹ط·آ§ط·آ± ط·آ§ط·آ­ط·ع¾ط¸ظ¹ط·آ§ط·آ·ط¸ظ¹
  $scraped = $this->scrapeHtmlPage($fetch['body'], $s['url']);
  if (!empty($scraped)) {
  $status = 'ok';
@@ -651,15 +651,15 @@ public function healthCheck()
  $error = '';
  } else {
  $status = 'empty';
- $error = 'طھظ… ط§ظ„ط§طھطµط§ظ„ ط¨ظ†ط¬ط§ط­ ظ„ظƒظ† ظ„ظ… ظٹظڈط¹ط«ط± ط¹ظ„ظ‰ ط¹ظ†ط§طµط± ط¥ط®ط¨ط§ط±ظٹط© ط¯ط§ط®ظ„ ط§ظ„ط®ظ„ط§طµط©.';
+ $error = 'ط·ع¾ط¸â€¦ ط·آ§ط¸â€‍ط·آ§ط·ع¾ط·آµط·آ§ط¸â€‍ ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­ ط¸â€‍ط¸ئ’ط¸â€  ط¸â€‍ط¸â€¦ ط¸ظ¹ط¸عˆط·آ¹ط·آ«ط·آ± ط·آ¹ط¸â€‍ط¸â€° ط·آ¹ط¸â€ ط·آ§ط·آµط·آ± ط·آ¥ط·آ®ط·آ¨ط·آ§ط·آ±ط¸ظ¹ط·آ© ط·آ¯ط·آ§ط·آ®ط¸â€‍ ط·آ§ط¸â€‍ط·آ®ط¸â€‍ط·آ§ط·آµط·آ©.';
  }
  }
  }
 
 $suggestions = [];
   if ($status !== 'ok' && $singleId > 0 && (microtime(true) - $started) < 6) {
-  // ط§ظ‚طھط±ط§ط­ط§طھ ط§ظ„ط¨ط¯ط§ط¦ظ„ طھط­طھط§ط¬ ط·ظ„ط¨ط§طھ ط´ط¨ظƒط© ط¥ط¶ط§ظپظٹط©ط› طھظڈظ†ظپظژظ‘ط° ظپظ‚ط· ظپظٹ ط§ظ„ظپط­طµ ط§ظ„ظ…ظپط±ط¯طŒ
-  // ظˆظپظ‚ط· ط¥ط°ط§ ط¨ظ‚ظٹ ظ…ظ† ط§ظ„ظ…ظٹط²ط§ظ†ظٹط© ظ…طھظ‘ط³ط¹طŒ ط­طھظ‰ ظ„ط§ طھط·ظ„ظ‚ ط§ظ„ظ…ظ‡ظ„ط© ط¹ظ„ظ‰ ط§ظ„ط§ط³طھط¶ط§ظپط©.
+  // ط·آ§ط¸â€ڑط·ع¾ط·آ±ط·آ§ط·آ­ط·آ§ط·ع¾ ط·آ§ط¸â€‍ط·آ¨ط·آ¯ط·آ§ط·آ¦ط¸â€‍ ط·ع¾ط·آ­ط·ع¾ط·آ§ط·آ¬ ط·آ·ط¸â€‍ط·آ¨ط·آ§ط·ع¾ ط·آ´ط·آ¨ط¸ئ’ط·آ© ط·آ¥ط·آ¶ط·آ§ط¸ظ¾ط¸ظ¹ط·آ©ط·â€؛ ط·ع¾ط¸عˆط¸â€ ط¸ظ¾ط¸عکط¸â€کط·آ° ط¸ظ¾ط¸â€ڑط·آ· ط¸ظ¾ط¸ظ¹ ط·آ§ط¸â€‍ط¸ظ¾ط·آ­ط·آµ ط·آ§ط¸â€‍ط¸â€¦ط¸ظ¾ط·آ±ط·آ¯ط·إ’
+  // ط¸ث†ط¸ظ¾ط¸â€ڑط·آ· ط·آ¥ط·آ°ط·آ§ ط·آ¨ط¸â€ڑط¸ظ¹ ط¸â€¦ط¸â€  ط·آ§ط¸â€‍ط¸â€¦ط¸ظ¹ط·آ²ط·آ§ط¸â€ ط¸ظ¹ط·آ© ط¸â€¦ط·ع¾ط¸â€کط·آ³ط·آ¹ط·إ’ ط·آ­ط·ع¾ط¸â€° ط¸â€‍ط·آ§ ط·ع¾ط·آ·ط¸â€‍ط¸â€ڑ ط·آ§ط¸â€‍ط¸â€¦ط¸â€،ط¸â€‍ط·آ© ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط·آ§ط·آ³ط·ع¾ط·آ¶ط·آ§ط¸ظ¾ط·آ©.
   $suggestions = array_slice(FeedFetcher::suggestAlternatives($s['url']), 0, 4);
   }
 
@@ -703,8 +703,8 @@ $suggestions = [];
  ];
  }
 
-// done طµط­ظٹط­ ظپظ‚ط· ط¹ظ†ط¯ ط§ط³طھظƒظ…ط§ظ„ ظƒظ„ ط§ظ„ظ…طµط§ط¯ط± (ط£ظˆ ط§ظ†طھظ‡ط§ط، ط§ظ„ط¯ظپط¹ط© ط¨ظ„ط§ ط¨ظ‚ظٹظ‘ط©)ط›
-  // ط£ظ…ط§ ط¥ط°ط§ طھظˆظ‚ظپظ†ط§ ط¨ط³ط¨ط¨ ط§ظ„ظ…ظٹط²ط§ظ†ظٹط© ظپطھظڈظƒظ…ظ‘ظ„ ط§ظ„ظˆط§ط¬ظ‡ط© ظ…ظ† offset ط§ظ„ظ†ط§طھط¬.
+// done ط·آµط·آ­ط¸ظ¹ط·آ­ ط¸ظ¾ط¸â€ڑط·آ· ط·آ¹ط¸â€ ط·آ¯ ط·آ§ط·آ³ط·ع¾ط¸ئ’ط¸â€¦ط·آ§ط¸â€‍ ط¸ئ’ط¸â€‍ ط·آ§ط¸â€‍ط¸â€¦ط·آµط·آ§ط·آ¯ط·آ± (ط·آ£ط¸ث† ط·آ§ط¸â€ ط·ع¾ط¸â€،ط·آ§ط·طŒ ط·آ§ط¸â€‍ط·آ¯ط¸ظ¾ط·آ¹ط·آ© ط·آ¨ط¸â€‍ط·آ§ ط·آ¨ط¸â€ڑط¸ظ¹ط¸â€کط·آ©)ط·â€؛
+  // ط·آ£ط¸â€¦ط·آ§ ط·آ¥ط·آ°ط·آ§ ط·ع¾ط¸ث†ط¸â€ڑط¸ظ¾ط¸â€ ط·آ§ ط·آ¨ط·آ³ط·آ¨ط·آ¨ ط·آ§ط¸â€‍ط¸â€¦ط¸ظ¹ط·آ²ط·آ§ط¸â€ ط¸ظ¹ط·آ© ط¸ظ¾ط·ع¾ط¸عˆط¸ئ’ط¸â€¦ط¸â€کط¸â€‍ ط·آ§ط¸â€‍ط¸ث†ط·آ§ط·آ¬ط¸â€،ط·آ© ط¸â€¦ط¸â€  offset ط·آ§ط¸â€‍ط¸â€ ط·آ§ط·ع¾ط·آ¬.
   $done = ($offset + count($results)) >= $sourceCount;
 
  header('Content-Type: application/json; charset=utf-8');
@@ -721,13 +721,13 @@ $suggestions = [];
   exit;
  }
 
- /** طھط³ظ…ظٹط© ظ…ظ‚ط±ظˆط،ط© ظ„ظˆظƒظٹظ„ ط§ظ„ظ…ط³طھط®ط¯ظ… ط§ظ„ط°ظٹ ظ†ط¬ط­ ظپظٹ ط§ظ„ط¬ظ„ط¨ */
+ /** ط·ع¾ط·آ³ط¸â€¦ط¸ظ¹ط·آ© ط¸â€¦ط¸â€ڑط·آ±ط¸ث†ط·طŒط·آ© ط¸â€‍ط¸ث†ط¸ئ’ط¸ظ¹ط¸â€‍ ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·ع¾ط·آ®ط·آ¯ط¸â€¦ ط·آ§ط¸â€‍ط·آ°ط¸ظ¹ ط¸â€ ط·آ¬ط·آ­ ط¸ظ¾ط¸ظ¹ ط·آ§ط¸â€‍ط·آ¬ط¸â€‍ط·آ¨ */
  private function uaLabel($ua)
  {
  if (str_contains($ua, 'Googlebot')) return 'Googlebot';
  if (str_contains($ua, 'Feedly')) return 'Feedly';
  if (str_contains($ua, 'SimplePie')) return 'SimplePie';
- if (str_contains($ua, 'TechNewsPlatform')) return 'TechNews';
+ if (str_contains($ua, 'StarterPlatform'))  return 'StarterBot';
  return 'Chrome';
  }
 
@@ -738,13 +738,13 @@ $suggestions = [];
  $sources = $db->fetchAll("SELECT * FROM rss_sources ORDER BY id ASC");
 
  header('Content-Type: text/xml; charset=utf-8');
- header('Content-Disposition: attachment; filename="tech_news_feeds_' . date('Y-m-d') . '.opml"');
+ header('Content-Disposition: attachment; filename="platform_feeds_' . date('Y-m-d') . '.opml"');
 
  echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
  echo '<opml version="2.0">' . "\n";
- echo ' <head><title>AsabTech RSS Feeds</title><dateCreated>' . date('r') . '</dateCreated></head>' . "\n";
+ echo ' <head><title>SmartPlatform RSS Feeds</title><dateCreated>' . date('r') . '</dateCreated></head>' . "\n";
  echo ' <body>' . "\n";
- echo ' <outline text="ظ…طµط§ط¯ط± ط§ظ„ط£ط®ط¨ط§ط± ط§ظ„طھظ‚ظ†ظٹط© ط§ظ„ظ…ط¹طھظ…ط¯ط©" title="Tech Feeds">' . "\n";
+ echo ' <outline text="ط¸â€¦ط·آµط·آ§ط·آ¯ط·آ± ط·آ§ط¸â€‍ط·آ£ط·آ®ط·آ¨ط·آ§ط·آ± ط·آ§ط¸â€‍ط·ع¾ط¸â€ڑط¸â€ ط¸ظ¹ط·آ© ط·آ§ط¸â€‍ط¸â€¦ط·آ¹ط·ع¾ط¸â€¦ط·آ¯ط·آ©" title="Tech Feeds">' . "\n";
  foreach ($sources as $s) {
  $name = htmlspecialchars($s['name'], ENT_QUOTES, 'UTF-8');
  $url = htmlspecialchars($s['url'], ENT_QUOTES, 'UTF-8');
@@ -763,7 +763,7 @@ $suggestions = [];
  $sources = $db->fetchAll("SELECT id, name, url, category_id, auto_fetch FROM rss_sources ORDER BY id ASC");
 
  header('Content-Type: application/json; charset=utf-8');
- header('Content-Disposition: attachment; filename="tech_news_feeds_' . date('Y-m-d') . '.json"');
+ header('Content-Disposition: attachment; filename="platform_feeds_' . date('Y-m-d') . '.json"');
  echo json_encode([
  'exported_at' => date('Y-m-d H:i:s'),
  'total' => count($sources),
@@ -791,9 +791,9 @@ $suggestions = [];
  }
 
  if ($importedCount > 0) {
- Session::flash('success', "طھظ… ط§ط³طھظٹط±ط§ط¯ ({$importedCount}) ظ…طµط¯ط± RSS ط¨ظ†ط¬ط§ط­ ط¥ظ„ظ‰ ظ‚ط§ط¦ظ…ط© ط§ظ„ظ…طµط§ط¯ط±!");
+ Session::flash('success', "ط·ع¾ط¸â€¦ ط·آ§ط·آ³ط·ع¾ط¸ظ¹ط·آ±ط·آ§ط·آ¯ ({$importedCount}) ط¸â€¦ط·آµط·آ¯ط·آ± RSS ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­ ط·آ¥ط¸â€‍ط¸â€° ط¸â€ڑط·آ§ط·آ¦ط¸â€¦ط·آ© ط·آ§ط¸â€‍ط¸â€¦ط·آµط·آ§ط·آ¯ط·آ±!");
  } else {
- Session::flash('error', "ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط±ظˆط§ط¨ط· RSS طµط§ظ„ط­ط© ظپظٹ ط§ظ„ظ…ظ„ظپ ط£ظˆ ط§ظ„ظ†طµ ط§ظ„ظ…ط¯ط®ظ„.");
+ Session::flash('error', "ط¸â€‍ط¸â€¦ ط¸ظ¹ط·ع¾ط¸â€¦ ط·آ§ط¸â€‍ط·آ¹ط·آ«ط¸ث†ط·آ± ط·آ¹ط¸â€‍ط¸â€° ط·آ±ط¸ث†ط·آ§ط·آ¨ط·آ· RSS ط·آµط·آ§ط¸â€‍ط·آ­ط·آ© ط¸ظ¾ط¸ظ¹ ط·آ§ط¸â€‍ط¸â€¦ط¸â€‍ط¸ظ¾ ط·آ£ط¸ث† ط·آ§ط¸â€‍ط¸â€ ط·آµ ط·آ§ط¸â€‍ط¸â€¦ط·آ¯ط·آ®ط¸â€‍.");
  }
 
  return $this->redirect('admin/news-feeds');
@@ -810,7 +810,7 @@ $suggestions = [];
  $list = $json['sources'] ?? $json;
  foreach ($list as $item) {
  if (is_array($item) && !empty($item['url'])) {
- $name = trim($item['name'] ?? parse_url($item['url'], PHP_URL_HOST) ?: 'ظ…طµط¯ط± ظ…ط³طھظˆط±ط¯');
+ $name = trim($item['name'] ?? parse_url($item['url'], PHP_URL_HOST) ?: 'ط¸â€¦ط·آµط·آ¯ط·آ± ط¸â€¦ط·آ³ط·ع¾ط¸ث†ط·آ±ط·آ¯');
  $url = trim($item['url']);
  $catId = !empty($item['category_id']) ? (int) $item['category_id'] : 1;
  $db->query("INSERT INTO rss_sources (name, url, category_id, auto_fetch) VALUES (:name, :url, :cat, 1)", [
@@ -832,7 +832,7 @@ $suggestions = [];
  $outlines = $xml->xpath('//outline[@xmlUrl]');
  foreach ($outlines as $out) {
  $url = (string) $out['xmlUrl'];
- $name = (string) ($out['text'] ?? $out['title'] ?? parse_url($url, PHP_URL_HOST) ?: 'ظ…طµط¯ط± RSS');
+ $name = (string) ($out['text'] ?? $out['title'] ?? parse_url($url, PHP_URL_HOST) ?: 'ط¸â€¦ط·آµط·آ¯ط·آ± RSS');
  if (!empty($url)) {
  $db->query("INSERT INTO rss_sources (name, url, category_id, auto_fetch) VALUES (:name, :url, 1, 1)", [
  ':name' => trim($name),
@@ -850,7 +850,7 @@ $suggestions = [];
  foreach ($lines as $line) {
  $line = trim($line);
  if (filter_var($line, FILTER_VALIDATE_URL)) {
- $host = parse_url($line, PHP_URL_HOST) ?: 'ظ…طµط¯ط± طھظ‚ظ†ظٹ';
+ $host = parse_url($line, PHP_URL_HOST) ?: 'ط¸â€¦ط·آµط·آ¯ط·آ± ط·ع¾ط¸â€ڑط¸â€ ط¸ظ¹';
  $db->query("INSERT INTO rss_sources (name, url, category_id, auto_fetch) VALUES (:name, :url, 1, 1)", [
  ':name' => $host,
  ':url' => $line
@@ -864,8 +864,8 @@ $suggestions = [];
 
  private function fetchRss($url)
  {
- // ظ…ط­ط±ظƒ ظ…ظ‚ط§ظˆظ… ظ„ظ„ط­ط¬ط¨: ظٹط¯ظˆظ‘ط± ظˆظƒظٹظ„ ط§ظ„ظ…ط³طھط®ط¯ظ… ط¹ظ†ط¯ 403طŒ ظˆظٹط¹ظٹط¯ ط§ظ„ظ…ط­ط§ظˆظ„ط© ط¹ظ†ط¯ 429طŒ
- // ظˆظٹظƒط´ظپ ط§ظ„طھط­ظˆظٹظ„ط§طھ ط¥ظ„ظ‰ ط®ط¯ظ…ط§طھ ظ…طھظˆظ‚ظپط© ظ…ط«ظ„ FeedBurner.
+ // ط¸â€¦ط·آ­ط·آ±ط¸ئ’ ط¸â€¦ط¸â€ڑط·آ§ط¸ث†ط¸â€¦ ط¸â€‍ط¸â€‍ط·آ­ط·آ¬ط·آ¨: ط¸ظ¹ط·آ¯ط¸ث†ط¸â€کط·آ± ط¸ث†ط¸ئ’ط¸ظ¹ط¸â€‍ ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·ع¾ط·آ®ط·آ¯ط¸â€¦ ط·آ¹ط¸â€ ط·آ¯ 403ط·إ’ ط¸ث†ط¸ظ¹ط·آ¹ط¸ظ¹ط·آ¯ ط·آ§ط¸â€‍ط¸â€¦ط·آ­ط·آ§ط¸ث†ط¸â€‍ط·آ© ط·آ¹ط¸â€ ط·آ¯ 429ط·إ’
+ // ط¸ث†ط¸ظ¹ط¸ئ’ط·آ´ط¸ظ¾ ط·آ§ط¸â€‍ط·ع¾ط·آ­ط¸ث†ط¸ظ¹ط¸â€‍ط·آ§ط·ع¾ ط·آ¥ط¸â€‍ط¸â€° ط·آ®ط·آ¯ط¸â€¦ط·آ§ط·ع¾ ط¸â€¦ط·ع¾ط¸ث†ط¸â€ڑط¸ظ¾ط·آ© ط¸â€¦ط·آ«ط¸â€‍ FeedBurner.
  $fetch = FeedFetcher::fetchRaw($url);
 
  if (!$fetch['success']) {
@@ -873,7 +873,7 @@ $suggestions = [];
  if ((int) $fetch['http_code'] === 410 || (int) $fetch['http_code'] === 404) {
  $alts = FeedFetcher::suggestAlternatives($url);
  if ($alts) {
- $hint = ' â€” ط±ظˆط§ط¨ط· ظ…ظ‚طھط±ط­ط© ظ„ظ„طھط¬ط±ط¨ط©: ' . implode(' طŒ ', array_slice($alts, 0, 3));
+ $hint = ' أ¢â‚¬â€‌ ط·آ±ط¸ث†ط·آ§ط·آ¨ط·آ· ط¸â€¦ط¸â€ڑط·ع¾ط·آ±ط·آ­ط·آ© ط¸â€‍ط¸â€‍ط·ع¾ط·آ¬ط·آ±ط·آ¨ط·آ©: ' . implode(' ط·إ’ ', array_slice($alts, 0, 3));
  }
  }
  return ['success' => false, 'error' => $fetch['error'] . $hint];
@@ -890,7 +890,7 @@ $suggestions = [];
  if (!empty($htmlItems)) {
  return ['success' => true, 'items' => $htmlItems, 'is_html_scraped' => true];
  }
- return ['success' => false, 'error' => 'طھط¹ط°ط± ط§ط³طھط®ط±ط§ط¬ ظ…ظ‚ط§ظ„ط§طھ ظ…ظ† ط§ظ„ط±ط§ط¨ط· (ظ„ط§ طھطھظˆظپط± ط®ظ„ط§طµط© XML طµط§ظ„ط­ط© ط£ظˆ طھط¹ط°ط± ط§ط³طھط®ط±ط§ط¬ ط¹ظ†ط§طµط± HTML).'];
+ return ['success' => false, 'error' => 'ط·ع¾ط·آ¹ط·آ°ط·آ± ط·آ§ط·آ³ط·ع¾ط·آ®ط·آ±ط·آ§ط·آ¬ ط¸â€¦ط¸â€ڑط·آ§ط¸â€‍ط·آ§ط·ع¾ ط¸â€¦ط¸â€  ط·آ§ط¸â€‍ط·آ±ط·آ§ط·آ¨ط·آ· (ط¸â€‍ط·آ§ ط·ع¾ط·ع¾ط¸ث†ط¸ظ¾ط·آ± ط·آ®ط¸â€‍ط·آ§ط·آµط·آ© XML ط·آµط·آ§ط¸â€‍ط·آ­ط·آ© ط·آ£ط¸ث† ط·ع¾ط·آ¹ط·آ°ط·آ± ط·آ§ط·آ³ط·ع¾ط·آ®ط·آ±ط·آ§ط·آ¬ ط·آ¹ط¸â€ ط·آ§ط·آµط·آ± HTML).'];
  }
 
  $items = [];
@@ -914,7 +914,7 @@ $suggestions = [];
  if (!empty($htmlItems)) {
  return ['success' => true, 'items' => $htmlItems, 'is_html_scraped' => true];
  }
- return ['success' => false, 'error' => 'ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط£ظٹ ط¹ظ†ط§طµط± ط¥ط®ط¨ط§ط±ظٹط© ط¯ط§ط®ظ„ ظ…ظ„ظپ ط§ظ„ط®ظ„ط§طµط©.'];
+ return ['success' => false, 'error' => 'ط¸â€‍ط¸â€¦ ط¸ظ¹ط·ع¾ط¸â€¦ ط·آ§ط¸â€‍ط·آ¹ط·آ«ط¸ث†ط·آ± ط·آ¹ط¸â€‍ط¸â€° ط·آ£ط¸ظ¹ ط·آ¹ط¸â€ ط·آ§ط·آµط·آ± ط·آ¥ط·آ®ط·آ¨ط·آ§ط·آ±ط¸ظ¹ط·آ© ط·آ¯ط·آ§ط·آ®ط¸â€‍ ط¸â€¦ط¸â€‍ط¸ظ¾ ط·آ§ط¸â€‍ط·آ®ط¸â€‍ط·آ§ط·آµط·آ©.'];
  }
 
  return ['success' => true, 'items' => array_slice($items, 0, 30)];
@@ -991,7 +991,7 @@ $suggestions = [];
 'title' => $title,
   'link' => $href,
   'pubDate' => fmt_date('now', 'Y-m-d H:i'),
- 'excerpt' => mb_strimwidth($desc, 0, 220, 'â€¦', 'UTF-8'),
+ 'excerpt' => mb_strimwidth($desc, 0, 220, 'أ¢â‚¬آ¦', 'UTF-8'),
  'content' => $desc,
  'featured_image' => $image ?: \FallbackImage::general()
  ];
@@ -1028,8 +1028,8 @@ $suggestions = [];
   if (!$image && preg_match('/<img[^>]+src=[\'"]([^\'"]+)[\'"]/i', $content ?: $description, $m)) {
   $image = $m[1];
   }
-  // ط®ظ„ط§طµط§طھ ظ…ط«ظ„ Google News ط¨ظ„ط§ طµظˆط± ط¯ط§ط®ظ„ XML: ظ†ط³طھط¹ظٹظ† ط¨ظƒط§ط´ ط§ظ„طµظˆط± ط§ظ„ظ…ط®ط²ظ‘ظ† ظ…ط³ط¨ظ‚ط§ظ‹
-  // (ط­ظ„ ظپظˆط±ظٹ ط¨ظ„ط§ ط´ط¨ظƒط©) ظˆظ†طھظٹط­ ظ„ظ„ظ…ط¹ط§ظٹظ†ط© ط¹ط±ط¶ ط§ظ„طµظˆط± ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ظ…طھظ‰ طھظˆط§ظپط±طھ.
+  // ط·آ®ط¸â€‍ط·آ§ط·آµط·آ§ط·ع¾ ط¸â€¦ط·آ«ط¸â€‍ Google News ط·آ¨ط¸â€‍ط·آ§ ط·آµط¸ث†ط·آ± ط·آ¯ط·آ§ط·آ®ط¸â€‍ XML: ط¸â€ ط·آ³ط·ع¾ط·آ¹ط¸ظ¹ط¸â€  ط·آ¨ط¸ئ’ط·آ§ط·آ´ ط·آ§ط¸â€‍ط·آµط¸ث†ط·آ± ط·آ§ط¸â€‍ط¸â€¦ط·آ®ط·آ²ط¸â€کط¸â€  ط¸â€¦ط·آ³ط·آ¨ط¸â€ڑط·آ§ط¸â€¹
+  // (ط·آ­ط¸â€‍ ط¸ظ¾ط¸ث†ط·آ±ط¸ظ¹ ط·آ¨ط¸â€‍ط·آ§ ط·آ´ط·آ¨ط¸ئ’ط·آ©) ط¸ث†ط¸â€ ط·ع¾ط¸ظ¹ط·آ­ ط¸â€‍ط¸â€‍ط¸â€¦ط·آ¹ط·آ§ط¸ظ¹ط¸â€ ط·آ© ط·آ¹ط·آ±ط·آ¶ ط·آ§ط¸â€‍ط·آµط¸ث†ط·آ± ط·آ§ط¸â€‍ط·آ­ط¸â€ڑط¸ظ¹ط¸â€ڑط¸ظ¹ط·آ© ط¸â€¦ط·ع¾ط¸â€° ط·ع¾ط¸ث†ط·آ§ط¸ظ¾ط·آ±ط·ع¾.
   if (empty($image) && !empty(trim($link))) {
   $cachedImg = FetchOg::cacheGet(trim($link));
   if ($cachedImg !== '') $image = $cachedImg;
@@ -1042,7 +1042,7 @@ $suggestions = [];
   'title' => $this->cleanTextEntity($title),
   'link' => trim($link),
   'pubDate' => $pubDate ? fmt_date($pubDate, 'Y-m-d H:i') : fmt_date('now', 'Y-m-d H:i'),
-  'excerpt' => mb_strimwidth($cleanDesc ?: $cleanContent, 0, 220, 'â€¦', 'UTF-8'),
+  'excerpt' => mb_strimwidth($cleanDesc ?: $cleanContent, 0, 220, 'أ¢â‚¬آ¦', 'UTF-8'),
   'content' => $cleanContent,
   'featured_image' => $image ?: \FallbackImage::general(),
   ];
@@ -1074,7 +1074,7 @@ $image = '';
  'title' => $this->cleanTextEntity($title),
  'link' => trim($link),
  'pubDate' => $pubDate ? fmt_date($pubDate, 'Y-m-d H:i') : fmt_date('now', 'Y-m-d H:i'),
- 'excerpt' => mb_strimwidth($cleanSummary, 0, 220, 'â€¦', 'UTF-8'),
+ 'excerpt' => mb_strimwidth($cleanSummary, 0, 220, 'أ¢â‚¬آ¦', 'UTF-8'),
  'content' => $cleanSummary,
  'featured_image' => $image ?: \FallbackImage::general(),
  ];
@@ -1086,8 +1086,8 @@ $image = '';
  $text = html_entity_decode((string) $text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
  $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
  $replacements = [
- '&#8211;' => 'â€“',
- '&#8212;' => 'â€”',
+ '&#8211;' => 'أ¢â‚¬â€œ',
+ '&#8212;' => 'أ¢â‚¬â€‌',
  '&#8216;' => "'",
  '&#8217;' => "'",
  '&#8220;' => '"',
@@ -1097,10 +1097,10 @@ $image = '';
  '&quot;' => '"',
  '&amp;' => '&',
  '&nbsp;' => ' ',
- '&ndash;' => 'â€“',
- '&mdash;' => 'â€”',
- 'amp;#8211;' => 'â€“',
- 'amp;#8212;' => 'â€”',
+ '&ndash;' => 'أ¢â‚¬â€œ',
+ '&mdash;' => 'أ¢â‚¬â€‌',
+ 'amp;#8211;' => 'أ¢â‚¬â€œ',
+ 'amp;#8212;' => 'أ¢â‚¬â€‌',
  'amp;#039;' => "'",
  'amp;#39;' => "'",
  'amp;quot;' => '"',
@@ -1111,13 +1111,14 @@ $image = '';
  $text = preg_replace('/&#(\d+);?/', ' ', $text);
 
  // Strip boilerplate RSS feeder intro/outro phrases
- $text = preg_replace('/^ظ‡ط°ط§ ط§ظ„ظ…ظˆط¶ظˆط¹\s+/u', '', $text);
- $text = preg_replace('/ط¸ظ‡ط± ظ‡ط°ط§ ط§ظ„ظ…ظˆط¶ظˆط¹ ط£ظˆظ„ط§ظ‹ ط¹ظ„ظ‰.*/u', '', $text);
- $text = preg_replace('/ط¸ظ‡ط± ط¹ظ„ظ‰ ط§ظ„طھظ‚ظ†ظٹط© ط¨ظ„ط§ ط­ط¯ظˆط¯.*/u', '', $text);
- $text = preg_replace('/ط¸ظ‡ط±طھ ط£ظˆظ„ط§ظ‹ ط¹ظ„ظ‰.*/u', '', $text);
+ $text = preg_replace('/^ط¸â€،ط·آ°ط·آ§ ط·آ§ط¸â€‍ط¸â€¦ط¸ث†ط·آ¶ط¸ث†ط·آ¹\s+/u', '', $text);
+ $text = preg_replace('/ط·آ¸ط¸â€،ط·آ± ط¸â€،ط·آ°ط·آ§ ط·آ§ط¸â€‍ط¸â€¦ط¸ث†ط·آ¶ط¸ث†ط·آ¹ ط·آ£ط¸ث†ط¸â€‍ط·آ§ط¸â€¹ ط·آ¹ط¸â€‍ط¸â€°.*/u', '', $text);
+ $text = preg_replace('/ط·آ¸ط¸â€،ط·آ± ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط·ع¾ط¸â€ڑط¸â€ ط¸ظ¹ط·آ© ط·آ¨ط¸â€‍ط·آ§ ط·آ­ط·آ¯ط¸ث†ط·آ¯.*/u', '', $text);
+ $text = preg_replace('/ط·آ¸ط¸â€،ط·آ±ط·ع¾ ط·آ£ط¸ث†ط¸â€‍ط·آ§ط¸â€¹ ط·آ¹ط¸â€‍ط¸â€°.*/u', '', $text);
  $text = preg_replace('/The post .* appeared first on .*/i', '', $text);
  $text = preg_replace('/This article was originally published on .*/i', '', $text);
 
  return trim($text);
  }
 }
+

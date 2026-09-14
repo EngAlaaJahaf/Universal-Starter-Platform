@@ -1,5 +1,5 @@
 <?php
-$pageTitle = $pageTitle ?? 'المقالات المحفوظة والمفضلة | ' . Settings::get('site_name_ar', 'عصب التقنية');
+$pageTitle = $pageTitle ?? 'المقالات المحفوظة والمفضلة | ' . Settings::get('site_name_ar', 'منصتي الذكية');
 $pageDesc  = 'قائمة مقالاتك وأخبارك التقنية المحفوظة للرجوع إليها في أي وقت.';
 
 require_once APP_ROOT . '/views/partials/header.php';
@@ -33,7 +33,7 @@ require_once APP_ROOT . '/views/partials/header.php';
             <h3 style="color:var(--text-main);font-weight:700;margin-bottom:8px">لم تقم بحفظ أي مقالات بعد</h3>
             <p style="color:var(--text-muted);margin-bottom:20px">يمكنك النقر على أيقونة الإشارة المرجعية داخل أي مقال لإضافته إلى قائمة قراءتك هنا.</p>
             <a href="<?= view_e(app_url()) ?>" class="btn-primary" style="display:inline-flex;align-items:center;gap:6px;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700">
-                تصفح أحدث الأخبار ←
+                تصفح أحدث المنشورات ←
             </a>
         </div>
     <?php else: ?>

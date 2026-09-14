@@ -1484,7 +1484,7 @@ class AiTranslator
         }
 
         // --- Engine 3 (Fallback): MyMemory API with strict 3s timeout ---
-        $randomEmail = 'user' . rand(1000, 9999) . '@technews.org';
+        $randomEmail = 'user' . rand(1000, 9999) . '@platform.local';
         $mmUrl = 'https://api.mymemory.translated.net/get?'
             . 'q=' . rawurlencode(mb_substr($text, 0, 500, 'UTF-8'))
             . '&langpair=' . ($sourceLang === 'auto' ? 'en' : $sourceLang) . '|' . $targetLang
@@ -1499,7 +1499,7 @@ class AiTranslator
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_HTTPHEADER     => [
-                'User-Agent: Mozilla/5.0 (compatible; TechNewsPlatform/1.0)'
+                'User-Agent: Mozilla/5.0 (compatible; StarterPlatform/1.0)'
             ]
         ]);
         $res3 = curl_exec($ch3);

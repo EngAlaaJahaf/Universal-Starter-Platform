@@ -7,6 +7,13 @@ if (!function_exists('admin_e')) {
 }
 $user = Auth::user();
 
+$unreadMessagesCount = 0;
+if (class_exists('Database')) {
+    try {
+        $unreadMessagesCount = (int) ((new Database())->fetch("SELECT COUNT(*) as cnt FROM contact_messages WHERE status = 'unread'")['cnt'] ?? 0);
+    } catch (Throwable $e) {}
+}
+
 // Current path helper for active sidebar item
 $currentUri = trim(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '', '/');
 $adminBase = trim(parse_url(app_url('admin'), PHP_URL_PATH) ?? 'admin', '/');
@@ -26,7 +33,7 @@ if (!function_exists('is_admin_active')) {
 <head>
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1">
- <title><?= admin_e($title ?? 'لوحة التحكم') ?> | <?= admin_e(Settings::get('site_name_ar', 'عصب التقنية')) ?></title>
+ <title><?= admin_e($title ?? 'لوحة التحكم') ?> | <?= admin_e(Settings::get('site_name_ar', 'لوحة التحكم')) ?></title>
  <?= function_exists('site_favicon_tag') ? site_favicon_tag() : '' ?>
  <!-- Bootstrap 5 RTL with Local Robust Fallback -->
  <link rel="stylesheet" href="<?= htmlspecialchars(app_url('assets/css/admin-bootstrap.css'), ENT_QUOTES, 'UTF-8') ?>">
@@ -97,8 +104,8 @@ if (!function_exists('is_admin_active')) {
  width: 100%;
  }
  .admin-sidebar { 
- width: 270px; 
- min-width: 270px;
+ width: 295px; 
+ min-width: 295px;
  flex-shrink: 0;
  background: #090d16; 
  color: #f8fafc; 
@@ -118,6 +125,7 @@ if (!function_exists('is_admin_active')) {
  align-items: center; 
  gap: 12px; 
  transition: all 0.2s ease;
+ flex-shrink: 0;
  }
  .sidebar-brand .brand-logo-badge {
  width: 36px;
@@ -137,11 +145,13 @@ if (!function_exists('is_admin_active')) {
  }
  .sidebar-nav { 
  padding: 14px 10px; 
- flex-grow: 1; 
- overflow-y: auto; 
+ flex: 1 1 0;
+ min-height: 0;
+ overflow-y: auto;
+ overflow-x: hidden;
  display: flex; 
  flex-direction: column; 
- gap: 4px; 
+ gap: 3px; 
  scroll-behavior: auto !important;
  }
  .sidebar-nav::-webkit-scrollbar {
@@ -846,8 +856,8 @@ html.admin-dark .btn-outline-info {
  top: 0 !important;
  right: 0 !important;
  bottom: 0 !important;
- width: 280px !important;
- min-width: 280px !important;
+  width: 295px !important;
+ min-width: 295px !important;
  max-width: 85vw !important;
  height: 100vh !important;
  z-index: 99999 !important;
@@ -1027,6 +1037,79 @@ html.admin-dark .btn-outline-info {
  .table tbody tr.sort-flash td {
  animation: rowSortFlash 0.45s ease forwards;
  }
+ .sidebar-section-btn {
+ width: 100%;
+ background: transparent;
+ border: none;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ font-size: 0.78rem;
+ font-weight: 700;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ color: #94a3b8;
+ padding: 14px 12px 6px 12px;
+ margin-top: 6px;
+ border-top: 1px solid rgba(255, 255, 255, 0.06);
+ cursor: pointer;
+ transition: color 0.18s ease, background 0.18s ease;
+ border-radius: 8px;
+ text-align: inherit;
+ user-select: none;
+ }
+ .sidebar-section-btn:hover {
+ color: #00f2fe;
+ background: rgba(255, 255, 255, 0.03);
+ }
+ .sidebar-section-btn:first-child {
+ border-top: none;
+ margin-top: 0;
+ padding-top: 4px;
+ }
+ .sidebar-section-btn .section-chevron {
+ font-size: 0.75rem;
+ transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+ color: #64748b;
+ }
+ .sidebar-section-btn[aria-expanded="false"] .section-chevron {
+ transform: rotate(90deg);
+ }
+ [dir="ltr"] .sidebar-section-btn[aria-expanded="false"] .section-chevron {
+ transform: rotate(-90deg);
+ }
+ .sidebar-section-btn .section-dot {
+ width: 6px;
+ height: 6px;
+ border-radius: 50%;
+ background: #00f2fe;
+ display: inline-block;
+ flex-shrink: 0;
+ box-shadow: 0 0 6px #00f2fe;
+ }
+ .sidebar-section-items {
+ display: flex;
+ flex-direction: column;
+ gap: 3px;
+ transition: all 0.25s ease;
+ }
+ .sidebar-section-items.is-collapsed {
+ display: none;
+ }
+ html.sidebar-collapsed .sidebar-section-btn,
+ .sidebar-collapsed .sidebar-section-btn {
+ font-size: 0 !important;
+ height: 1px !important;
+ padding: 0 !important;
+ margin: 8px 12px !important;
+ background: rgba(255, 255, 255, 0.08) !important;
+ border: none !important;
+ pointer-events: none;
+ }
+ html.sidebar-collapsed .sidebar-section-btn *,
+ .sidebar-collapsed .sidebar-section-btn * {
+ display: none !important;
+ }
  </style>
 </head>
 <body>
@@ -1046,108 +1129,77 @@ html.admin-dark .btn-outline-info {
  <?php endif; ?>
  <div class="brand-text">
  <strong style="font-size:1rem;display:block;line-height:1.2;color:#fff"><?= admin_e(Settings::get('site_name_ar', 'لوحة الإدارة')) ?></strong>
- <small style="font-size:0.7rem;color:#00f2fe"><?= admin_e(Settings::get('site_name_en', 'AsabTech')) ?></small>
+ <small style="font-size:0.7rem;color:#00f2fe"><?= admin_e(Settings::get('site_name_en', 'Platform')) ?></small>
  </div>
  <button type="button" class="btn-sidebar-close-mobile d-lg-none" id="sidebarCloseBtn" aria-label="إغلاق القائمة">&times;</button>
  </div>
 
- <nav class="sidebar-nav">
- <a class="nav-link-admin <?= is_admin_active('admin', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin')) ?>" title="الرئيسية (Dashboard)">
- <i class="bi bi-speedometer2"></i> <span class="nav-text">الرئيسية (Dashboard)</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/analytics', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/analytics')) ?>" title="التحليلات والإحصاءات">
- <i class="bi bi-graph-up-arrow"></i> <span class="nav-text">التحليلات والإحصاءات</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/articles', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/articles')) ?>" title="إدارة المقالات">
- <i class="bi bi-journal-richtext"></i> <span class="nav-text">إدارة المقالات</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/tutorials', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/tutorials')) ?>" title="استوديو الشروحات والدروس المصورة">
- <i class="bi bi-journal-code text-info"></i> <span class="nav-text">استوديو الشروحات المصورة</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/news-feeds', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/news-feeds')) ?>" title="استيراد ونشر الأخبار (RSS)">
- <i class="bi bi-lightning-charge-fill text-warning"></i> <span class="nav-text">استيراد ونشر الأخبار (RSS)</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/rss-sources', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/rss-sources')) ?>" title="مصادر الـ RSS (CRUD)">
- <i class="bi bi-rss-fill text-warning"></i> <span class="nav-text">مصادر الـ RSS (CRUD)</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/cron', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/cron')) ?>" title="النشر التلقائي (Cron Jobs)">
- <i class="bi bi-clock-history text-success"></i> <span class="nav-text">النشر التلقائي (Cron)</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/categories', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/categories')) ?>" title="التصنيفات">
- <i class="bi bi-tags"></i> <span class="nav-text">التصنيفات</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/classifier-rules', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/classifier-rules')) ?>" title="مصطلحات التصنيف الذكي">
- <i class="bi bi-diagram-3-fill text-primary"></i> <span class="nav-text">مصطلحات التصنيف الذكي</span>
- </a>
- <?php
- $unreadMessagesCount = 0;
- if (class_exists('Database')) {
- try {
- $unreadMessagesCount = (int) ((new Database())->fetch("SELECT COUNT(*) as cnt FROM contact_messages WHERE status = 'unread'")['cnt'] ?? 0);
- } catch (Throwable $e) {}
- }
- ?>
- <a class="nav-link-admin <?= is_admin_active('admin/comments', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/comments')) ?>" title="التعليقات والمراجعة">
- <i class="bi bi-chat-dots"></i> <span class="nav-text">التعليقات والمراجعة</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/messages', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/messages')) ?>" title="صندوق الرسائل والاتصالات الواردة">
- <i class="bi bi-inbox text-info"></i> <span class="nav-text">الرسائل والاتصالات</span>
- <?php if ($unreadMessagesCount> 0): ?>
- <span class="badge rounded-pill bg-danger ms-auto" style="font-size:0.7rem"><?= $unreadMessagesCount ?></span>
- <?php endif; ?>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/live-blog', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/live-blog')) ?>" title="التغطيات الحية (Live)">
- <i class="bi bi-broadcast text-danger"></i> <span class="nav-text">التغطيات الحية (Live)</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/polls', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/polls')) ?>" title="استطلاعات الرأي (Polls)">
- <i class="bi bi-bar-chart-line-fill text-warning"></i> <span class="nav-text">استطلاعات الرأي</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/users', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/users')) ?>" title="المستخدمون والصلاحيات">
- <i class="bi bi-people"></i> <span class="nav-text">المستخدمون والصلاحيات</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/settings', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/settings')) ?>" title="الإعدادات الشاملة (14)">
- <i class="bi bi-sliders2"></i> <span class="nav-text">الإعدادات الشاملة (14)</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/api-keys', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/api-keys')) ?>" title="نقاط النهاية والـ API (AI Endpoints)">
- <i class="bi bi-key-fill text-info"></i> <span class="nav-text">نقاط النهاية والـ API</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/translation-logs', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/translation-logs')) ?>" title="سجلات وأخطاء الترجمة (AI & Provider Logs)">
- <i class="bi bi-translate text-success"></i> <span class="nav-text">سجلات وأخطاء الترجمة</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/ai-logs', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/ai-logs')) ?>" title="سجلات محادثات المرشد وحصص الأعضاء">
- <i class="bi bi-robot text-primary"></i> <span class="nav-text">محادثات المرشد والحصص</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/media', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/media')) ?>" title="مكتبة الوسائط">
- <i class="bi bi-images"></i> <span class="nav-text">مكتبة الوسائط</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/pages', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/pages')) ?>" title="الصفحات الثابتة">
- <i class="bi bi-file-earmark-text"></i> <span class="nav-text">الصفحات الثابتة</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/menus', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/menus')) ?>" title="القوائم والروابط">
- <i class="bi bi-list-nested"></i> <span class="nav-text">القوائم والروابط</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/ads', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/ads')) ?>" title="المساحات الإعلانية">
- <i class="bi bi-badge-ad"></i> <span class="nav-text">المساحات الإعلانية</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/newsletter', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/newsletter')) ?>" title="النشرة البريدية">
- <i class="bi bi-envelope-paper"></i> <span class="nav-text">النشرة البريدية</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/activity-log', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/activity-log')) ?>" title="سجل العمليات (Audit Log)">
- <i class="bi bi-shield-check"></i> <span class="nav-text">سجل العمليات (Audit Log)</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/traffic-radar', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/traffic-radar')) ?>" title="رادار الزوار والعناكب (Bots)">
- <i class="bi bi-broadcast-pin text-info"></i> <span class="nav-text">رادار الزوار والعناكب</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/security-alerts', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/security-alerts')) ?>" title="تنبيهات الأمان والاختراق">
- <i class="bi bi-shield-exclamation text-danger"></i> <span class="nav-text">تنبيهات الأمان</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/backup', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/backup')) ?>" title="مركز النسخ الاحتياطي والاستيراد والتصدير">
- <i class="bi bi-database-down text-warning"></i> <span class="nav-text">النسخ الاحتياطي والاستيراد</span>
- </a>
- <a class="nav-link-admin <?= is_admin_active('admin/diagnostics', $currentUri, $adminBase) ?>" href="<?= admin_e(app_url('admin/diagnostics')) ?>" title="مركز التشخيص وفحص النظام الشامل" style="background:rgba(0,210,255,0.06);border-right:3px solid #00d2ff">
- <i class="bi bi-heart-pulse-fill" style="color:#00d2ff"></i> <span class="nav-text" style="color:#00d2ff;font-weight:700">مركز تشخيص النظام </span>
- </a>
- </nav>
+  <nav class="sidebar-nav">
+  <?php
+  $menuConfigFile = dirname(dirname(__DIR__)) . '/config/admin_menu.php';
+  $adminMenuSections = is_file($menuConfigFile) ? require $menuConfigFile : [];
+  // Respect admin-sidebar visibility settings (group: admin_menu) from the settings panel.
+  if (!(bool) Settings::get('admin_sidebar_enabled', true)) {
+    $adminMenuSections = [];
+  } elseif (!empty($adminMenuSections)) {
+    foreach ($adminMenuSections as $secRenderIdx => $sectionForRender) {
+      $secRenderKey = $sectionForRender['key'] ?? ('sec_' . ($secRenderIdx + 1));
+      if (!(bool) Settings::get('admin_sidebar_sec_' . $secRenderKey, true)) {
+        unset($adminMenuSections[$secRenderIdx]);
+        continue;
+      }
+      foreach (($sectionForRender['items'] ?? []) as $itRenderIdx => $itemForRender) {
+        $itemRenderKey = $itemForRender['key'] ?? '';
+        if ($itemRenderKey !== '' && !(bool) Settings::get('admin_sidebar_item_' . $itemRenderKey, true)) {
+          unset($adminMenuSections[$secRenderIdx]['items'][$itRenderIdx]);
+        }
+      }
+      // Drop sections left with no visible items.
+      if (empty($adminMenuSections[$secRenderIdx]['items'])) {
+        unset($adminMenuSections[$secRenderIdx]);
+      }
+    }
+  }
+  $secIdx = 0;
+  ?>
+  <?php foreach ($adminMenuSections as $section): 
+      $secIdx++;
+      $secId = 'admin_sec_' . $secIdx;
+      $hasActiveItem = false;
+      foreach (($section['items'] ?? []) as $it) {
+          if (is_admin_active($it['path'], $currentUri, $adminBase) === 'active') {
+              $hasActiveItem = true;
+              break;
+          }
+      }
+  ?>
+    <?php if (!empty($section['section'])): ?>
+      <button type="button" class="sidebar-section-btn" data-section-target="<?= $secId ?>" aria-expanded="true">
+        <span class="d-flex align-items-center gap-2">
+            <span class="section-dot"></span>
+            <span><?= admin_e($section['section']) ?></span>
+        </span>
+        <i class="bi bi-chevron-down section-chevron"></i>
+      </button>
+    <?php endif; ?>
+    <div class="sidebar-section-items" id="<?= $secId ?>" data-has-active="<?= $hasActiveItem ? '1' : '0' ?>">
+    <?php foreach (($section['items'] ?? []) as $item): 
+        $badge = null;
+        if (isset($item['badge']) && is_callable($item['badge'])) {
+            $badge = call_user_func($item['badge']);
+        }
+        $isActive = is_admin_active($item['path'], $currentUri, $adminBase);
+    ?>
+      <a class="nav-link-admin <?= $isActive ?>" href="<?= admin_e(app_url($item['path'])) ?>" title="<?= admin_e($item['title']) ?>">
+        <i class="<?= admin_e($item['icon']) ?>"></i> <span class="nav-text"><?= admin_e($item['title']) ?></span>
+        <?php if (!empty($badge) && is_array($badge)): ?>
+          <span class="badge rounded-pill <?= admin_e($badge['class'] ?? 'bg-danger') ?> ms-auto" style="font-size:0.7rem"><?= admin_e($badge['text']) ?></span>
+        <?php endif; ?>
+      </a>
+    <?php endforeach; ?>
+    </div>
+  <?php endforeach; ?>
+  </nav>
  <script>
  (function() {
  try {
@@ -1160,7 +1212,7 @@ html.admin-dark .btn-outline-info {
  })();
  </script>
 
- <div class="sidebar-footer" style="padding:14px 12px;border-top:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:4px">
+ <div class="sidebar-footer" style="padding:14px 12px;border-top:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:4px;flex-shrink:0">
  <a href="<?= admin_e(app_url()) ?>" target="_blank" class="nav-link-admin" style="color:#00f2fe" title="معاينة الموقع"><i class="bi bi-box-arrow-up-right"></i> <span class="nav-text">معاينة الموقع ↗</span></a>
  <a href="<?= admin_e(app_url('logout')) ?>" class="nav-link-admin" style="color:#f43f5e" title="تسجيل الخروج"><i class="bi bi-box-arrow-right"></i> <span class="nav-text">تسجيل الخروج</span></a>
  </div>
@@ -1232,6 +1284,33 @@ html.admin-dark .btn-outline-info {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+ // 0. Collapsible Accordion Sections for Admin Sidebar
+ document.querySelectorAll('.sidebar-section-btn').forEach(function(btn) {
+     const targetId = btn.dataset.sectionTarget;
+     const targetEl = document.getElementById(targetId);
+     if (!targetEl) return;
+
+     const storageKey = 'admin_sec_state_' + targetId;
+     const hasActive = targetEl.dataset.hasActive === '1';
+     const isSavedCollapsed = localStorage.getItem(storageKey) === 'collapsed';
+
+     // If section has active page, always expand. Otherwise respect stored user preference.
+     if (hasActive) {
+         targetEl.classList.remove('is-collapsed');
+         btn.setAttribute('aria-expanded', 'true');
+     } else if (isSavedCollapsed) {
+         targetEl.classList.add('is-collapsed');
+         btn.setAttribute('aria-expanded', 'false');
+     }
+
+     btn.addEventListener('click', function(e) {
+         e.preventDefault();
+         const isCurrentlyCollapsed = targetEl.classList.toggle('is-collapsed');
+         btn.setAttribute('aria-expanded', isCurrentlyCollapsed ? 'false' : 'true');
+         localStorage.setItem(storageKey, isCurrentlyCollapsed ? 'collapsed' : 'expanded');
+     });
+ });
+
  // 1. Maintain and restore sidebar scroll position instantly without any jump or animation
  const sidebarNav = document.querySelector('.sidebar-nav');
  if (sidebarNav) {

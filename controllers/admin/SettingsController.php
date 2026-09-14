@@ -57,8 +57,118 @@ $this->renderAdmin('admin/settings/index', [
   */
 private function ensureCoreRows($db)
   {
-  $core = [
-  'breaking_ticker_enabled' => [
+    $core = [
+    'google_site_verification' => [
+        'group' => 'seo',
+        'value' => '',
+        'value_type' => 'text',
+        'label_ar' => 'كود التحقق من Google Search Console',
+        'label_en' => 'Google Search Console Verification',
+        'description_ar' => 'رمز التحقق الخاص بمحرك بحث Google (ضع رمز content أو وسم الميتا كاملاً وسيتعرف عليه النظام تلقائياً).',
+        'description_en' => 'Google Search Console verification meta tag or token.',
+        'sort_order' => 10,
+    ],
+    'bing_site_verification' => [
+        'group' => 'seo',
+        'value' => '',
+        'value_type' => 'text',
+        'label_ar' => 'كود التحقق من Bing Webmaster Tools',
+        'label_en' => 'Bing Webmaster Verification',
+        'description_ar' => 'رمز التحقق الخاص بمحرك بحث Bing (msvalidate.01).',
+        'description_en' => 'Bing Webmaster verification token.',
+        'sort_order' => 11,
+    ],
+    'yandex_site_verification' => [
+        'group' => 'seo',
+        'value' => '',
+        'value_type' => 'text',
+        'label_ar' => 'كود التحقق من Yandex Webmaster',
+        'label_en' => 'Yandex Verification',
+        'description_ar' => 'رمز التحقق الخاص بمحرك بحث Yandex (yandex-verification).',
+        'description_en' => 'Yandex verification token.',
+        'sort_order' => 12,
+    ],
+    'sitemap_days' => [
+        'group' => 'seo',
+        'value' => '180',
+        'value_type' => 'number',
+        'label_ar' => 'نطاق أرشفة خريطة الموقع (بالأيام)',
+        'label_en' => 'Sitemap History Window (Days)',
+        'description_ar' => 'عدد الأيام السابقة التي تُضمن مقالاتها ومحتواها في ملف sitemap.xml.',
+        'description_en' => 'How many days of history to include in sitemap.xml.',
+        'sort_order' => 15,
+    ],
+    'robots_txt_custom' => [
+        'group' => 'seo',
+        'value' => "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /storage\nSitemap: " . app_url('sitemap.xml'),
+        'value_type' => 'textarea',
+        'label_ar' => 'محتوى ملف robots.txt المخصص',
+        'label_en' => 'Custom robots.txt Content',
+        'description_ar' => 'توجيهات محركات البحث وعناكب الزحف لملف robots.txt.',
+        'description_en' => 'Directives for web crawlers in robots.txt.',
+        'sort_order' => 16,
+    ],
+    'og_default_image' => [
+        'group' => 'seo',
+        'value' => '',
+        'value_type' => 'image',
+        'label_ar' => 'صورة المشاركة الافتراضية (Open Graph Image)',
+        'label_en' => 'Default Social Share Image',
+        'description_ar' => 'الصورة التي تظهر افتراضياً عند مشاركة روابط المنصة على منصات التواصل الاجتماعي.',
+        'description_en' => 'Fallback image when sharing pages on social networks.',
+        'sort_order' => 18,
+    ],
+    'twitter_site_handle' => [
+        'group' => 'seo',
+        'value' => '@SmartPlatform',
+        'value_type' => 'text',
+        'label_ar' => 'حساب المنصة على X (Twitter Handle)',
+        'label_en' => 'Twitter / X Site Handle',
+        'description_ar' => 'معرف حساب المنصة لتضمينه في بطاقات تويتر (Twitter Cards).',
+        'description_en' => 'Twitter handle for rich meta cards.',
+        'sort_order' => 19,
+    ],
+    'home_radar_widget_enabled' => [
+       'group' => 'appearance',
+       'value' => '0',
+       'value_type' => 'boolean',
+       'label_ar' => 'صندوق رادار الترندات والمستجدات بالرئيسية',
+       'label_en' => 'Homepage Radar & Trends Widget',
+       'description_ar' => 'إظهار أو إخفاء صندوق الرادار والترندات في الشريط الجانبي للصفحة الرئيسية.',
+       'description_en' => 'Show or hide the radar & trends widget on the homepage sidebar.',
+       'sort_order' => 3,
+   ],
+   'home_radar_widget_title' => [
+       'group' => 'appearance',
+       'value' => 'رادار المستجدات والترندات',
+       'value_type' => 'text',
+       'label_ar' => 'عنوان صندوق الرادار بالرئيسية',
+       'label_en' => 'Radar Widget Title',
+       'description_ar' => 'النص المكتوب في ترويسة صندوق الرادار الجانبي.',
+       'description_en' => 'Header title of the radar widget.',
+       'sort_order' => 4,
+   ],
+   'tech_pulse_ticker_enabled' => [
+       'group' => 'appearance',
+       'value' => '0',
+       'value_type' => 'boolean',
+       'label_ar' => 'شريط النبض والمستجدات الحي (Ticker Bar)',
+       'label_en' => 'Live Pulse & Ticker Bar',
+       'description_ar' => 'إظهار أو إخفاء شريط النبض المتحرك أعلى الترويسة.',
+       'description_en' => 'Show or hide the live ticker bar above the header.',
+       'sort_order' => 5,
+   ],
+   'tech_pulse_title' => [
+       'group' => 'appearance',
+       'value' => 'شريط المستجدات الحية',
+       'value_type' => 'text',
+       'label_ar' => 'عنوان شريط النبض',
+       'label_en' => 'Ticker Bar Title',
+       'description_ar' => 'عنوان النبض الذي يظهر في بداية شريط المستجدات المتحرك.',
+       'description_en' => 'Title displayed at the start of the ticker bar.',
+       'sort_order' => 6,
+   ],
+   'breaking_ticker_enabled' => [
   'group' => 'appearance',
   'value' => '1',
   'value_type' => 'boolean',
@@ -134,8 +244,8 @@ private function ensureCoreRows($db)
   'value_type' => 'boolean',
   'label_ar' => 'تفعيل المحادث الذكي',
   'label_en' => 'Enable AI Assistant',
-  'description_ar' => 'إظهار نافذة «مرشد عصب التقنية» العائمة التي تجيب الزوار من محتوى مقالات المنصة',
-  'description_en' => 'Show the floating AsabTech AI chat assistant that answers from site articles.',
+  'description_ar' => 'إظهار نافذة «مساعد المنصة» العائمة التي تجيب الزوار من محتوى المنصة',
+  'description_en' => 'Show the floating SmartPlatform AI chat assistant that answers from site content.',
   'sort_order' => 1,
   ],
   'ai_assistant_pages' => [
@@ -230,7 +340,7 @@ private function ensureCoreRows($db)
   ],
   'ai_assistant_welcome_message' => [
   'group' => 'ai_assistant',
-  'value' => 'مرحباً 👋 أنا مرشد عصب التقنية. اسألني عن آخر أخبار التقنية والمقالات المنشورة في المنصة.',
+  'value' => 'مرحباً 👋 أنا مساعد المنصة. اسألني عن المحتوى المنشور في المنصة.',
   'value_type' => 'text',
   'label_ar' => 'رسالة الترحيب',
   'label_en' => 'Welcome Message',
@@ -240,7 +350,7 @@ private function ensureCoreRows($db)
   ],
   'ai_assistant_placeholder' => [
   'group' => 'ai_assistant',
-  'value' => 'اسأل مرشد عصب التقنية...',
+  'value' => 'اسأل مساعد المنصة...',
   'value_type' => 'text',
   'label_ar' => 'نص حقل الإدخال',
   'label_en' => 'Input Placeholder',
@@ -260,7 +370,7 @@ private function ensureCoreRows($db)
   ],
   'ai_assistant_suggestion_1' => [
   'group' => 'ai_assistant',
-  'value' => 'ما آخر أخبار الذكاء الاصطناعي؟',
+  'value' => 'ما أحدث المنشورات في المنصة؟',
   'value_type' => 'text',
   'label_ar' => 'الاقتراح 1',
   'label_en' => 'Suggestion 1',
@@ -270,7 +380,7 @@ private function ensureCoreRows($db)
   ],
   'ai_assistant_suggestion_2' => [
   'group' => 'ai_assistant',
-  'value' => 'ما أحدث الهواتف الذكية؟',
+  'value' => 'كيف أستخدم هذه المنصة؟',
   'value_type' => 'text',
   'label_ar' => 'الاقتراح 2',
   'label_en' => 'Suggestion 2',
@@ -280,7 +390,7 @@ private function ensureCoreRows($db)
   ],
   'ai_assistant_suggestion_3' => [
   'group' => 'ai_assistant',
-  'value' => 'ما جديد الأمن السيبراني؟',
+  'value' => 'هل يمكنني الاشتراك في النشرة البريدية؟',
   'value_type' => 'text',
   'label_ar' => 'الاقتراح 3',
   'label_en' => 'Suggestion 3',
@@ -300,7 +410,7 @@ private function ensureCoreRows($db)
   ],
   'ai_assistant_privacy_note' => [
   'group' => 'ai_assistant',
-  'value' => 'يعتمد مرشد عصب التقنية على المقالات المنشورة محلياً.',
+  'value' => 'يعتمد مساعد المنصة على المحتوى المنشور محلياً.',
   'value_type' => 'text',
   'label_ar' => 'ملاحظة أسفل المحادث',
   'label_en' => 'Footer Note',
@@ -528,7 +638,7 @@ private function ensureCoreRows($db)
   ],
   'newsletter_welcome_subject' => [
   'group' => 'newsletter',
-  'value' => 'مرحباً بك في نشرة عصب التقنية 🎉',
+  'value' => 'مرحباً بك في نشرة المنصة 🎉',
   'value_type' => 'text',
   'label_ar' => 'موضوع رسالة الترحيب',
   'label_en' => 'Welcome Subject',
@@ -538,13 +648,13 @@ private function ensureCoreRows($db)
   ],
   'newsletter_welcome_body' => [
   'group' => 'newsletter',
-  'value' => 'شكراً لاشتراكك في نشرة عصب التقنية البريدية 🌟
+  'value' => 'شكراً لاشتراكك في نشرة المنصة البريدية 🌟
 
-سجل لك أهم أخبار التقنية والذكاء الاصطناعي والهواتف والأمن السيبراني مباشرة إلى بريدك، بملخصات واضحة ودقيقة.
+سجل لك خلاصة أحدث المنشورات والمحتوى المميز مباشرة إلى بريدك، بملخصات واضحة ودقيقة.
 
 ستصلك أول نشرة في موعدها، وإذا أردت إلغاء الاشتراك في أي وقت يمكنك استخدام رابط الإلغاء أسفل أي بريد نرسله.
 
-مع تحيات فريق عصب التقنية.',
+مع تحيات فريق المنصة.',
   'value_type' => 'textarea',
   'label_ar' => 'محتوى رسالة الترحيب',
   'label_en' => 'Welcome Body',
@@ -553,6 +663,54 @@ private function ensureCoreRows($db)
   'sort_order' => 3,
   ],
 ];
+
+  // Admin Sidebar Menu visibility toggles
+  // (self-sync with config/admin_menu.php so new sections/items appear automatically)
+  $adminMenuPath = APP_ROOT . '/config/admin_menu.php';
+  if (is_file($adminMenuPath)) {
+    $adminMenuSections = require $adminMenuPath;
+    $core['admin_sidebar_enabled'] = [
+        'group' => 'admin_menu',
+        'value' => '1',
+        'value_type' => 'boolean',
+        'label_ar' => 'تفعيل القائمة الجانبية للوحة التحكم بالكامل',
+        'label_en' => 'Enable Admin Sidebar Entirely',
+        'description_ar' => 'عند إيقافها تُخفى القائمة الجانبية بالكامل من لوحة الإدارة ويمكنك الدخول لأي صفحة عبر روابطها المباشرة.',
+        'description_en' => 'Hides the whole admin sidebar when disabled.',
+        'sort_order' => 1,
+    ];
+    $secSort = 10;
+    foreach ($adminMenuSections as $secIdx => $adminSec) {
+        $secKey = $adminSec['key'] ?? ('sec_' . ($secIdx + 1));
+        $core['admin_sidebar_sec_' . $secKey] = [
+            'group' => 'admin_menu',
+            'value' => '1',
+            'value_type' => 'boolean',
+            'label_ar' => 'عرض قسم: ' . ($adminSec['section'] ?? $secKey),
+            'label_en' => 'Show section: ' . ($adminSec['section'] ?? $secKey),
+            'description_ar' => 'إظهار أو إخفاء كل عناصر هذا القسم من القائمة الجانبية للوحة الإدارة.',
+            'description_en' => 'Show or hide all items of this sidebar section.',
+            'sort_order' => $secSort,
+        ];
+        $secSort += 5;
+        $itemSort = $secSort;
+        foreach (($adminSec['items'] ?? []) as $itemIdx => $adminItem) {
+            $itemKey = $adminItem['key'] ?? ('item_' . ($secIdx + 1) . '_' . ($itemIdx + 1));
+            $core['admin_sidebar_item_' . $itemKey] = [
+                'group' => 'admin_menu',
+                'value' => '1',
+                'value_type' => 'boolean',
+                'label_ar' => 'إظهار العنصر: ' . ($adminItem['title'] ?? $itemKey),
+                'label_en' => 'Show item: ' . ($adminItem['title'] ?? $itemKey),
+                'description_ar' => 'إظهار أو إخفاء هذا العنصر من قسم ' . ($adminSec['section'] ?? '') . ' في القائمة الجانبية.',
+                'description_en' => 'Show or hide this item in the admin sidebar.',
+                'sort_order' => $itemSort,
+            ];
+            $itemSort += 5;
+        }
+        $secSort = $itemSort;
+    }
+  }
 
   foreach ($core as $key => $row) {
   // One row per key (any group): find all matches, dedupe to a single canonical

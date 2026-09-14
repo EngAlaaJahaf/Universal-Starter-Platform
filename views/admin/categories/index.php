@@ -40,7 +40,7 @@
  <strong class="text-dark"><?= admin_e($cat['name']) ?></strong>
  </div>
  </td>
- <td><span><?= admin_e($cat['name_ar'] ?: $cat['name']) ?></span></td>
+ <td><span><?= admin_e($cat['name_ar'] ?? $cat['name']) ?></span></td>
  <td><span class="text-muted small"><?= admin_e($cat['name_en'] ?: '-') ?></span></td>
  <td><code class="text-primary"><?= admin_e($cat['slug']) ?></code></td>
  <td><span class="badge bg-light text-dark border"><?= (int) ($cat['sort_order'] ?? 0) ?></span></td>

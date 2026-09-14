@@ -110,12 +110,12 @@ class DbHealth
                 'label'=> 'عمود rss_sources.' . $col,
                 'hint' => $ok
                     ? 'موجود (ترحيل مطبق)'
-                    : 'نفّذ ملف migrate_rss_new_items_count.sql من SQL Tab في لوحة استضافة (يُنفَّذ مرة واحدة فقط).',
+                    : 'نفّذ ملف database/migrations.sql من SQL Tab في لوحة استضافة (يُنفَّذ مرة واحدة فقط).',
                 'required' => $col !== 'last_item_count',
             ];
         }
 
-        // Columns added by migrate_ai_daily_quota.sql: member daily chat quota
+        // Columns added by database/migrations.sql: member daily chat quota
         // + one-time admin boosts + per-user override.
         $quotaCols = ['ai_quota_date', 'ai_quota_used', 'ai_quota_boost', 'ai_quota_daily'];
         $foundQuota = [];
@@ -136,12 +136,12 @@ class DbHealth
                 'label'    => 'عمود users.' . $col,
                 'hint'     => $ok
                     ? 'موجود (ترحيل مطبق)'
-                    : 'نفّذ ملف migrate_ai_daily_quota.sql من SQL Tab (مطلوب للحصة اليومية والإضافية للمسجلين).',
+                    : 'نفّذ ملف database/migrations.sql من SQL Tab (مطلوب للحصة اليومية والإضافية للمسجلين).',
                 'required' => true,
             ];
         }
 
-        // Table added by migrate_ai_conversations.sql: assistant conversation log.
+        // Table added by database/migrations.sql: assistant conversation log.
         $convTableOk = false;
         try {
             $stmt = $pdo->query(
@@ -157,7 +157,7 @@ class DbHealth
             'label'    => 'جدول ai_conversations',
             'hint'     => $convTableOk
                 ? 'موجود (ترحيل مطبق) — تُسجَّل هنا محادثات المرشد مع الأعضاء'
-                : 'نفّذ ملف migrate_ai_conversations.sql من SQL Tab (مطلوب لسجلات المحادثات في اللوحة).',
+                : 'نفّذ ملف database/migrations.sql من SQL Tab (مطلوب لسجلات المحادثات في اللوحة).',
             'required' => true,
         ];
 
@@ -181,7 +181,7 @@ class DbHealth
                 'label'    => 'عمود ai_conversations.' . $col,
                 'hint'     => $ok
                     ? 'موجود (يتلقّى تقييم الأعضاء 👍/👎 على رسائل المرشد)'
-                    : 'أعد تنفيذ ملف migrate_ai_conversations.sql من SQL Tab لإضافة عمود التقييم.',
+                    : 'أعد تنفيذ ملف database/migrations.sql من SQL Tab لإضافة عمود التقييم.',
                 'required' => true,
             ];
         }

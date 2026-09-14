@@ -75,7 +75,7 @@ class NewsletterCampaignController extends AdminController
 
  // Brevo only accepts well-known senders: if the configured From-address is not
  // registered in the account, every message is silently rejected by Brevo.
- $fromAddress = Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@technews.local');
+ $fromAddress = Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@platform.local');
  if ($transport === 'brevo' && !Mailer::brevoSenderValid()) {
  Session::flash('error', 'لن يُرسل أي بريد: العنوان «البريد المرسل منه» من (' . $fromAddress . ') غير مسجّل في حساب Brevo. قم بتسجيله والتحقق منه من لوحة Brevo (Senders)، أو غيّر حقل From في تبويب SMTP إلى بريد مسجّل مثل kasperkey106@gmail.com.');
  return $this->redirect('admin/newsletter');
@@ -233,7 +233,7 @@ class NewsletterCampaignController extends AdminController
 <small style="color:#64748b">تاريخ ووقت الاختبار: ' . date('Y-m-d H:i:s') . '</small>
  </div>';
 
- $fromAddress = Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@technews.local');
+ $fromAddress = Settings::get('mail_from_address', MAIL_FROM_ADDRESS ?: 'no-reply@platform.local');
  if (Mailer::transport() === 'brevo' && !Mailer::brevoSenderValid()) {
  Session::flash('error', "فشل تنفيذ الاختبار: العنوان المرسل منه ($fromAddress) غير مسجّل في حساب Brevo. سجّله من لوحة Brevo (Senders) أو غيّر حقل From في تبويب SMTP إلى بريد مسجّل مثل kasperkey106@gmail.com.");
  return $this->redirect('admin/newsletter?tab=smtp');

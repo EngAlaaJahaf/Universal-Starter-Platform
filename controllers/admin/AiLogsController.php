@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Admin: «مرشد عصب التقنية» conversation log + per-member quota management.
+ * Admin: «مساعد المنصة» conversation log + per-member quota management.
  * - index():       per-user summary (messages, errors, quota) + global stats.
  * - conversation(): full chat transcript for one member.
  * - reset():       zero a member's used-counter (today).

@@ -9,7 +9,7 @@ if ($_msg = Session::getFlash('success')): ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
  <div>
- <h2 class="h3 fw-bold mb-1"><i class="bi bi-robot text-info me-2"></i>سجلات محادثات المرشد (عصب التقنية)</h2>
+ <h2 class="h3 fw-bold mb-1"><i class="bi bi-robot text-info me-2"></i>سجلات محادثات المرشد (منصتي الذكية)</h2>
  <p class="text-muted mb-0">مراجعة محادثات الأعضاء مع المرشد الذكي، وتصحيح الأخطاء، وإدارة حصص الأسئلة اليومية.</p>
  </div>
  <a href="<?= admin_e(app_url('admin/settings?group=ai_assistant')) ?>" class="btn btn-primary fw-bold shadow-sm">
@@ -22,7 +22,7 @@ if ($_msg = Session::getFlash('success')): ?>
  <i class="bi bi-exclamation-triangle-fill fs-5 mt-1"></i>
  <div>
  <strong>جدول سجلات المحادثات غير منشأ بعد.</strong><br>
- لن تتوفر سجلات المحادثات حتى تنفّذ ملف <code dir="ltr">migrate_ai_conversations.sql</code> من SQL Tab في لوحة استضافة (مرة واحدة). جدول <code dir="ltr">ai_conversations</code> يخزّن كل سؤال وجواب مع المزود والأخطاء تلقائياً.
+ لن تتوفر سجلات المحادثات حتى تنفّذ ملف <code dir="ltr">database/migrations.sql</code> من SQL Tab في لوحة استضافة (مرة واحدة). جدول <code dir="ltr">ai_conversations</code> يخزّن كل سؤال وجواب مع المزود والأخطاء تلقائياً.
  </div>
 </div>
 <?php endif; ?>
@@ -32,7 +32,7 @@ if ($_msg = Session::getFlash('success')): ?>
  <i class="bi bi-exclamation-triangle-fill fs-5 mt-1"></i>
  <div>
  <strong>أعمدة الحصص غير مكتملة.</strong><br>
- تأكد من تنفيذ ملف <code dir="ltr">migrate_ai_daily_quota.sql</code> حتى تعمل الحصص اليومية والإضافية وتظهر أزرار إدارتها.
+ تأكد من تنفيذ ملف <code dir="ltr">database/migrations.sql</code> حتى تعمل الحصص اليومية والإضافية وتظهر أزرار إدارتها.
  </div>
 </div>
 <?php endif; ?>

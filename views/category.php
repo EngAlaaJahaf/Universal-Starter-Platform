@@ -1,5 +1,5 @@
 <?php
-$pageTitle = $category['name'] . ' | ' . Settings::get('site_name_ar', 'عصب التقنية');
+$pageTitle = $category['name'] . ' | ' . Settings::get('site_name_ar', 'منصتي الذكية');
 $pageDesc  = !empty($category['description']) ? $category['description'] : 'تغطية شاملة وحصرية لآخر مستجدات وتحليلات هذا المجال التقني الحيوي.';
 
 require_once APP_ROOT . '/views/partials/header.php';

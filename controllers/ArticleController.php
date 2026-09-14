@@ -16,9 +16,9 @@ class ArticleController extends Controller
 
         $this->view('category', [
             'category'   => [
-                'name' => 'كافة المقالات والأخبار',
+                'name' => 'كافة المنشورات',
                 'slug' => 'all',
-                'description' => 'أحدث التغطيات والأخبار التقنية الشاملة على مدار الساعة.'
+                'description' => 'أحدث المنشورات والمقالات المنشورة على المنصة.'
             ],
             'articles'   => $articles,
             'categories' => $categories

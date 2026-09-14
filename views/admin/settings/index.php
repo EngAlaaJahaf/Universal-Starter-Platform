@@ -17,7 +17,8 @@ $groupTitles = [
  'ads' => 'الإعلانات والربح',
  'social' => 'وسائل التواصل الاجتماعي',
  'legal' => 'الخصوصية والقانونية',
- 'news_reader' => 'تجربة القارئ'
+ 'news_reader' => 'تجربة القارئ',
+ 'admin_menu' => 'القائمة الجانبية للوحة التحكم'
 ];
 
 // Predefined Select Dropdown Options for Restricted Settings

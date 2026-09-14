@@ -1,25 +1,25 @@
 # ==============================================================================
-# AsabTech — .gitignore
-# Private repo: code is safe here, but secrets & runtime data must NEVER be committed.
+# Universal Starter Platform — .gitignore
+# Secrets & runtime data must NEVER be committed.
 # ==============================================================================
 
-# ── Secrets & local overrides (NEVER commit) ──
+# ─── Secrets & local overrides (NEVER commit) ───
 .env
 config/hosting.php
 
-# ── Database dumps (contain real users, traffic logs, session IDs) ──
-*.sql
+# ─── Database dumps & local backups (Allow database/ canonical files) ───
 *.sqlite
 *.sqlite3
+*.backup.sql
+*_backup_*.sql
 
-# ── Dev / diagnostics entry points ──
+# ─── Dev / diagnostics temporary entry points ───
 check_db.php
 health_check.php
 diagnostics_*.php
-dev-router.php
 router_local.php
 
-# ── Dev helpers, local reports, previews ──
+# ─── Dev helpers, local reports ───
 run-windows.bat
 run-windows.ps1
 run.sh
@@ -28,18 +28,14 @@ tech_concept_preview.html
 tech_sources.txt
 /1300
 
-# ── Root-level notes/reports (the docs/ folder IS committed) ──
-/*.md
-/*.txt
-
-# ── Archives & data exports ──
+# ─── Archives & data exports ───
 *.zip
 *.rar
 *.7z
 /tech_platform_*.json
 *.log
 
-# ── Runtime data (keep dir structure via .gitkeep) ──
+# ─── Runtime data (keep dir structure via .gitkeep) ───
 storage/cache/*
 storage/logs/*
 storage/sessions/*
@@ -52,11 +48,11 @@ storage/data/*
 !storage/data/geoip_db.bin
 scratch/
 
-# ── User uploads are server-side data (keep the security .htaccess) ──
+# ─── User uploads are server-side data (keep the security .htaccess) ───
 uploads/*
 !uploads/.htaccess
 
-# ── OS / editor junk ──
+# ─── OS / editor junk ───
 .DS_Store
 Thumbs.db
 *.swp

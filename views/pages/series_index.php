@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'سلاسل المقالات والملفات الشاملة | ' . Settings::get('site_name_ar', 'عصب التقنية');
+$pageTitle = 'سلاسل المقالات والملفات الشاملة | ' . Settings::get('site_name_ar', 'منصتي الذكية');
 $pageDesc  = 'مجموعات مقالات متسلسلة ومرتبطة تقدم تغطيات ودراسات شاملة لموضوعات تقنية متقدمة.';
 
 require_once APP_ROOT . '/views/partials/header.php';

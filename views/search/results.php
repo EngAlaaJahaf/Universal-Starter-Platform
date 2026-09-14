@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'محرك البحث الذكي | ' . Settings::get('site_name_ar', 'عصب التقنية');
+$pageTitle = 'محرك البحث الذكي | ' . Settings::get('site_name_ar', 'منصتي الذكية');
 $pageDesc  = 'ابحث في كافة أخبار وتحليلات وشروحات المنصة التقنية.';
 
 require_once APP_ROOT . '/views/partials/header.php';
@@ -9,8 +9,8 @@ require_once APP_ROOT . '/views/partials/header.php';
     
     <div class="search-filter-card">
         <span class="badge-tag">محرك البحث المتقدم</span>
-        <h1 class="search-page-title">استكشف أرشيف الأخبار والتحليلات التقنية</h1>
-        <p class="search-page-subtitle">ابحث في آلاف المقالات، التحليلات، الشروحات، والمصادر التقنية بدقة وسرعة</p>
+        <h1 class="search-page-title">استكشف أرشيف المنشورات والمحتوى</h1>
+        <p class="search-page-subtitle">ابحث في المنشورات والتحليلات والشروحات بدقة وسرعة</p>
         
         <form method="get" action="<?= view_e(app_url('search')) ?>" class="search-filter-form">
             <input type="text" name="q" value="<?= view_e($q) ?>" placeholder="ما الذي تبحث عنه؟ اكتب عبارة البحث هنا..." class="search-main-input" autocomplete="off">

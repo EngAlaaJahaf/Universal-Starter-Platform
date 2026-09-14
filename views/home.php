@@ -7,9 +7,9 @@ if (!function_exists('e')) {
 }
 
 // Read live settings from DB
-$siteName       = Settings::get('site_name_ar', 'عصب التقنية');
-$siteTagline    = Settings::get('site_tagline', 'نبض التكنولوجيا والذكاء الاصطناعي');
-$siteDesc       = Settings::get('meta_description', 'منصة عربية رائدة في تغطية الأخبار التقنية، أحدث تطورات الذكاء الاصطناعي، الأجهزة الذكية، والأمن السيبراني.');
+$siteName       = Settings::get('site_name_ar', 'منصتي الذكية');
+$siteTagline    = Settings::get('site_tagline', 'قالب أساسي مرن لبناء منصتك الرقمية ومحتواها المتنوع.');
+$siteDesc       = Settings::get('meta_description', 'منصة ويب قابلة للتخصيص تُطلق كقالب أساسي لمشروعك الرقمي متعدد الأقسام.');
 $siteLogo       = Settings::get('site_logo', '');
 $themeDefault   = Settings::get('theme_default', 'dark');
 $fontFamily     = Settings::get('font_family', 'Tajawal');
@@ -60,7 +60,7 @@ require_once APP_ROOT . '/views/partials/header.php';
 
 <!-- Main Page Body -->
 <main class="container page-shell">
-    <h1 class="visually-hidden"><?= e(Settings::get('site_name_ar', 'عصب التقنية')) ?> - أحدث مستجدات التكنولوجيا والذكاء الاصطناعي</h1>
+    <h1 class="visually-hidden"><?= e(Settings::get('site_name_ar', 'منصتي الذكية')) ?> - آخر ما نُشر على المنصة</h1>
 
     <?php if ($activeTemplate === 'classic_techwd'): ?>
         <!-- ================= 🗞️ TEMPLATE 2: AUTHENTIC TECH-WD MAGAZINE LAYOUT ================= -->
@@ -73,14 +73,14 @@ require_once APP_ROOT . '/views/partials/header.php';
                         <img src="<?= e(app_url($featured['featured_image'])) ?>" alt="<?= e($featured['title']) ?>" style="width:100%;height:100%;object-fit:cover;opacity:0.85" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                         <div style="position:absolute;inset:0;background:linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.9) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:28px">
                             <span class="badge-tag" style="background:#c5162a;align-self:flex-start;margin-bottom:10px;display:inline-flex;align-items:center;gap:5px">
-                                <?= ui_icon('flame', '', 14) ?> <?= e($featured['category_name'] ?: 'أخبار مميزة') ?>
+                                <?= ui_icon('flame', '', 14) ?> <?= e($featured['category_name'] ?: 'مقال مميز') ?>
                             </span>
                             <h2 style="font-size:1.85rem;font-weight:800;color:#fff;line-height:1.4;margin-bottom:10px">
                                 <a href="<?= e(app_url('article/' . $featured['slug'])) ?>"><?= e($featured['title']) ?></a>
                             </h2>
                             <div style="display:flex;align-items:center;gap:16px;color:#e5e7eb;font-size:0.85rem">
                                 <span style="display:inline-flex;align-items:center;gap:5px"><?= ui_icon('calendar', '', 14) ?> <?= e(fmt_date($featured['published_at'] ?: $featured['created_at'])) ?></span>
-                                <span style="display:inline-flex;align-items:center;gap:5px"><?= ui_icon('author', '', 14) ?> <?= e($featured['author_name'] ?: 'فريق التحرير') ?></span>
+                                <span style="display:inline-flex;align-items:center;gap:5px"><?= ui_icon('author', '', 14) ?> <?= e($featured['author_name'] ?: 'فريق المنصة') ?></span>
                             </div>
                         </div>
                     </div>
@@ -93,7 +93,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                             <img src="<?= e(app_url($sf['featured_image'])) ?>" alt="<?= e($sf['title']) ?>" style="width:100%;height:100%;object-fit:cover;opacity:0.85" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                             <div style="position:absolute;inset:0;background:linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.9) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:16px">
                                 <span class="badge-tag" style="background:#c5162a;font-size:0.7rem;padding:3px 8px;align-self:flex-start;margin-bottom:6px;display:inline-flex;align-items:center;gap:4px">
-                                    <?= ui_icon('general', '', 12) ?> <?= e($sf['category_name'] ?: 'تقارير') ?>
+                                    <?= ui_icon('general', '', 12) ?> <?= e($sf['category_name'] ?: 'مقالات') ?>
                                 </span>
                                 <h3 style="font-size:1.1rem;font-weight:700;color:#fff;line-height:1.35;margin-bottom:6px">
                                     <a href="<?= e(app_url('article/' . $sf['slug'])) ?>"><?= e($sf['title']) ?></a>
@@ -108,6 +108,9 @@ require_once APP_ROOT . '/views/partials/header.php';
             </div>
         </section>
 
+        <!-- Homepage Ad Slot -->
+        <?= site_ad_slot('ad_home_slot', 'my-4 text-center') ?>
+
         <!-- Main 2-Column Section (Feed 8 Cols + Classic Sidebar 4 Cols) -->
         <div style="display:grid;grid-template-columns:1fr;gap:32px;align-items:start;" class="article-page-wrap">
             
@@ -116,16 +119,16 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <div class="section-head" style="border-bottom:2px solid #c5162a">
                     <h2 class="section-title" style="font-size:1.45rem;display:flex;align-items:center;gap:8px">
                         <?= ui_icon('flame', 'text-primary', 22) ?>
-                        <span>أحدث التدوينات والأخبار</span>
+                        <span>أحدث المنشورات</span>
                     </h2>
-                    <span style="font-size:0.85rem;color:var(--text-muted);font-weight:600">تغطية شاملة وموثوقة</span>
+                    <span style="font-size:0.85rem;color:var(--text-muted);font-weight:600">آخر ما نُشر على المنصة</span>
                 </div>
 
                 <div class="news-grid">
                     <?php foreach ($latest as $article): ?>
                         <article class="news-card" <?= news_card_attrs($article) ?>>
                             <div class="card-img-wrap">
-                                <span class="card-tag"><?= e($article['category_name'] ?: 'بيانات صحفية') ?></span>
+                                <span class="card-tag"><?= e($article['category_name'] ?: 'مقالات') ?></span>
                                 <?php if (!empty($article['featured_image'])): ?>
                                     <img src="<?= e(app_url($article['featured_image'])) ?>" alt="<?= e($article['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                                 <?php else: ?>
@@ -136,10 +139,10 @@ require_once APP_ROOT . '/views/partials/header.php';
                                 <h3><a href="<?= e(app_url('article/' . $article['slug'])) ?>"><?= e($article['title']) ?></a></h3>
                                 <div style="display:flex;align-items:center;gap:14px;font-size:0.82rem;color:var(--text-muted);margin-bottom:10px;flex-wrap:wrap">
                                     <span style="display:inline-flex;align-items:center;gap:4px"><?= ui_icon('calendar', '', 14) ?> <?= e(fmt_date($article['published_at'] ?: $article['created_at'])) ?></span>
-                                    <span style="display:inline-flex;align-items:center;gap:4px"><?= ui_icon('author', '', 14) ?> <?= e($article['author_name'] ?: 'فريق التحرير') ?></span>
+                                    <span style="display:inline-flex;align-items:center;gap:4px"><?= ui_icon('author', '', 14) ?> <?= e($article['author_name'] ?: 'فريق المنصة') ?></span>
                                     <span style="display:inline-flex;align-items:center;gap:4px"><?= ui_icon('eye', '', 14) ?> <?= number_format((int)($article['views_count'] ?? 0)) ?> قراءة</span>
                                 </div>
-                                <p><?= e($article['excerpt'] ?: 'تفاصيل شاملة وتحليلات معمقة تواكب أحدث المستجدات التقنية.') ?></p>
+                                <p><?= e($article['excerpt'] ?: 'تفاصيل شاملة وموثوقة حول هذا الموضوع.') ?></p>
                                 <div class="card-footer">
                                     <a class="read-more-link" href="<?= e(app_url('article/' . $article['slug'])) ?>" style="font-weight:800">إقرأ المزيد ←</a>
                                 </div>
@@ -151,11 +154,14 @@ require_once APP_ROOT . '/views/partials/header.php';
 
             <!-- Classic Sidebar -->
             <aside class="sidebar-sticky-wrap">
+                <!-- Sidebar Ad Slot -->
+                <?= site_ad_slot('ad_sidebar_slot', 'side-widget-card sidebar-ad-slot text-center') ?>
+
                 <!-- Top 5 Ranked Stories -->
                 <div class="side-widget-card" style="border-top:3px solid #c5162a">
                     <h4 style="font-size:1.15rem;font-weight:800;color:var(--text-main);margin-bottom:16px;display:flex;align-items:center;gap:8px">
                         <?= ui_icon('flame', 'text-danger', 18) ?>
-                        <span>الأكثر قراءة ومتابعة</span>
+                        <span>الأكثر قراءة</span>
                     </h4>
                     <div style="display:flex;flex-direction:column;gap:12px">
                         <?php foreach ($trending as $index => $item): ?>
@@ -179,7 +185,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                             <?= ui_icon('comments', 'text-primary', 18) ?>
                             <span>النشرة البريدية</span>
                         </h4>
-                        <p style="font-size:0.86rem;color:var(--text-muted);margin-bottom:14px">احصل على أهم الأخبار والتحليلات التقنية مباشرة إلى بريدك الإلكتروني.</p>
+                        <p style="font-size:0.86rem;color:var(--text-muted);margin-bottom:14px">احصل على آخر ما ننشره مباشرة إلى بريدك الإلكتروني.</p>
                         <form action="<?= e(app_url('newsletter/subscribe')) ?>" method="post" style="display:flex;flex-direction:column;gap:10px">
                             <?= CSRF::field() ?>
                             <input type="email" name="email" required placeholder="بريدك الإلكتروني..." style="background:var(--bg-surface-elevated);border:1px solid var(--border-subtle);padding:10px 14px;border-radius:6px;font-size:0.88rem;color:var(--text-main)">
@@ -199,17 +205,17 @@ require_once APP_ROOT . '/views/partials/header.php';
                     <div class="bento-cell bento-cell-master" style="background-image:linear-gradient(180deg, rgba(8,12,20,0.2) 0%, rgba(8,12,20,0.92) 100%), url('<?= e(app_url($featured['featured_image'])) ?>')" <?= news_card_attrs($featured) ?>>
                         <div class="bento-badge-row">
                             <span class="badge-tag" style="background:linear-gradient(135deg,#00f2fe,#38bdf8);color:#080c14;font-weight:800;display:inline-flex;align-items:center;gap:6px">
-                                <?= ui_icon('ai', '', 14) ?> <?= e($featured['category_name'] ?: 'قصة الغلاف') ?>
+                                <?= ui_icon('ai', '', 14) ?> <?= e($featured['category_name'] ?: 'مقال الغلاف') ?>
                             </span>
-                            <span class="bento-live-pill">⚡ قصة رئيسية</span>
+                            <span class="bento-live-pill">⚡ المقال الرئيسي</span>
                         </div>
                         <div class="bento-master-content">
                             <h2 class="bento-title-lg">
                                 <a href="<?= e(app_url('article/' . $featured['slug'])) ?>"><?= e($featured['title']) ?></a>
                             </h2>
-                            <p class="bento-excerpt"><?= e($featured['excerpt'] ?: 'تحليل شامل ومفصل لأهم التطورات التقنية وتأثيرها المباشر على الصناعة الرقمية.') ?></p>
+                            <p class="bento-excerpt"><?= e($featured['excerpt'] ?: 'تحليل شامل ومفصل لأهم المستجدات.') ?></p>
                             <div class="bento-meta-row">
-                                <span><?= ui_icon('author', '', 14) ?> <?= e($featured['author_name'] ?: 'فريق التحرير') ?></span>
+                                <span><?= ui_icon('author', '', 14) ?> <?= e($featured['author_name'] ?: 'فريق المنصة') ?></span>
                                 <span>•</span>
                                 <span><?= ui_icon('calendar', '', 14) ?> <?= e(fmt_date($featured['published_at'] ?: $featured['created_at'])) ?></span>
                                 <span>•</span>
@@ -228,7 +234,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                             </div>
                         <?php endif; ?>
                         <div class="bento-spotlight-body">
-                            <span class="bento-mini-tag"><?= e($sArt['category_name'] ?: 'أبرز الأخبار') ?></span>
+                            <span class="bento-mini-tag"><?= e($sArt['category_name'] ?: 'أبرز المنشورات') ?></span>
                             <h3 class="bento-title-sm">
                                 <a href="<?= e(app_url('article/' . $sArt['slug'])) ?>"><?= e($sArt['title']) ?></a>
                             </h3>
@@ -243,11 +249,11 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <!-- Pulse 1: AI Radar -->
                 <div class="bento-cell bento-cell-compact">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                        <strong class="text-cyan small d-flex align-items-center gap-2"><?= ui_icon('ai', 'text-primary', 16) ?> رادار الذكاء الاصطناعي</strong>
+                        <strong class="text-cyan small d-flex align-items-center gap-2"><?= ui_icon('ai', 'text-primary', 16) ?> رادار الاهتمامات والترندات</strong>
                         <span class="badge bg-primary-subtle text-primary small">مباشر</span>
                     </div>
                     <?php if (!empty($radar[0])): ?>
-                        <h4 class="small fw-bold mb-1 text-dark"><?= e($radar[0]['name']) ?> - <?= e($radar[0]['label'] ?? 'تريند تقني') ?></h4>
+                        <h4 class="small fw-bold mb-1 text-dark"><?= e($radar[0]['name']) ?> - <?= e($radar[0]['label'] ?? 'تريند') ?></h4>
                         <small class="text-muted"><?= e($radar[0]['desc']) ?></small>
                     <?php endif; ?>
                 </div>
@@ -269,26 +275,29 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <div class="bento-cell bento-cell-compact">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <strong class="text-success small d-flex align-items-center gap-2"><?= ui_icon('tutorials', 'text-success', 16) ?> جديد الشروحات</strong>
-                        <a href="<?= e(app_url('tutorials')) ?>" class="text-success small text-decoration-none fw-bold">الأكاديمية ↗</a>
+                        <a href="<?= e(app_url('tutorials')) ?>" class="text-success small text-decoration-none fw-bold">كل الشروحات ↗</a>
                     </div>
                     <?php if (!empty($tutorials[0])): ?>
                         <h4 class="small fw-bold mb-1 text-dark"><a href="<?= e(app_url('tutorials/' . ($tutorials[0]['slug'] ?? $tutorials[0]['id']))) ?>" class="text-dark text-decoration-none"><?= e(mb_substr($tutorials[0]['title'], 0, 75)) ?>...</a></h4>
-                        <small class="text-muted"><?= (int)$tutorials[0]['steps_count'] ?> خطوات مصورة</small>
+                        <small class="text-muted"><?= (int)$tutorials[0]['steps_count'] ?> خطوات</small>
                     <?php endif; ?>
                 </div>
             </div>
         </section>
 
+        <!-- Homepage Ad Slot -->
+        <?= site_ad_slot('ad_home_slot', 'container my-4 text-center homepage-ad-banner') ?>
+
         <!-- Bento Multi-Stream Feed Section -->
         <section style="margin-top:40px">
             <div class="section-head">
-                <h2 class="section-title">شبكة الأخبار والتحليلات المتخصصة</h2>
+                <h2 class="section-title">آخر المنشورات</h2>
             </div>
             <div class="news-grid" style="grid-template-columns:repeat(auto-fill, minmax(320px, 1fr))">
                 <?php foreach (array_slice($latest, 2) as $article): ?>
                     <article class="news-card bento-card-item" <?= news_card_attrs($article) ?>>
                         <div class="card-img-wrap">
-                            <span class="card-tag"><?= e($article['category_name'] ?: 'تقنية') ?></span>
+                            <span class="card-tag"><?= e($article['category_name'] ?: 'مقالات') ?></span>
                             <?php if (!empty($article['featured_image'])): ?>
                                 <img src="<?= e(app_url($article['featured_image'])) ?>" alt="<?= e($article['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                             <?php else: ?>
@@ -297,7 +306,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                         </div>
                         <div class="card-body">
                             <h3><a href="<?= e(app_url('article/' . $article['slug'])) ?>"><?= e($article['title']) ?></a></h3>
-                            <p><?= e($article['excerpt'] ?: 'تفاصيل شاملة حول أحدث الأخبار والتحليلات المتخصصة.') ?></p>
+                            <p><?= e($article['excerpt'] ?: 'تفاصيل شاملة حول هذا الموضوع.') ?></p>
                             <div class="card-footer">
                                 <small class="text-muted"><?= e(fmt_date($article['published_at'] ?: $article['created_at'])) ?></small>
                                 <a class="read-more-link" href="<?= e(app_url('article/' . $article['slug'])) ?>">قراءة ←</a>
@@ -312,9 +321,9 @@ require_once APP_ROOT . '/views/partials/header.php';
         <!-- ================= 📰 TEMPLATE 6: DIGITAL BROADSHEET NEWSPAPER GRID ================= -->
         <section class="broadsheet-header-banner" style="margin-top:20px;margin-bottom:30px;padding-bottom:16px;border-bottom:3px double var(--border-medium)">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span style="font-size:0.85rem;color:var(--text-muted);font-weight:700">🗞️ النشرة الرقمية الموثوقة</span>
-                <span class="text-muted small"><?= site_today() ?> · <?= e(Settings::get('site_name_ar', 'عصب التقنية')) ?></span>
-                <span style="font-size:0.85rem;color:var(--accent-primary);font-weight:700">تغطية مباشرة 24/7</span>
+                <span style="font-size:0.85rem;color:var(--text-muted);font-weight:700">🗞️ نشرة المنصة اليومية</span>
+                <span class="text-muted small"><?= site_today() ?> · <?= e(Settings::get('site_name_ar', 'منصتي الذكية')) ?></span>
+                <span style="font-size:0.85rem;color:var(--accent-primary);font-weight:700">تحديثات مستمرة</span>
             </div>
         </section>
 
@@ -323,7 +332,7 @@ require_once APP_ROOT . '/views/partials/header.php';
             <!-- Col 1: Left Wire & Quick Briefs (3.2 Cols) -->
             <aside class="broadsheet-col broadsheet-wire-col">
                 <div class="broadsheet-col-head">
-                    <h3><?= ui_icon('flame', 'text-danger', 16) ?> موجز الأخبار العاجلة</h3>
+                    <h3><?= ui_icon('flame', 'text-danger', 16) ?> موجز المنشورات</h3>
                 </div>
                 <div class="broadsheet-wire-list">
                     <?php foreach (array_slice($trending, 0, 6) as $idx => $tItem): ?>
@@ -331,7 +340,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                             <span class="broadsheet-num"><?= $idx + 1 ?></span>
                             <div>
                                 <h4><a href="<?= e(app_url('article/' . $tItem['slug'])) ?>"><?= e($tItem['title']) ?></a></h4>
-                                <small class="text-muted"><?= e($tItem['category_name'] ?: 'أخبار') ?> · <?= e(fmt_date($tItem['published_at'] ?: $tItem['created_at'])) ?></small>
+                                <small class="text-muted"><?= e($tItem['category_name'] ?: 'مقالات') ?> · <?= e(fmt_date($tItem['published_at'] ?: $tItem['created_at'])) ?></small>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -343,7 +352,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <?php if ($featured): ?>
                     <article class="broadsheet-manchette" <?= news_card_attrs($featured) ?>>
                         <span class="badge-tag" style="background:#0f172a;border:1px solid var(--border-medium);color:var(--accent-primary);margin-bottom:12px;display:inline-block">
-                            <?= e($featured['category_name'] ?: 'المانشيت التحريري') ?>
+                            <?= e($featured['category_name'] ?: 'الموضوع الرئيسي') ?>
                         </span>
                         <h2 class="broadsheet-manchette-title">
                             <a href="<?= e(app_url('article/' . $featured['slug'])) ?>"><?= e($featured['title']) ?></a>
@@ -354,10 +363,10 @@ require_once APP_ROOT . '/views/partials/header.php';
                             </div>
                         <?php endif; ?>
                         <p class="broadsheet-manchette-lead">
-                            <?= e($featured['excerpt'] ?: 'تقرير تحريري معمق يسلط الضوء على خلفيات الحدث وأبعاده الاستراتيجية في قطاع التكنولوجيا والصناعة الذكية.') ?>
+                            <?= e($featured['excerpt'] ?: 'تقرير محرر يسلط الضوء على خلفيات الموضوع وأبعاده وتفاصيله الشاملة.') ?>
                         </p>
                         <div class="broadsheet-manchette-meta">
-                            <span>بقلم <?= e($featured['author_name'] ?: 'هيئة التحرير') ?></span>
+                            <span>بقلم <?= e($featured['author_name'] ?: 'فريق المنصة') ?></span>
                             <span>·</span>
                             <span><?= e(fmt_date($featured['published_at'] ?: $featured['created_at'])) ?></span>
                             <a href="<?= e(app_url('article/' . $featured['slug'])) ?>" class="fw-bold" style="color:var(--accent-primary);margin-inline-start:auto">متابعة التقرير الكامل ←</a>
@@ -369,7 +378,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:30px;padding-top:24px;border-top:1px solid var(--border-subtle)">
                     <?php foreach (array_slice($latest, 0, 2) as $sItem): ?>
                         <article class="broadsheet-sub-card" <?= news_card_attrs($sItem) ?>>
-                            <span class="badge bg-light text-dark border small mb-2"><?= e($sItem['category_name'] ?: 'تقارير') ?></span>
+                            <span class="badge bg-light text-dark border small mb-2"><?= e($sItem['category_name'] ?: 'مقالات') ?></span>
                             <h4 style="font-size:1.05rem;font-weight:700;line-height:1.45;margin-bottom:8px">
                                 <a href="<?= e(app_url('article/' . $sItem['slug'])) ?>" class="text-dark text-decoration-none"><?= e($sItem['title']) ?></a>
                             </h4>
@@ -382,12 +391,12 @@ require_once APP_ROOT . '/views/partials/header.php';
             <!-- Col 3: Right Analysis & Community (3.2 Cols) -->
             <aside class="broadsheet-col broadsheet-analysis-col">
                 <div class="broadsheet-col-head">
-                    <h3><?= ui_icon('ai', 'text-primary', 16) ?> تحليلات وملفات خاصة</h3>
+                    <h3><?= ui_icon('ai', 'text-primary', 16) ?> مقالات مختارة</h3>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:18px">
                     <?php foreach (array_slice($latest, 2, 5) as $aItem): ?>
                         <article <?= news_card_attrs($aItem) ?> style="padding-bottom:14px;border-bottom:1px solid var(--border-subtle)">
-                            <span class="small text-muted d-block mb-1"><?= e($aItem['category_name'] ?: 'تحليل تقني') ?></span>
+                            <span class="small text-muted d-block mb-1"><?= e($aItem['category_name'] ?: 'مقال مختار') ?></span>
                             <h4 style="font-size:0.95rem;font-weight:700;line-height:1.4;margin-bottom:6px">
                                 <a href="<?= e(app_url('article/' . $aItem['slug'])) ?>" class="text-dark text-decoration-none"><?= e($aItem['title']) ?></a>
                             </h4>
@@ -402,7 +411,7 @@ require_once APP_ROOT . '/views/partials/header.php';
         <!-- ================= 📰 EDITORIAL VERGE / MINIMALIST / CYBER LAYOUTS ================= -->
 
         <!-- Hero / Featured Section -->
-        <section class="hero-section" aria-label="أبرز الأخبار">
+        <section class="hero-section" aria-label="المحتوى المميز">
             <div class="hero-grid">
                 <?php if ($featured): ?>
                     <div class="featured-card" <?= news_card_attrs($featured) ?> style="<?= !empty($featured['featured_image']) ? '--bg-img: url(' . e(app_url($featured['featured_image'])) . ')' : '' ?>">
@@ -410,20 +419,20 @@ require_once APP_ROOT . '/views/partials/header.php';
                                 data-article-id="<?= e($featured['id']) ?>"
                                 data-title="<?= e($featured['title']) ?>"
                                 data-url="<?= e(app_url('article/' . $featured['slug'])) ?>"
-                                data-category="<?= e($featured['category_name'] ?: 'تقنية') ?>"
+                                data-category="<?= e($featured['category_name'] ?: 'مقالات') ?>"
                                 title="حفظ للقراءة لاحقاً"><?= ui_icon('bookmark', '', 15) ?></button>
                         <div class="featured-content">
                             <span class="badge-tag" style="display:inline-flex;align-items:center;gap:5px">
-                                <?= ui_icon('ai', '', 14) ?> اختيار المحرر
+                                <?= ui_icon('ai', '', 14) ?> مقال مميز
                             </span>
                             <h2 class="featured-title">
                                 <a href="<?= e(app_url('article/' . $featured['slug'])) ?>"><?= e($featured['title']) ?></a>
                             </h2>
-                            <p class="featured-excerpt"><?= e($featured['excerpt'] ?: 'تحليل شامل ومفصل لأهم التطورات التقنية وتأثيرها المباشر على المستخدمين والشركات.') ?></p>
+                            <p class="featured-excerpt"><?= e($featured['excerpt'] ?: 'تحليل شامل ومفصل لأهم المستجدات وتأثيرها.') ?></p>
                             <div class="meta-row">
-                                <span style="display:inline-flex;align-items:center;gap:5px"><?= ui_icon('author', '', 13) ?> بقلم <?= e($featured['author_name'] ?: 'فريق التحرير') ?></span>
+                                <span style="display:inline-flex;align-items:center;gap:5px"><?= ui_icon('author', '', 13) ?> بقلم <?= e($featured['author_name'] ?: 'فريق المنصة') ?></span>
                                 <span class="dot"></span>
-                                <span><?= e($featured['category_name'] ?: 'تقنية') ?></span>
+                                <span><?= e($featured['category_name'] ?: 'مقالات') ?></span>
                                 <span class="dot"></span>
                                 <span style="display:inline-flex;align-items:center;gap:5px"><?= ui_icon('read-time', '', 13) ?> 4 دقائق قراءة</span>
                             </div>
@@ -433,14 +442,15 @@ require_once APP_ROOT . '/views/partials/header.php';
 
                 <!-- Sidebar Widgets -->
                 <aside class="hero-sidebar">
-                    <!-- Real Dynamic AI & Tech Radar -->
+                    <!-- Dynamic Radar & Trends Widget (Toggleable from Settings) -->
+                    <?php if (Settings::get('home_radar_widget_enabled', '0') == '1' && !empty($radar)): ?>
                     <div class="radar-widget">
                         <div class="radar-header">
                             <h3 style="display:flex;align-items:center;gap:8px">
                                 <?= ui_icon('ai', 'text-primary', 18) ?>
-                                <span>رادار الذكاء الاصطناعي والترندات</span>
+                                <span><?= e(Settings::get('home_radar_widget_title', 'رادار المستجدات والترندات')) ?></span>
                             </h3>
-                            <span style="font-size:0.75rem;color:var(--accent-primary);font-weight:700">بيانات حية ومحدثة</span>
+                            <span style="font-size:0.75rem;color:var(--accent-primary);font-weight:700">بيانات محدثة</span>
                         </div>
                         <div class="radar-grid">
                             <?php foreach ($radar as $rad): ?>
@@ -455,14 +465,15 @@ require_once APP_ROOT . '/views/partials/header.php';
                             <?php endforeach; ?>
                         </div>
                     </div>
+                    <?php endif; ?>
 
                     <!-- Trending Stories List -->
                     <div class="glass-panel">
                         <div class="panel-header">
                             <h3 style="display:flex;align-items:center;gap:8px">
                                 <?= ui_icon('flame', 'text-warning', 18) ?>
-                                <span>الأكثر قراءة ومتابعة</span>
-                            </h3>
+                                <span>الأكثر قراءة</span>
+                        </h3>
                             <a class="view-all" href="<?= e(app_url('search?sort=popular')) ?>">عرض الكل ↗</a>
                         </div>
                         <div class="trending-list">
@@ -471,7 +482,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                                     <span class="trend-number"><?= e(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span>
                                     <div class="trending-info">
                                         <h4><?= e($item['title']) ?></h4>
-                                        <span><?= e($item['category_name'] ?: 'أخبار تقنية') ?> · قبل ساعات</span>
+                                        <span><?= e($item['category_name'] ?: 'مقالات') ?> · قبل ساعات</span>
                                     </div>
                                 </a>
                             <?php endforeach; ?>
@@ -484,15 +495,12 @@ require_once APP_ROOT . '/views/partials/header.php';
         <!-- Latest Articles Grid -->
         <section style="margin-top:20px" aria-label="أحدث المقالات">
             <div class="section-head">
-                <h2 class="section-title">أحدث التحليلات والأخبار</h2>
+                <h2 class="section-title">أحدث المنشورات</h2>
                 <div class="filter-tabs">
                     <button class="filter-btn active" type="button">الكل</button>
                     <a href="<?= e(app_url('tutorials')) ?>" class="filter-btn text-decoration-none" style="color:var(--accent-primary);border-color:var(--border-subtle);display:inline-flex;align-items:center;gap:5px">
-                        <?= ui_icon('tutorials', '', 14) ?> <span>شروحات مصورة</span>
+                        <?= ui_icon('tutorials', '', 14) ?> <span>شروحات</span>
                     </a>
-                    <button class="filter-btn" type="button">ذكاء اصطناعي</button>
-                    <button class="filter-btn" type="button">أمن سيبراني</button>
-                    <button class="filter-btn" type="button">أجهزة ذكية</button>
                 </div>
             </div>
 
@@ -500,12 +508,12 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <?php foreach ($latest as $article): ?>
                     <article class="news-card" <?= news_card_attrs($article) ?>>
                         <div class="card-img-wrap">
-                            <span class="card-tag"><?= e($article['category_name'] ?: 'تقنية') ?></span>
+                            <span class="card-tag"><?= e($article['category_name'] ?: 'مقالات') ?></span>
                             <button class="card-bookmark-btn" 
                                     data-article-id="<?= e($article['id']) ?>"
                                     data-title="<?= e($article['title']) ?>"
                                     data-url="<?= e(app_url('article/' . $article['slug'])) ?>"
-                                    data-category="<?= e($article['category_name'] ?: 'تقنية') ?>"
+                                    data-category="<?= e($article['category_name'] ?: 'مقالات') ?>"
                                     title="حفظ للقراءة"><?= ui_icon('bookmark-star', '', 14) ?></button>
                             <?php if (!empty($article['featured_image'])): ?>
                                 <img src="<?= e(app_url($article['featured_image'])) ?>" alt="<?= e($article['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
@@ -515,9 +523,9 @@ require_once APP_ROOT . '/views/partials/header.php';
                         </div>
                         <div class="card-body">
                             <h3><a href="<?= e(app_url('article/' . $article['slug'])) ?>"><?= e($article['title']) ?></a></h3>
-                            <p><?= e($article['excerpt'] ?: 'تفاصيل شاملة حول أحدث الأخبار والتحليلات المتخصصة مع شرح مبسط وموثوق.') ?></p>
+                            <p><?= e($article['excerpt'] ?: 'تفاصيل شاملة وموثوقة حول هذا الموضوع.') ?></p>
                             <div class="card-footer">
-                                <span style="display:inline-flex;align-items:center;gap:5px"><?= ui_icon('author', '', 13) ?> بقلم <?= e($article['author_name'] ?: 'فريق التحرير') ?></span>
+                                <span style="display:inline-flex;align-items:center;gap:5px"><?= ui_icon('author', '', 13) ?> بقلم <?= e($article['author_name'] ?: 'فريق المنصة') ?></span>
                                 <a class="read-more-link" href="<?= e(app_url('article/' . $article['slug'])) ?>">قراءة التفاصيل ←</a>
                             </div>
                         </div>
@@ -535,9 +543,9 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <div class="section-head">
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge-tag" style="display:inline-flex;align-items:center;gap:5px">
-                            <?= ui_icon('tutorials', '', 13) ?> جديد الأكاديمية
+                            <?= ui_icon('tutorials', '', 13) ?> جديد الشروحات
                         </span>
-                        <h2 class="section-title mb-0">الشروحات والدروس المصورة خطوة بخطوة</h2>
+                        <h2 class="section-title mb-0">الشروحات والأدلة المصورة</h2>
                     </div>
                     <a class="view-all" href="<?= e(app_url('tutorials')) ?>" style="color:var(--accent-primary);font-weight:700">تصفح كافة الشروحات (<?= count($tutorials) ?>) ↗</a>
                 </div>
@@ -547,7 +555,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                         <article class="news-card">
                             <div class="card-img-wrap" style="height:190px">
                                 <span class="card-tag" style="display:inline-flex;align-items:center;gap:5px">
-                                    <?= ui_icon('tutorials', '', 12) ?> <?= (int)$tut['steps_count'] ?> خطوات مصورة
+                                    <?= ui_icon('tutorials', '', 12) ?> <?= (int)$tut['steps_count'] ?> خطوات
                                 </span>
                                 <?php if (!empty($tut['featured_image'])): ?>
                                     <img src="<?= e(app_url($tut['featured_image'])) ?>" alt="<?= e($tut['title']) ?>" loading="lazy" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
@@ -575,10 +583,10 @@ require_once APP_ROOT . '/views/partials/header.php';
                                     </span>
                                 </div>
                                 <h3><a href="<?= e(app_url("tutorial/{$tut['slug']}")) ?>"><?= e($tut['title']) ?></a></h3>
-                                <p><?= e($tut['summary'] ?: 'شرح تطبيقي مصور خطوة بخطوة مدعم بالأكواد والتوجيهات.') ?></p>
+                                <p><?= e($tut['summary'] ?: 'شرح تطبيقي مصور خطوة بخطوة مع الإرشادات والتوجيهات.') ?></p>
                                 <div class="card-footer">
-                                    <span>إعداد <?= e($tut['author_name'] ?: 'فريق الشروحات') ?></span>
-                                    <a class="read-more-link" href="<?= e(app_url("tutorial/{$tut['slug']}")) ?>" style="color:var(--accent-primary);font-weight:700">ابدأ التطبيق ←</a>
+                                    <span>إعداد <?= e($tut['author_name'] ?: 'فريق المنصة') ?></span>
+                                    <a class="read-more-link" href="<?= e(app_url("tutorial/{$tut['slug']}")) ?>" style="color:var(--accent-primary);font-weight:700">تابع الشرح ←</a>
                                 </div>
                             </div>
                         </article>
@@ -594,7 +602,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div class="poll-icon-badge"><?= ui_icon('flame', '', 20) ?></div>
                         <div>
-                            <span class="poll-tag">استطلاع الأسبوع التفاعلي</span>
+                            <span class="poll-tag">استطلاع الزوار الأسبوعي</span>
                             <h3 class="poll-question"><?= e($activePoll['question']) ?></h3>
                             <?php if (!empty($activePoll['description'])): ?>
                                 <p style="font-size:0.82rem;color:var(--text-muted);margin:3px 0 0 0"><?= e($activePoll['description']) ?></p>
@@ -648,7 +656,7 @@ require_once APP_ROOT . '/views/partials/header.php';
         </div>
         <div class="cmd-footer">
             <span>استخدم <b>↑</b> <b>↓</b> للتنقل و <b>Enter</b> للاختيار</span>
-            <span>عصب التقنية</span>
+            <span><?= e($siteName) ?></span>
         </div>
     </div>
 </div>

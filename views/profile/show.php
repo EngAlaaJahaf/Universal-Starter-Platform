@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'الملف الشخصي | ' . Settings::get('site_name_ar', 'عصب التقنية');
+$pageTitle = 'الملف الشخصي | ' . Settings::get('site_name_ar', 'منصتي الذكية');
 $pageDesc = 'إدارة حسابك وتفضيلات القراءة والمظهر';
 
 require_once APP_ROOT . '/views/partials/header.php';

@@ -61,7 +61,7 @@ if ($readingTime < 1) {
     $readingTime = max(1, (int) ceil($wordCount / 180));
 }
 
-$pageTitle    = ($article['title_ar'] ?? $article['title']) . ' | ' . Settings::get('site_name_ar', 'عصب التقنية');
+$pageTitle    = ($article['title_ar'] ?? $article['title']) . ' | ' . Settings::get('site_name_ar', 'منصتي الذكية');
 $pageDesc     = $lead;
 $ogType       = 'article';
 $ogImage      = !empty($article['featured_image']) ? app_url($article['featured_image']) : null;
@@ -95,7 +95,7 @@ require_once APP_ROOT . '/views/partials/header.php';
             },
             "publisher": {
                 "@type": "Organization",
-                "name": <?= json_encode(Settings::get('site_name_ar', 'عصب التقنية'), JSON_UNESCAPED_UNICODE) ?>,
+                "name": <?= json_encode(Settings::get('site_name_ar', 'منصتي الذكية'), JSON_UNESCAPED_UNICODE) ?>,
                 "logo": {
                     "@type": "ImageObject",
                     "url": "<?= article_e(app_url('uploads/brand/logo.png')) ?>"
@@ -490,9 +490,9 @@ require_once APP_ROOT . '/views/partials/header.php';
 
             <!-- Editorial Desk Card -->
             <div class="side-widget-card">
-                <h4>هيئة التحرير والتحليل</h4>
+                <h4>فريق المنصة</h4>
                 <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.7;margin-bottom:12px">
-                    تغطية متخصصة ومستقلة لأحدث تحولات الذكاء الاصطناعي، الأمن السيبراني، ومنظومات السحابة والعتاد.
+                    محتوى محرر وموثوق يُغطي أبرز المواضيع والمستجدات في مختلف الأقسام.
                 </p>
                 <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--accent-primary);font-weight:700">
                     <span class="pulse-dot"></span>

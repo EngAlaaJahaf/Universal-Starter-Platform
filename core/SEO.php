@@ -4,9 +4,9 @@ class SEO
 {
     public static function renderMeta($title, $description = '', $image = '', $url = '', $type = 'article')
     {
-        $siteName = 'عصب التقنية';
+        $siteName = 'منصتي الذكية';
         $titleFormatted = $title ? "{$title} | {$siteName}" : $siteName;
-        $description = $description ?: 'عصب التقنية (AsabTech) | منصة عربية رائدة في تغطية أخبار التقنية والذكاء الاصطناعي والعتاد والبرمجيات.';
+        $description = $description ?: 'منصة ويب قابلة للتخصيص تُطلق كقالب أساسي لمشروعك الرقمي متعدد الأقسام.';
         $url = $url ?: app_url();
         $image = $image ? app_url($image) : app_url('assets/images/og-default.jpg');
 
@@ -52,9 +52,9 @@ class SEO
 
         if ($type !== 'article') {
             $schema['name'] = $siteName;
-            $schema['alternateName'] = 'AsabTech';
+            $schema['alternateName'] = 'SmartPlatform';
         }
-        $schema['publisher']['alternateName'] = 'AsabTech';
+        $schema['publisher']['alternateName'] = 'SmartPlatform';
 
         $html .= '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "</script>\n";
 

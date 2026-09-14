@@ -48,9 +48,13 @@ class Router
         $path = parse_url($uri, PHP_URL_PATH);
         $path = rawurldecode((string) $path);
         $path = '/' . trim($path, '/');
-        $scriptDirectory = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
-        if ($scriptDirectory !== '' && $scriptDirectory !== '/' && strpos($path, $scriptDirectory) === 0) {
-            $path = '/' . trim(substr($path, strlen($scriptDirectory)), '/');
+        $scriptName = (string) ($_SERVER['SCRIPT_NAME'] ?? '');
+        $isFrontScript = (bool) preg_match('~/[^/]+\.php$~i', $scriptName);
+        if ($isFrontScript) {
+            $scriptDirectory = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+            if ($scriptDirectory !== '' && $scriptDirectory !== '/' && strpos($path, $scriptDirectory) === 0) {
+                $path = '/' . trim(substr($path, strlen($scriptDirectory)), '/');
+            }
         }
         return ($path === '/index.php' || $path === '') ? '/' : rtrim($path, '/');
     }

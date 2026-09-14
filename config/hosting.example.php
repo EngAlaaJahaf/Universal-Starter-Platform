@@ -13,7 +13,7 @@
 
 // ─── قاعدة البيانات (من لوحة الاستضافة — ليس localhost في الغالب) ───
 define('DB_HOST', 'sqlXXX.epizy.com');
-define('DB_NAME', 'epiz_XXXXXX_technews');
+define('DB_NAME', 'epiz_XXXXXX_starter_platform');
 define('DB_USER', 'epiz_XXXXXX_admin');
 define('DB_PASS', 'PASTE_STRONG_DB_PASSWORD_HERE');
 

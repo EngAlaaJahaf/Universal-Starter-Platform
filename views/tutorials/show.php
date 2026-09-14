@@ -1,7 +1,7 @@
 <?php
 $shareUrl = app_url('tutorial/' . $tutorial['slug']);
 $shareTitle = $tutorial['title'];
-$pageTitle = $tutorial['title'] . ' | ' . Settings::get('site_name_ar', 'عصب التقنية');
+$pageTitle = $tutorial['title'] . ' | ' . Settings::get('site_name_ar', 'منصتي الذكية');
 $pageDesc  = $tutorial['summary'] ?: $tutorial['title'];
 
 require_once APP_ROOT . '/views/partials/header.php';

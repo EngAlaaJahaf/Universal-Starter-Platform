@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'أرشيف الأخبار | ' . Settings::get('site_name_ar', 'عصب التقنية');
+$pageTitle = 'أرشيف المنشورات | ' . Settings::get('site_name_ar', 'منصتي الذكية');
 $pageDesc  = 'استعرض أخبارنا ومقالاتنا السابقة المؤرشفة مرتبة زمنياً، مع إمكانية التصفية حسب الشهر والتصنيف والبحث.';
 
 require_once APP_ROOT . '/views/partials/header.php';
@@ -13,7 +13,7 @@ require_once APP_ROOT . '/views/partials/header.php';
             <span class="badge-tag" style="padding:4px 10px;font-size:0.78rem;display:inline-flex;align-items:center;gap:5px">
                 <?= ui_icon('general', '', 14) ?> الأرشيف
             </span>
-            <h1 style="font-size:1.35rem;font-weight:800;margin:0;color:var(--text-main);display:inline">أرشيف الأخبار</h1>
+            <h1 style="font-size:1.35rem;font-weight:800;margin:0;color:var(--text-main);display:inline">أرشيف المنشورات</h1>
             <?php if ($total > 0): ?>
                 <span style="font-size:0.85rem;color:var(--text-muted)">(<?= number_format($total) ?> خبر ومقال)</span>
             <?php endif; ?>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>أنت غير متصل بالإنترنت | عصب التقنية</title>
+    <title>أنت غير متصل بالإنترنت | منصتي الذكية</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0b1120">
     <style>
@@ -144,7 +144,7 @@
         </div>
 
         <div class="tip-box">
-            💡 <strong>تلميح:</strong> تطبيق المنصة يدعم تصفح الأخبار المخزنة مسبقاً وتثبيت التطبيق على هاتفك أو حاسوبك للوصول الفوري!
+            💡 <strong>تلميح:</strong> تطبيق المنصة يدعم تصفح المحتوى المخزّن مسبقاً وتثبيت التطبيق على هاتفك أو حاسوبك للوصول الفوري!
         </div>
     </div>
 </body>

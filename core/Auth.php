@@ -2,39 +2,94 @@
 
 class Auth
 {
-    public static function login($email, $password)
+    /**
+     * Authenticate user by username OR email
+     */
+    public static function login($identity, $password)
     {
         $db = new Database();
-        $user = $db->fetch('SELECT u.*, r.name AS role_name, r.permissions FROM users u LEFT JOIN roles r ON r.id = u.role_id WHERE u.email = :email LIMIT 1', array(':email' => strtolower(trim($email))));
+        $identity = trim((string)$identity);
+        
+        $user = $db->fetch(
+            'SELECT u.*, r.name AS role_name, r.permissions 
+             FROM users u 
+             LEFT JOIN roles r ON r.id = u.role_id 
+             WHERE (LOWER(u.email) = :identity_email OR LOWER(u.username) = :identity_user) 
+             LIMIT 1',
+            [
+                ':identity_email' => strtolower($identity),
+                ':identity_user'  => strtolower($identity)
+            ]
+        );
 
-        if (!$user || !password_verify($password, $user['password_hash']) || ($user['status'] ?? '') !== 'active') {
+        if (!$user) {
+            return false;
+        }
+
+        $passHash = $user['password'] ?? ($user['password_hash'] ?? '');
+        if (!password_verify($password, $passHash) || ($user['status'] ?? '') !== 'active') {
             return false;
         }
 
         Session::regenerate();
         Session::set('auth_user_id', (int) $user['id']);
-        $db->query('UPDATE users SET last_login_at = CURRENT_TIMESTAMP, login_count = login_count + 1 WHERE id = :id', array(':id' => $user['id']));
+
+        $clientIp = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        if (strpos($clientIp, ',') !== false) {
+            $clientIp = trim(explode(',', $clientIp)[0]);
+        }
+
+        try {
+            $db->query(
+                'UPDATE users SET last_login_at = NOW(), last_login_ip = :ip WHERE id = :id',
+                [':ip' => $clientIp, ':id' => (int)$user['id']]
+            );
+        } catch (Throwable $e) {}
+
         return $user;
     }
 
+    /**
+     * Register a new user and automatically log them in
+     */
     public static function register(array $data)
     {
         $db = new Database();
-        $role = $db->fetch('SELECT id FROM roles WHERE is_default = 1 OR name = :name ORDER BY is_default DESC LIMIT 1', array(':name' => 'reader'));
-        $roleId = $role ? $role['id'] : null;
+        
+        $role = $db->fetch("SELECT id FROM roles WHERE name IN ('user', 'member', 'reader') ORDER BY id DESC LIMIT 1");
+        $roleId = $role ? (int)$role['id'] : 3;
         $status = !empty($data['status']) ? $data['status'] : 'active';
 
-        $db->query('INSERT INTO users (username, email, password_hash, role_id, status, preferred_language, theme_preference) VALUES (:username, :email, :password_hash, :role_id, :status, :preferred_language, :theme_preference)', array(
-            ':username' => trim($data['username']),
-            ':email' => strtolower(trim($data['email'])),
-            ':password_hash' => password_hash($data['password'], PASSWORD_DEFAULT),
-            ':role_id' => $roleId,
-            ':status' => $status,
-            ':preferred_language' => $data['preferred_language'] ?? 'ar',
-            ':theme_preference' => 'auto',
-        ));
+        $db->query(
+            'INSERT INTO users (username, email, password, role_id, status, full_name, created_at) 
+             VALUES (:username, :email, :password, :role_id, :status, :full_name, NOW())',
+            [
+                ':username'  => trim($data['username']),
+                ':email'     => strtolower(trim($data['email'])),
+                ':password'  => password_hash($data['password'], PASSWORD_DEFAULT),
+                ':role_id'   => $roleId,
+                ':status'    => $status,
+                ':full_name' => trim($data['full_name'] ?? ($data['username'] ?? ''))
+            ]
+        );
 
-        return $db->lastInsertId();
+        $userId = (int)$db->lastInsertId();
+
+        if ($userId > 0) {
+            Session::regenerate();
+            Session::set('auth_user_id', $userId);
+
+            $user = $db->fetch(
+                'SELECT u.*, r.name AS role_name, r.permissions 
+                 FROM users u 
+                 LEFT JOIN roles r ON r.id = u.role_id 
+                 WHERE u.id = :id LIMIT 1',
+                [':id' => $userId]
+            );
+            return $user;
+        }
+
+        return false;
     }
 
     public static function logout()
@@ -50,9 +105,15 @@ class Auth
         }
 
         static $user;
-        if ($user === null) {
+        if ($user === null || ($user['id'] ?? null) !== $id) {
             $db = new Database();
-            $user = $db->fetch('SELECT u.*, r.name AS role_name, r.permissions FROM users u LEFT JOIN roles r ON r.id = u.role_id WHERE u.id = :id LIMIT 1', array(':id' => $id));
+            $user = $db->fetch(
+                'SELECT u.*, r.name AS role_name, r.permissions 
+                 FROM users u 
+                 LEFT JOIN roles r ON r.id = u.role_id 
+                 WHERE u.id = :id LIMIT 1',
+                [':id' => $id]
+            );
         }
         return $user;
     }
@@ -65,7 +126,7 @@ class Auth
     public static function isAdmin()
     {
         $user = self::user();
-        return $user && in_array($user['role_name'], array('admin', 'editor'), true);
+        return $user && in_array($user['role_name'], ['admin', 'editor'], true);
     }
 
     public static function hasPermission($permission)
@@ -96,16 +157,15 @@ class Auth
                 header('Content-Type: application/json; charset=utf-8');
                 http_response_code(401);
                 echo json_encode([
-                    'success'       => false,
-                    'error'         => 'انتهت جلستك، يرجى تسجيل الدخول إلى لوحة التحكم مجدداً.',
-                    'require_login' => true,
-                    'login_url'     => app_url('login')
-                ], JSON_UNESCAPED_UNICODE);
+                    'success' => false,
+                    'error'   => 'انتهت جلستك، يرجى تسجيل الدخول مجدداً.',
+                    'code'    => 'AUTH_REQUIRED'
+                ]);
                 exit;
             }
 
-            Session::flash('error', 'يرجى تسجيل الدخول أولاً.');
-            header('Location: ' . app_url('login'));
+            Session::flash('error', 'يرجى تسجيل الدخول أولاً للوصول إلى هذه الصفحة.');
+            header('Location: ' . app_url('login'), true, 302);
             exit;
         }
     }

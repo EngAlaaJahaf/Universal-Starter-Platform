@@ -14,7 +14,7 @@ class ApiV1DocsController extends ApiV1BaseController
         $schema = [
             'openapi' => '3.0.1',
             'info'    => [
-                'title'       => 'AsabTech AI Agent REST API',
+                'title'       => 'SmartPlatform AI Agent REST API',
                 'description' => 'Comprehensive REST API enabling autonomous AI agents to manage articles, fetch RSS feeds, auto-translate and publish news, control categories, and monitor analytics.',
                 'version'     => '1.0.0',
             ],

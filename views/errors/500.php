@@ -30,7 +30,7 @@
             <strong>💡 خطوات سريعة للحل:</strong>
             <ul style="margin:8px 0;padding-right:20px">
                 <li>تأكد من تعديل ملف <code>config/database.php</code> بالبيانات التي زودتك بها شركة الاستضافة (MySQL Host, DB Name, User, Password).</li>
-                <li>تأكد من استيراد ملف <code>schema.sql</code> في قاعدة البيانات عبر phpMyAdmin في لوحة الاستضافة.</li>
+                <li>تأكد من استيراد ملفي <code>database/schema.sql</code> ثم <code>database/seed.sql</code> في قاعدة البيانات عبر phpMyAdmin في لوحة الاستضافة.</li>
             </ul>
         </div>
 

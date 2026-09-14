@@ -14,8 +14,8 @@ if (!isset($categories)) {
     }
 }
 
-$siteName = Settings::get('site_name_ar', 'عصب التقنية');
-$siteDesc = Settings::get('meta_description', 'منصة عربية رائدة في تغطية الأخبار التقنية، أحدث تطورات الذكاء الاصطناعي، الأجهزة الذكية، والأمن السيبراني.');
+$siteName = Settings::get('site_name_ar', 'منصتي الذكية');
+$siteDesc = Settings::get('meta_description', 'منصة ويب متقدمة ومبنية بأحدث المعايير البرمجية والأمنية.');
 ?>
 
 <!-- Command Palette Modal -->
@@ -23,7 +23,7 @@ $siteDesc = Settings::get('meta_description', 'منصة عربية رائدة ف
     <div class="cmd-modal">
         <div class="cmd-input-wrap">
             <span style="color:var(--accent-primary);font-size:1.3rem">⌕</span>
-            <input type="text" id="cmd-search-input" placeholder="اكتب للبحث الفوري في المقالات والشروحات والتصنيفات..." autocomplete="off">
+            <input type="text" id="cmd-search-input" placeholder="اكتب للبحث الفوري في المقالات والصفحات والتصنيفات..." autocomplete="off">
             <kbd style="background:var(--bg-surface);padding:4px 8px;border-radius:6px;border:1px solid var(--border-subtle);font-size:0.75rem">ESC</kbd>
         </div>
         <div class="cmd-results" id="cmd-results-list">
@@ -31,7 +31,7 @@ $siteDesc = Settings::get('meta_description', 'منصة عربية رائدة ف
         </div>
         <div class="cmd-footer">
             <span>استخدم <b>↑</b> <b>↓</b> للتنقل و <b>Enter</b> للاختيار</span>
-            <span>عصب التقنية</span>
+            <span><?= htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8') ?></span>
         </div>
     </div>
 </div>
@@ -66,7 +66,7 @@ $siteDesc = Settings::get('meta_description', 'منصة عربية رائدة ف
                 </p>
             </div>
             <div class="footer-col">
-                <h4>أقسام وتغطيات</h4>
+                <h4>أقسام المنصة</h4>
                 <ul>
                     <?php foreach ($categories as $category): ?>
                         <li>
@@ -85,7 +85,7 @@ $siteDesc = Settings::get('meta_description', 'منصة عربية رائدة ف
                     <li><a href="<?= view_e(app_url('live-blog')) ?>" style="display:inline-flex;align-items:center;gap:6px"><?= ui_icon('live') ?> <span>التغطية المباشرة</span></a></li>
                     <li><a href="<?= view_e(app_url('series')) ?>" style="display:inline-flex;align-items:center;gap:6px"><?= ui_icon('series', '', 13) ?> <span>السلاسل والملفات</span></a></li>
                     <li><a href="<?= view_e(app_url('stories')) ?>" style="display:inline-flex;align-items:center;gap:6px"><?= ui_icon('flame', '', 13) ?> <span>قصص سريعة</span></a></li>
-                    <li><a href="<?= view_e(app_url('archive')) ?>" style="display:inline-flex;align-items:center;gap:6px"><?= ui_icon('general', '', 13) ?> <span>أرشيف الأخبار</span></a></li>
+                    <li><a href="<?= view_e(app_url('archive')) ?>" style="display:inline-flex;align-items:center;gap:6px"><?= ui_icon('general', '', 13) ?> <span>أرشيف المنشورات</span></a></li>
                 </ul>
             </div>
             <div class="footer-col">

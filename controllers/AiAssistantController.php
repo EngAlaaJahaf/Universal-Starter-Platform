@@ -63,7 +63,7 @@ class AiAssistantController extends Controller
             echo json_encode([
                 'success'  => false,
                 'auth'     => true,
-                'error'    => 'هذه الميزة متاحة للأعضاء المسجلين فقط. سجّل دخولك لتتمكن من سؤال المرشد.',
+                'error'    => 'هذه الميزة متاحة للأعضاء المسجلين فقط. سجّل دخولك لتتمكن من سؤال المساعد.',
                 'loginUrl' => app_url('login'),
                 'registerUrl' => app_url('register')
             ], JSON_UNESCAPED_UNICODE);

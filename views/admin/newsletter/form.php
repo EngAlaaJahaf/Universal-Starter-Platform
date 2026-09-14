@@ -18,7 +18,7 @@
 
  <div class="mb-3">
  <label class="form-label fw-bold" for="subject">عنوان موضوع الرسالة (Subject) <span class="text-danger">*</span></label>
- <input type="text" class="form-control form-control-lg" id="subject" name="subject" required placeholder="مثال: أهم 5 تطورات في الذكاء الاصطناعي هذا الأسبوع ">
+ <input type="text" class="form-control form-control-lg" id="subject" name="subject" required placeholder="مثال: أهم 5 منشورات هذا الأسبوع ">
  </div>
 
  <div class="mb-4">

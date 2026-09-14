@@ -1,6 +1,6 @@
 <?php
 /*
- * AI Assistant floating chat widget («مرشد عصب التقنية»)
+ * AI Assistant floating chat widget («مساعد المنصة»)
  * VISIBLE TO EVERYONE (launcher + panel), but ONLY registered members may
  * actually send questions; the JS answers guests instantly with a
  * members-only notice, and the server enforces it too (401).
@@ -30,9 +30,9 @@ if (!$aiShow) {
     return;
 }
 
-$aiWelcome    = (string) Settings::get('ai_assistant_welcome_message', 'مرحباً 👋 أنا مرشد عصب التقنية. اسألني عن آخر أخبار التقنية والمقالات المنشورة في المنصة.');
-$aiPlaceholder = (string) Settings::get('ai_assistant_placeholder', 'اسأل مرشد عصب التقنية...');
-$aiPrivacy    = (string) Settings::get('ai_assistant_privacy_note', 'يعتمد مرشد عصب التقنية على المقالات المنشورة محلياً.');
+$aiWelcome    = (string) Settings::get('ai_assistant_welcome_message', 'مرحباً 👋 أنا مساعد المنصة. اسألني عن المحتوى المنشور في المنصة.');
+$aiPlaceholder = (string) Settings::get('ai_assistant_placeholder', 'اسأل مساعد المنصة...');
+$aiPrivacy    = (string) Settings::get('ai_assistant_privacy_note', 'يعتمد مساعد المنصة على المحتوى المنشور محلياً.');
 $aiSourcesOn  = (string) Settings::get('ai_assistant_sources_enabled', '1') === '1';
 $aiSuggestions = [];
 if ((string) Settings::get('ai_assistant_suggestions_enabled', '1') === '1') {
@@ -66,7 +66,7 @@ if ($aiLoggedIn && !$aiBypass) {
 } elseif ($aiBypass) {
     $aiRemaining = null;
 }
-$aiSubtitle = $aiLoggedIn ? 'مساعدك التقني من محتوى عصب التقنية'
+$aiSubtitle = $aiLoggedIn ? 'مساعدك الذكي في استكشاف محتوى المنصة'
                           : 'متاح للأعضاء المسجلين — سجّل دخولك لتسأله';
 ?>
 <!-- AI Assistant Chat Widget -->
@@ -80,18 +80,18 @@ $aiSubtitle = $aiLoggedIn ? 'مساعدك التقني من محتوى عصب ا
      data-bypass="<?= $aiBypass ?>">
 
     <!-- Launcher -->
-    <button type="button" class="ai-launcher" id="aiLauncher" aria-label="فتح محادث مرشد عصب التقنية" aria-expanded="false">
+    <button type="button" class="ai-launcher" id="aiLauncher" aria-label="فتح محادث مساعد المنصة" aria-expanded="false">
         <svg class="ai-launcher-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
         <svg class="ai-launcher-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         <span class="ai-launcher-badge">1</span>
     </button>
 
     <!-- Panel -->
-    <section class="ai-panel" id="aiPanel" aria-label="مرشد عصب التقنية" hidden>
+    <section class="ai-panel" id="aiPanel" aria-label="مساعد المنصة" hidden>
         <header class="ai-panel-header">
             <div class="ai-panel-avatar" aria-hidden="true">🤖</div>
             <div class="ai-panel-title-wrap">
-                <h2 class="ai-panel-title">مرشد عصب التقنية</h2>
+                <h2 class="ai-panel-title">مساعد المنصة</h2>
                 <p class="ai-panel-subtitle"><?= htmlspecialchars($aiSubtitle, ENT_QUOTES, 'UTF-8') ?></p>
             </div>
             <button type="button" class="ai-panel-reset" id="aiReset" aria-label="بدء محادثة جديدة" title="بدء محادثة جديدة">
@@ -117,7 +117,7 @@ $aiSubtitle = $aiLoggedIn ? 'مساعدك التقني من محتوى عصب ا
 
         <footer class="ai-panel-footer">
             <div class="ai-input-wrap">
-                <textarea id="aiInput" rows="1" maxlength="500" placeholder="<?= htmlspecialchars($aiPlaceholder, ENT_QUOTES, 'UTF-8') ?>" aria-label="رسالتك إلى مرشد عصب التقنية"></textarea>
+                <textarea id="aiInput" rows="1" maxlength="500" placeholder="<?= htmlspecialchars($aiPlaceholder, ENT_QUOTES, 'UTF-8') ?>" aria-label="رسالتك إلى مساعد المنصة"></textarea>
                 <button type="button" id="aiSend" aria-label="إرسال السؤال">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>

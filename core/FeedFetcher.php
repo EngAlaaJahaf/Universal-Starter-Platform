@@ -24,7 +24,7 @@ class FeedFetcher
         'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
         'Feedly/1.0 (+https://feedly.com/fetcher.html; like FeedFetcher-Google)',
         'SimplePie/1.5.6 (Feed Parser; http://simplepie.org)',
-        'Mozilla/5.0 (compatible; TechNewsPlatform/2.0; +https://tech-news.42web.io)',
+        'Mozilla/5.0 (compatible; StarterPlatform/2.0; +https://github.com/starter-platform)',
     ];
 
     /** نطاقات معروفة بأنها توقفت عن العمل ولا يجب اتباع التحويل إليها */
@@ -312,7 +312,7 @@ class FeedFetcher
         if (str_contains($ua, 'Googlebot'))         return 'Googlebot';
         if (str_contains($ua, 'Feedly'))            return 'Feedly';
         if (str_contains($ua, 'SimplePie'))         return 'SimplePie';
-        if (str_contains($ua, 'TechNewsPlatform'))  return 'TechNews';
+        if (str_contains($ua, 'StarterPlatform'))   return 'StarterBot';
         return 'Chrome';
     }
 

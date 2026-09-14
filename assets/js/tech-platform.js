@@ -1,5 +1,5 @@
 /**
- * AsabTech - Next-Gen Interactive Engine
+ * Starter Platform - Interactive Engine
  * Command Palette, Audio Player, Reactions, Bookmarks Drawer, Live Ticker, Polls & Zen Mode
  */
 
