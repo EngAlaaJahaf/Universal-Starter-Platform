@@ -9,6 +9,24 @@ define('APP_ROOT', __DIR__);
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
+// SECURITY (SH-03): installer lock. After a successful install a lock file
+// is created at storage/data/installed.lock (git-ignored, never deployed).
+// While the lock exists the wizard refuses to re-run. To reinstall
+// legitimately, delete the lock file manually via FTP/file manager.
+define('INSTALLER_LOCK_FILE', APP_ROOT . '/storage/data/installed.lock');
+$installerLocked = is_file(INSTALLER_LOCK_FILE);
+if ($installerLocked && ($_SERVER['REQUEST_METHOD'] === 'POST')) {
+    header('Content-Type: application/json; charset=utf-8');
+    http_response_code(403);
+    echo json_encode([
+        'ok'      => false,
+        'success' => false,
+        'message' => 'التثبيت مكتمل مسبقاً — المثبت مقفل. احذف storage/data/installed.lock يدوياً لإعادة التثبيت.',
+        'error'   => 'Installer locked: platform already installed.'
+    ]);
+    exit;
+}
+
 // Handle AJAX Database Connection Test
 if (isset($_POST['action']) && $_POST['action'] === 'test_db') {
     header('Content-Type: application/json; charset=utf-8');
@@ -54,7 +72,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_install'])) {
     $siteNameEn = trim($_POST['site_name_en'] ?? 'SmartPlatform');
     $adminUser  = trim($_POST['admin_user'] ?? 'admin');
     $adminEmail = trim($_POST['admin_email'] ?? 'admin@platform.local');
-    $adminPass  = $_POST['admin_pass'] ?? 'Admin@123456';
+    // SECURITY (SH-03): no default password — the admin MUST choose one.
+    $adminPass  = (string) ($_POST['admin_pass'] ?? '');
+
+    // Server-side credential policy (never trust client-side only).
+    $weakPasswords = ['admin', 'password', '123456', 'admin123', 'Admin@123456', 'qwerty'];
+    if (mb_strlen($adminUser) < 3 || !preg_match('/^[A-Za-z0-9_.-]+$/', $adminUser)) {
+        throw new Exception('اسم مستخدم المدير غير صالح (3 أحرف على الأقل: أحرف/أرقام/._-).');
+    }
+    if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+        throw new Exception('البريد الإلكتروني للمدير غير صالح.');
+    }
+    if (mb_strlen($adminPass) < 10
+        || !preg_match('/[A-Za-z]/', $adminPass)
+        || !preg_match('/[0-9]/', $adminPass)
+        || in_array(strtolower($adminPass), array_map('strtolower', $weakPasswords), true)
+    ) {
+        throw new Exception('كلمة مرور المدير ضعيفة: 10 أحرف على الأقل مع حرف ورقم، وتجنب الكلمات الشائعة.');
+    }
 
     try {
         // 1. Connect and create DB
@@ -90,15 +125,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_install'])) {
         $stmt = $pdo->prepare("UPDATE settings SET value = ? WHERE `key` = 'site_name_en'");
         $stmt->execute([$siteNameEn]);
 
-        // 5. Write config/hosting.php
+        // 5. Write config/hosting.php (incl. a fresh CRON_SECRET — SH-02)
+        $freshCronSecret = bin2hex(random_bytes(32));
         $configContent = "<?php\n/**\n * Auto-generated hosting configuration\n */\n"
             . "define('DB_HOST', " . var_export($dbHost, true) . ");\n"
             . "define('DB_NAME', " . var_export($dbName, true) . ");\n"
             . "define('DB_USER', " . var_export($dbUser, true) . ");\n"
             . "define('DB_PASS', " . var_export($dbPass, true) . ");\n"
-            . "define('DB_CHARSET', 'utf8mb4');\n";
+            . "define('DB_CHARSET', 'utf8mb4');\n"
+            . "define('CRON_SECRET', " . var_export($freshCronSecret, true) . ");\n";
 
         file_put_contents(APP_ROOT . '/config/hosting.php', $configContent);
+
+        // 6. Create the installer lock (SH-03) — never expose credentials.
+        @mkdir(dirname(INSTALLER_LOCK_FILE), 0777, true);
+        @file_put_contents(INSTALLER_LOCK_FILE, json_encode([
+            'installed_at' => gmdate('c'),
+            'site'         => $siteNameEn,
+        ], JSON_UNESCAPED_UNICODE));
 
         $installResult = ['success' => true];
     } catch (Throwable $e) {
@@ -201,11 +245,21 @@ $allPassed = !in_array(false, $checks, true);
     </div>
 
     <div class="p-4 p-md-5">
-        <?php if ($installResult && $installResult['success']): ?>
+        <?php if ($installerLocked): ?>
+            <div class="text-center py-4">
+                <div class="text-warning fs-1 mb-3"><i class="bi bi-lock-fill"></i></div>
+                <h4 class="fw-bold text-white mb-2">المثبت مقفل — المنصة مثبتة مسبقاً 🔒</h4>
+                <p class="text-muted mb-4">تم إكمال التثبيت سابقاً. لإعادة التثبيت احذف الملف <code dir="ltr">storage/data/installed.lock</code> يدوياً من الاستضافة ثم أعد تحميل الصفحة.</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="admin" class="btn btn-brand px-4 py-2"><i class="bi bi-speedometer2 me-1"></i> الدخول للوحة التحكم</a>
+                    <a href="./" class="btn btn-outline-light px-4 py-2"><i class="bi bi-house me-1"></i> زيارة الموقع</a>
+                </div>
+            </div>
+        <?php elseif ($installResult && $installResult['success']): ?>
             <div class="text-center py-4">
                 <div class="text-success fs-1 mb-3"><i class="bi bi-check-circle-fill"></i></div>
                 <h4 class="fw-bold text-white mb-2">تم تثبيت المنصة بنجاح تام! 🎉</h4>
-                <p class="text-muted mb-4">تم إنشاء قاعدة البيانات، واستيراد المخطط، وإعداد حساب المدير الفائق بنجاح.</p>
+                <p class="text-muted mb-4">تم إنشاء قاعدة البيانات، واستيراد المخطط، وإعداد حساب المدير الفائق بنجاح. سجّل الدخول بالبيانات التي اخترتها — وتم قفل المثبت تلقائياً.</p>
                 <div class="d-flex justify-content-center gap-3 flex-wrap">
                     <a href="admin" class="btn btn-brand px-4 py-2"><i class="bi bi-speedometer2 me-1"></i> الدخول للوحة التحكم</a>
                     <a href="./" class="btn btn-outline-light px-4 py-2"><i class="bi bi-house me-1"></i> زيارة الموقع</a>
@@ -287,8 +341,8 @@ $allPassed = !in_array(false, $checks, true);
                         <input type="email" name="admin_email" value="admin@platform.local" class="form-control" required>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label small text-muted">كلمة المرور</label>
-                        <input type="text" name="admin_pass" value="Admin@123456" class="form-control" required>
+                        <label class="form-label small text-muted">كلمة المرور (10 أحرف على الأقل: حرف + رقم)</label>
+                        <input type="password" name="admin_pass" value="" minlength="10" autocomplete="new-password" class="form-control" placeholder="اختر كلمة مرور قوية" required>
                     </div>
                 </div>
 

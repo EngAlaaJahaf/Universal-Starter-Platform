@@ -197,6 +197,19 @@ switch ($command) {
         }
         break;
 
+    case 'cron:secret':
+        // SH-02: generate (never store/print existing) a fresh cron secret.
+        $secret = bin2hex(random_bytes(32));
+        cli_print("🔐 Fresh CRON_SECRET (256-bit, single display — store it now):", 'cyan');
+        cli_print($secret, 'green');
+        cli_print("", null);
+        cli_print("Install it via ONE of:", 'yellow');
+        cli_print("  A) config/hosting.php  →  define('CRON_SECRET', '{$secret}');", null);
+        cli_print("  B) environment        →  CRON_SECRET={$secret}", null);
+        cli_print("Then call cron over HTTP as:  /cron/rss_auto_publish.php?secret=YOUR_SECRET", null);
+        cli_print("Rotation: generate a new value, deploy it, update the cron URL, done.", null);
+        break;
+
     case 'help':
     default:
         cli_print("\n========================================================", 'cyan');
@@ -209,6 +222,7 @@ switch ($command) {
         cli_print("  php craft make:model <Name>        Create a new Data Model");
         cli_print("  php craft make:crud <Resource>     Generate a full Admin CRUD scaffold");
         cli_print("  php craft doctor                   Run comprehensive system health checks");
+        cli_print("  php craft cron:secret                Generate a fresh CRON_SECRET (SH-02)");
         cli_print("  php craft ai:test [provider]       Test AI provider connectivity and latency");
         cli_print("  php craft help                     Show this help message\n");
         break;

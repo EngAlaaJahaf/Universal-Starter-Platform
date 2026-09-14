@@ -31,8 +31,13 @@ if (!defined('DB_CHARSET')) {
     define('DB_CHARSET', getenv('DB_CHARSET') ?: 'utf8mb4');
 }
 if (!defined('CRON_SECRET')) {
+    // SECURITY (SH-02): intentionally NO default secret. An empty value
+    // means "not configured" and CronGuard refuses HTTP cron calls
+    // (fail-closed). Generate one with `php craft cron:secret` and set it
+    // via config/hosting.php or the CRON_SECRET environment variable.
+    // Rotation: generate a new value, deploy it, then update the cron URL.
     $cronSecretEnv = getenv('CRON_SECRET');
-    define('CRON_SECRET', ($cronSecretEnv !== false && $cronSecretEnv !== '') ? $cronSecretEnv : 'cron_tnp_2026_secure_key');
+    define('CRON_SECRET', (is_string($cronSecretEnv) && $cronSecretEnv !== '') ? $cronSecretEnv : '');
 }
 if (!defined('BREVO_API_KEY')) {
     define('BREVO_API_KEY', getenv('BREVO_API_KEY') ?: '');

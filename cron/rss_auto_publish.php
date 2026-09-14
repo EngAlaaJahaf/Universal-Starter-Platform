@@ -23,6 +23,7 @@ set_time_limit(0);
 // and env vars win; the guarded CRON_SECRET below only fills the default.
 $root = dirname(__DIR__);
 require_once $root . '/config/database.php';
+require_once $root . '/core/CronGuard.php';
 require_once $root . '/core/Database.php';
 require_once $root . '/core/Settings.php';
 require_once $root . '/core/AiTranslator.php';
@@ -34,24 +35,9 @@ require_once $root . '/core/FetchOg.php';
 // Datetimes stored/compared in UTC (see Database.php); keep PHP parsing consistent.
 date_default_timezone_set('UTC');
 
-if (!defined('CRON_SECRET')) {
-    $cronSecretEnv = getenv('CRON_SECRET');
-    define('CRON_SECRET', ($cronSecretEnv !== false && $cronSecretEnv !== '') ? $cronSecretEnv : 'cron_tnp_2026_secure_key');
-}
-
-// ─── Security: التحقق من الصلاحية ─────────────────────────────
-$isCli  = (php_sapi_name() === 'cli');
-$isHttp = !$isCli;
-
-if ($isHttp) {
-    $secret = $_GET['secret'] ?? '';
-    if ($secret !== CRON_SECRET) {
-        http_response_code(403);
-        echo json_encode(['error' => 'Forbidden']);
-        exit(1);
-    }
-    header('Content-Type: application/json; charset=utf-8');
-}
+// ─── Security: fail-closed cron protection (SH-02) ────────────
+// CLI is always allowed; HTTP requires a configured ?secret= (see CronGuard).
+CronGuard::checkHttp();
 
 // ─── Logger Helper ────────────────────────────────────────────
 $log = [];

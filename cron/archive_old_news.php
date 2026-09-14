@@ -24,26 +24,13 @@ set_time_limit(0);
 // and env vars win; the guarded CRON_SECRET below only fills the default.
 $root = dirname(__DIR__);
 require_once $root . '/config/database.php';
+require_once $root . '/core/CronGuard.php';
 require_once $root . '/core/Database.php';
 require_once $root . '/core/Settings.php';
 
-if (!defined('CRON_SECRET')) {
-    $cronSecretEnv = getenv('CRON_SECRET');
-    define('CRON_SECRET', ($cronSecretEnv !== false && $cronSecretEnv !== '') ? $cronSecretEnv : 'cron_tnp_2026_secure_key');
-}
-
-$isCli  = (php_sapi_name() === 'cli');
-$isHttp = !$isCli;
-
-if ($isHttp) {
-    $secret = $_GET['secret'] ?? '';
-    if ($secret !== CRON_SECRET) {
-        http_response_code(403);
-        echo json_encode(['error' => 'Forbidden']);
-        exit(1);
-    }
-    header('Content-Type: application/json; charset=utf-8');
-}
+// SECURITY (SH-02): fail-closed cron protection. CLI always allowed;
+// HTTP requires a configured ?secret= (see CronGuard).
+CronGuard::checkHttp();
 
 $db = new Database();
 
