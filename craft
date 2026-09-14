@@ -246,6 +246,139 @@ switch ($command) {
         cli_print("  mysql -u USER -p starter_platform_db < database/migrations_sh09_queue.sql", null);
         break;
 
+    case 'db:backup':
+        // SH-10: mysqldump snapshot with retention. Runs via MYSQL_PWD so the
+        // password never appears in the process list.
+        $dir = APP_ROOT . '/storage/backups';
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        $keep = count($subArgs) && is_numeric($subArgs[0]) ? (int)$subArgs[0] : 14;
+
+        $mysqldump = '';
+        if (function_exists('shell_exec')) {
+            $probes = (PHP_OS_FAMILY === 'Windows')
+                ? ['where mysqldump 2>nul']
+                : ['command -v mysqldump 2>/dev/null', 'which mysqldump 2>/dev/null'];
+            foreach ($probes as $probe) {
+                $res = trim((string) @shell_exec($probe));
+                if ($res !== '') {
+                    $mysqldump = $res;
+                    break;
+                }
+            }
+        }
+        if ($mysqldump === '') {
+            cli_print("❌ mysqldump not found. Install mysql-client, or use your hosting panel's backup, then re-run.", 'red');
+            exit(1);
+        }
+
+        $file = 'backup_' . date('Ymd_His') . '.sql';
+        $path = $dir . '/' . $file;
+
+        cli_print("▶ Dumping database to storage/backups/{$file} ...", 'cyan');
+        putenv('MYSQL_PWD=' . DB_PASS);
+        $cmd = sprintf(
+            '%s --user=%s --host=%s --port=%d --single-transaction --routines --default-character-set=utf8mb4 "%s" > "%s" 2> "%s.err"',
+            escapeshellarg($mysqldump),
+            escapeshellarg(DB_USER),
+            escapeshellarg(DB_HOST),
+            (int) (defined('DB_PORT') ? DB_PORT : 3306),
+            DB_NAME,
+            $path,
+            $path
+        );
+        exec($cmd, $output, $code);
+        putenv('MYSQL_PWD'); // clear
+
+        if ($code !== 0) {
+            cli_print("❌ Dump failed (exit {$code}). See {$file}.err", 'red');
+            if (is_file($path . '.err')) {
+                cli_print(trim((string) @file_get_contents($path . '.err')), 'red');
+            }
+            @unlink($path . '.err');
+            @unlink($path); // remove the partial dump
+            exit(1);
+        }
+        @unlink($path . '.err');
+
+        // Optional gzip when available.
+        $finalFile = $file;
+        exec('gzip --version', $gOut, $gCode);
+        if ($gCode === 0) {
+            exec('gzip -9 ' . escapeshellarg($path), $out2, $c2);
+            if ($c2 === 0) {
+                $finalFile = $file . '.gz';
+            }
+        }
+        cli_print("✔ Backup saved: storage/backups/{$finalFile}", 'green');
+
+        // Retention: keep the newest N backups.
+        $backups = glob($dir . '/backup_*.sql*');
+        usort($backups, function ($a, $b) { return filemtime($b) <=> filemtime($a); });
+        $removed = 0;
+        foreach (array_slice($backups, $keep) as $old) {
+            if (@unlink($old)) {
+                $removed++;
+            }
+        }
+        if ($removed) {
+            cli_print("🧹 Retention: removed {$removed} backup(s) older than the newest {$keep}.", 'yellow');
+        }
+        break;
+
+    case 'db:migrate':
+        // SH-10: apply database/migrations*.sql once each, recorded in
+        // schema_migrations. `--preview` prints the plan without touching the DB.
+        $preview = in_array('--preview', $subArgs, true);
+        $files = DbMigrations::files();
+
+        if ($preview) {
+            $applied = [];
+            try {
+                $db = Database::getInstance();
+                $applied = array_column($db->fetchAll('SELECT `name` FROM `' . DbMigrations::ledgerTable() . '`'), 'name');
+            } catch (Throwable $e) {
+                // No DB — preview still lists the files as pending.
+            }
+            $pending = DbMigrations::pending($files, $applied);
+            cli_print('Migration file(s):', 'cyan');
+            foreach ($files as $f) {
+                $mark = in_array($f, $pending, true) ? '◌ pending' : '✓ applied';
+                cli_print("  {$f}  [{$mark}]", in_array($f, $pending, true) ? 'yellow' : 'green');
+            }
+            cli_print(count($pending) . ' pending migration(s).', $pending ? 'yellow' : 'green');
+            exit(0);
+        }
+
+        try {
+            $db = Database::getInstance();
+        } catch (Throwable $e) {
+            cli_print("❌ MySQL unavailable (" . $e->getMessage() . "). Run with --preview to inspect the plan.", 'red');
+            exit(1);
+        }
+
+        $db->query('CREATE TABLE IF NOT EXISTS `' . DbMigrations::ledgerTable() . '` (`name` varchar(190) NOT NULL, `applied_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+        $applied = array_column($db->fetchAll('SELECT `name` FROM `' . DbMigrations::ledgerTable() . '`'), 'name');
+        $pending = DbMigrations::pending($files, $applied);
+
+        if (!$pending) {
+            cli_print('✔ Schema is up to date — no pending migrations.', 'green');
+            exit(0);
+        }
+
+        foreach ($pending as $file) {
+            cli_print("▶ Applying {$file} ...", 'cyan');
+            $sql = (string) file_get_contents(DbMigrations::dir() . '/' . $file);
+            foreach (DbMigrations::splitStatements($sql) as $stmt) {
+                $db->query($stmt);
+            }
+            $db->query('INSERT INTO `' . DbMigrations::ledgerTable() . '` (`name`) VALUES (:n)', [':n' => $file]);
+            cli_print("✔ Applied {$file}", 'green');
+        }
+        cli_print('Done.', 'green');
+        break;
+
     case 'help':
     default:
         cli_print("\n========================================================", 'cyan');
@@ -262,6 +395,8 @@ switch ($command) {
         cli_print("  php craft ai:test [provider]       Test AI provider connectivity and latency");
         cli_print("  php craft queue:work [q] [n]       Consume background jobs (SH-09)");
         cli_print("  php craft db:indexes               Show SH-09 index/queue migrations");
+        cli_print("  php craft db:backup [keep]         MySQL snapshot + retention (SH-10)");
+        cli_print("  php craft db:migrate [--preview]   Apply migration files with a ledger (SH-10)");
         cli_print("  php craft help                     Show this help message\n");
         break;
 }

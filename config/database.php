@@ -148,3 +148,10 @@ if (!defined('CACHE_DRIVER')) {
     $cacheDriverEnv = getenv('CACHE_DRIVER');
     define('CACHE_DRIVER', ($cacheDriverEnv === false || $cacheDriverEnv === '') ? 'file' : strtolower((string) $cacheDriverEnv));
 }
+
+// Uptime heartbeat (SH-10): optional outbound ping target for cron/health_heartbeat.php.
+// Empty = heartbeat is a no-op. Example: https://uptimerobot.com/push/XXXX/YYYY
+if (!defined('UPTIME_HEARTBEAT_URL')) {
+    $hb = getenv('UPTIME_HEARTBEAT_URL');
+    define('UPTIME_HEARTBEAT_URL', ($hb === false) ? '' : (string) $hb);
+}
