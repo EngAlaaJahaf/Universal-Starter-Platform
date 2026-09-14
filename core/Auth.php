@@ -169,6 +169,26 @@ class Auth
         return !empty($permissions[$permission]);
     }
 
+    /**
+     * Layered ACL check (SH-11): super-admin short-circuit, then explicit
+     * per-user grants from roles.permissions JSON, then the canonical
+     * Acl::allows() matrix. Used by AdminController::requirePermission().
+     */
+    public static function can($permission)
+    {
+        $user = self::user();
+        if (!$user) {
+            return false;
+        }
+        if (($user['role_name'] ?? '') === Acl::SUPER_ROLE) {
+            return true;
+        }
+        if (self::hasPermission($permission)) {
+            return true;
+        }
+        return Acl::allows($user['role_name'] ?? '', $permission);
+    }
+
     public static function check()
     {
         return self::isLoggedIn();

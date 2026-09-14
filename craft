@@ -379,6 +379,28 @@ switch ($command) {
         cli_print('Done.', 'green');
         break;
 
+    case 'acl:matrix':
+        // SH-11: print the canonical role x permission matrix from Acl::().
+        $roles = array('admin', 'editor', 'moderator', 'reader');
+        $perms = Acl::permissions();
+        $width = 18;
+        $hdr = str_pad('permission', $width) . '  ' . implode('  ', array_map(function ($r) use ($width) {
+            return str_pad($r, 8);
+        }, $roles));
+        cli_print('  ' . $hdr, 'cyan');
+        cli_print(str_repeat('-', strlen($hdr) + 2), 'cyan');
+        foreach ($perms as $key => $label) {
+            $grid = '';
+            foreach ($roles as $r) {
+                $grid .= str_pad(Acl::allows($r, $key) ? '✓' : '—', 10);
+            }
+            cli_print('  ' . str_pad($key, $width) . ' ' . $grid . '  ' . $label);
+        }
+        cli_print('', '');
+        cli_print('  Superset: grant extra per-role permissions via roles.permissions JSON;', 'yellow');
+        cli_print('  Auth::can() layers super-admin + JSON grants + this matrix.', 'yellow');
+        break;
+
     case 'help':
     default:
         cli_print("\n========================================================", 'cyan');
@@ -397,6 +419,7 @@ switch ($command) {
         cli_print("  php craft db:indexes               Show SH-09 index/queue migrations");
         cli_print("  php craft db:backup [keep]         MySQL snapshot + retention (SH-10)");
         cli_print("  php craft db:migrate [--preview]   Apply migration files with a ledger (SH-10)");
+        cli_print("  php craft acl:matrix               Print role x permission matrix (SH-11)");
         cli_print("  php craft help                     Show this help message\n");
         break;
 }

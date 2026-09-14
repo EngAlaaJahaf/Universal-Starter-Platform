@@ -4,7 +4,7 @@ class DashboardController extends AdminController
 {
  public function index()
  {
- $this->guardAdmin();
+ $this->requirePermission('dashboard.view');
  $db = Database::getInstance();
 
  // 1. KPI Stats
