@@ -193,7 +193,7 @@ class ApiV1DocsController extends ApiV1BaseController
         ];
 
         header('Content-Type: application/json; charset=utf-8');
-        header('Access-Control-Allow-Origin: *');
+        Cors::handle(true);
         echo json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;
     }

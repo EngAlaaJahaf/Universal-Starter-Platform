@@ -33,6 +33,108 @@ class SecurityGuard
         if (preg_match('/(sqlmap|nikto|wpscan|masscan|zgrab|acunetix|nessus|nmap)/i', $ua, $matches)) {
             self::recordAlert('scanner_probe', 'high', "Automated Security Scanner User-Agent: {$matches[0]}", true);
         }
+
+        // 5. Inspect POST/PUT/PATCH/DELETE bodies (SH-04) — capped and
+        // log-only by design: admin authoring (articles/tutorials) legitimately
+        // contains SQL keywords and HTML, so POST hits are recorded + notified
+        // but NEVER block, to avoid breaking valid CMS input. GET vectors
+        // above remain blocking.
+        if (in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+            self::scanPostBody();
+        }
+    }
+
+    /**
+     * Scan request bodies without breaking valid input (SH-04).
+     * Covers urlencoded + multipart ($_POST/$_FILES names) + JSON payloads.
+     * File CONTENTS are never read — only field names and client filenames.
+     */
+    public static function scanPostBody()
+    {
+        $checked = 0;
+        $maxFields = 200;
+        $maxLen = 2000;
+
+        $inspect = function ($value, $label) use (&$checked, $maxFields, $maxLen) {
+            if ($checked >= $maxFields || !is_string($value) || $value === '') {
+                return;
+            }
+            $checked++;
+            $sample = substr($value, 0, $maxLen);
+            if (self::containsSqli($sample)) {
+                self::recordAlert('sqli_attempt_post', 'high', "POST field [{$label}]: " . substr($sample, 0, 300), false);
+            } elseif (self::containsXss($sample)) {
+                self::recordAlert('xss_attempt_post', 'high', "POST field [{$label}]: " . substr($sample, 0, 300), false);
+            }
+        };
+
+        // 5a. Form fields (urlencoded + multipart text parts)
+        foreach ($_POST as $key => $value) {
+            $inspect((string) $key, 'name:' . substr((string) $key, 0, 80));
+            if (is_array($value)) {
+                foreach ($value as $subKey => $subValue) {
+                    if (is_scalar($subValue)) {
+                        $inspect((string) $subValue, substr((string) $key, 0, 60) . '[' . substr((string) $subKey, 0, 40) . ']');
+                    }
+                }
+            } else {
+                $inspect((string) $value, substr((string) $key, 0, 80));
+            }
+        }
+
+        // 5b. Uploaded file NAMES only (never contents)
+        foreach ($_FILES as $key => $file) {
+            $names = [];
+            if (is_array($file)) {
+                if (isset($file['name']) && is_string($file['name'])) {
+                    $names[] = $file['name'];
+                } elseif (isset($file['name']) && is_array($file['name'])) {
+                    foreach ($file['name'] as $n) {
+                        if (is_string($n)) $names[] = $n;
+                    }
+                }
+            }
+            foreach ($names as $n) {
+                $inspect($n, 'file:' . substr((string) $key, 0, 60));
+            }
+        }
+
+        // 5c. JSON payloads (php://input is safe to read; $_POST stays intact)
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? ($_SERVER['HTTP_CONTENT_TYPE'] ?? '');
+        if (stripos((string) $contentType, 'application/json') !== false) {
+            $raw = @file_get_contents('php://input', false, null, 0, 65536);
+            if (is_string($raw) && $raw !== '') {
+                $decoded = json_decode($raw, true);
+                if (is_array($decoded)) {
+                    self::walkJson($decoded, 'json', $inspect, 0);
+                } else {
+                    $inspect($raw, 'json:raw');
+                }
+            }
+        }
+    }
+
+    /**
+     * Walk decoded JSON scalars with depth/width caps (Arabic/Unicode safe —
+     * regexes only match latin attack signatures).
+     */
+    private static function walkJson($node, $path, callable $inspect, $depth)
+    {
+        if ($depth > 4) {
+            return;
+        }
+        $count = 0;
+        foreach ((array) $node as $key => $value) {
+            if (++$count > 200) {
+                return;
+            }
+            $child = $path . '.' . substr((string) $key, 0, 40);
+            if (is_string($value) || is_numeric($value)) {
+                $inspect((string) $value, $child);
+            } elseif (is_array($value)) {
+                self::walkJson($value, $child, $inspect, $depth + 1);
+            }
+        }
     }
 
     /**
@@ -82,7 +184,20 @@ class SecurityGuard
                 ':blocked' => $block ? 1 : 0,
             ]);
 
-            // 2. Dispatch in-app notifications to all admin users!
+            // 2. Dispatch in-app notifications to all admin users, with a
+            // 5-minute dedup per (alert_type, IP) so repeated hits (e.g. a
+            // POST scanner or double-submit) log every row but don't spam
+            // admins. The alert row above is ALWAYS inserted (audit first).
+            $recent = $db->fetch(
+                "SELECT id FROM notifications
+                  WHERE type = 'security_alert' AND link = :link
+                    AND created_at >= (NOW() - INTERVAL 5 MINUTE)
+                  LIMIT 1",
+                [':link' => app_url('admin/security-alerts')]
+            );
+            // NOTE: link-only dedup is coarse on purpose (cheap, index-free);
+            // per-type precision lives in the security_alerts rows themselves.
+            if (!$recent) {
             $admins = $db->fetchAll("SELECT id FROM users WHERE role_id = 1 OR role_id IN (SELECT id FROM roles WHERE name = 'admin')");
             foreach ($admins as $admin) {
                 $db->query("
@@ -99,6 +214,7 @@ class SecurityGuard
                     ':link' => app_url('admin/security-alerts'),
                 ]);
             }
+            } // end dedup window
         } catch (Throwable $e) {
             error_log("SecurityGuard Error: " . $e->getMessage());
         }

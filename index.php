@@ -897,6 +897,55 @@ $router->delete('/api/v1/rss-sources/{id}', 'ApiV1RssController@delete');
 $router->post('/api/v1/ai/translate', 'ApiV1AiController@translate');
 $router->get('/api/v1/ai/glossary', 'ApiV1AiController@glossary');
 
+// ==========================================
+// 🔌 REST API v1 — preflight + per-IP throttle (SH-05)
+// ==========================================
+// Allowed origins come from CORS_ALLOWED_ORIGINS (see core/Cors.php).
+// OPTIONS preflight is answered centrally without hitting the router.
+$__apiPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+$__apiPath = rtrim((string) $__apiPath, '/');
+if (preg_match('#^/(?:cron/)?api/#i', $__apiPath) || substr($__apiPath, 0, 8) === '/api/') {
+    // Central preflight handling for cross-origin browser clients — answered
+    // BEFORE rate counting so legitimate CORS apps (which preflight regularly
+    // on every new request pattern) are never penalised.
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
+        Cors::handle(true);
+        http_response_code(204);
+        exit;
+    }
+
+    // Per-IP throttle for public AND authenticated API endpoints — generous,
+    // configurable, file-backed-appropriate for shared hosting.
+    $ipMax = (int) ((defined('API_RATE_MAX_PER_IP') ? API_RATE_MAX_PER_IP : (getenv('API_RATE_MAX_PER_IP') ?: 120)));
+    $ipWin = (int) ((defined('API_RATE_WINDOW_MIN') ? API_RATE_WINDOW_MIN : (getenv('API_RATE_WINDOW_MIN') ?: 1)));
+
+    $clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    // Trust proxy headers ONLY when the app is explicitly told to (SH-06).
+    $trustProxy = defined('TRUST_PROXY') && TRUST_PROXY === true;
+    if ($trustProxy) {
+        $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+        $cf        = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? '';
+        if ($cf !== '') {
+            $clientIp = $cf;
+        } elseif ($forwarded !== '') {
+            $clientIp = trim(explode(',', $forwarded)[0]);
+        }
+    }
+
+    if (!RateLimiter::attempt('api_ip_' . md5($clientIp), $ipMax, $ipWin)) {
+        Cors::handle(true);
+        http_response_code(429);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => false,
+            'error'   => ['code' => 429, 'message' => 'Too many API requests from this IP. Try again later.', 'details' => []],
+            'meta'    => ['timestamp' => date('c'), 'version' => 'v1']
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+}
+unset($__apiPath, $ipMax, $ipWin);
+
 // Security Guard (IDS): scan every request for intrusions (path traversal,
 // SQLi, XSS, vulnerability scanners) — blocks with 403 + logs a security
 // alert + notifies admins. Must run before dispatch and after helpers.

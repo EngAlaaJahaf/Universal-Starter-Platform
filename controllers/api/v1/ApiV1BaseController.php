@@ -33,6 +33,13 @@ class ApiV1BaseController extends Controller
             $this->jsonError("Forbidden: API Key lacks the required scope [{$requiredScope}]. Allowed scopes: " . implode(', ', $scopes), 403);
         }
 
+        // Per-key rate limiting (SH-05) — configurable, lenient defaults.
+        $maxPerKey = (int) ((defined('API_RATE_MAX_PER_KEY') ? API_RATE_MAX_PER_KEY : (getenv('API_RATE_MAX_PER_KEY') ?: 600)));
+        $windowMin = (int) ((defined('API_RATE_WINDOW_MIN') ? API_RATE_WINDOW_MIN : (getenv('API_RATE_WINDOW_MIN') ?: 1)));
+        if (!RateLimiter::attempt('apikey_' . $key['id'], $maxPerKey, $windowMin)) {
+            $this->jsonError('Rate limit exceeded for this API Key. Slow down and retry later.', 429);
+        }
+
         // Update stats
         $db->query("UPDATE api_keys SET requests_count = requests_count + 1, last_used_at = CURRENT_TIMESTAMP WHERE id = :id", [':id' => $key['id']]);
 
@@ -56,12 +63,10 @@ class ApiV1BaseController extends Controller
 
     protected function jsonSuccess($data, $meta = [], $code = 200)
     {
+        Cors::handle(true);
         http_response_code($code);
         header('Content-Type: application/json; charset=utf-8');
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Headers: Authorization, Content-Type, Accept');
-        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-        
+
         echo json_encode([
             'success' => true,
             'data'    => $data,
@@ -79,11 +84,9 @@ class ApiV1BaseController extends Controller
      */
     protected function json($data, $code = 200)
     {
+        Cors::handle(true);
         http_response_code($code);
         header('Content-Type: application/json; charset=utf-8');
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Headers: Authorization, Content-Type, Accept');
-        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 
         echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;
@@ -91,11 +94,9 @@ class ApiV1BaseController extends Controller
 
     protected function jsonError($message, $code = 400, $details = [])
     {
+        Cors::handle(true);
         http_response_code($code);
         header('Content-Type: application/json; charset=utf-8');
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Headers: Authorization, Content-Type, Accept');
-        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 
         echo json_encode([
             'success' => false,

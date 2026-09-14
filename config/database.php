@@ -121,3 +121,23 @@ if (!defined('PUSH_VAPID_PRIVATE_KEY')) {
 if (!defined('PUSH_VAPID_SUBJECT')) {
     define('PUSH_VAPID_SUBJECT', getenv('PUSH_VAPID_SUBJECT') ?: 'mailto:admin@platform.local');
 }
+
+// ─── API Security / CORS (SH-05) ─────────────────────────────────────
+// CORS_ALLOWED_ORIGINS: comma-separated HTTPS origins allowed to read API
+// responses cross-origin. Empty = same-origin only (fail-secure, no `*`).
+if (!defined('CORS_ALLOWED_ORIGINS')) {
+    $corsEnv = getenv('CORS_ALLOWED_ORIGINS');
+    define('CORS_ALLOWED_ORIGINS', (is_string($corsEnv) && $corsEnv !== '' && $corsEnv !== '*') ? $corsEnv : '');
+}
+
+// Rate limiting (lenient defaults — lower them for production-critical APIs).
+if (!defined('API_RATE_MAX_PER_KEY')) define('API_RATE_MAX_PER_KEY', (int) (getenv('API_RATE_MAX_PER_KEY') ?: 600));
+if (!defined('API_RATE_MAX_PER_IP')) define('API_RATE_MAX_PER_IP', (int) (getenv('API_RATE_MAX_PER_IP') ?: 120));
+if (!defined('API_RATE_WINDOW_MIN')) define('API_RATE_WINDOW_MIN', (int) (getenv('API_RATE_WINDOW_MIN') ?: 1));
+
+// TRUST_PROXY: set TRUE only when the server sits behind a fixed trusted
+// proxy/CDN. Never enable on raw shared hosting where X-Forwarded-For is
+// client-controlled (SH-06 IP trust).
+if (!defined('TRUST_PROXY')) {
+    define('TRUST_PROXY', (getenv('TRUST_PROXY') ?: 'false') === 'true');
+}
