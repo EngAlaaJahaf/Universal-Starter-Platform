@@ -34,9 +34,20 @@ class Auth
         Session::regenerate();
         Session::set('auth_user_id', (int) $user['id']);
 
-        $clientIp = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-        if (strpos($clientIp, ',') !== false) {
-            $clientIp = trim(explode(',', $clientIp)[0]);
+        // Client IP: honour X-Forwarded-For / CF-Connecting-IP ONLY when the
+        // app is explicitly deployed behind a trusted proxy/CDN (SH-06). On
+        // raw shared hosting those headers are client-controlled and MUST NOT
+        // be trusted for audit logging.
+        $clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $trustProxy = defined('TRUST_PROXY') && TRUST_PROXY === true;
+        if ($trustProxy) {
+            $cf        = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? '';
+            $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+            if ($cf !== '') {
+                $clientIp = $cf;
+            } elseif ($forwarded !== '') {
+                $clientIp = trim(explode(',', $forwarded)[0]);
+            }
         }
 
         try {
@@ -123,10 +134,26 @@ class Auth
         return self::user() !== null;
     }
 
+    /**
+     * Lenient gate for the CMS admin panel: grants both admins AND editors
+     * (content team) access. Kept as-is so existing editor workflows keep
+     * working. For system-level actions use isSuperAdmin() instead.
+     */
     public static function isAdmin()
     {
         $user = self::user();
         return $user && in_array($user['role_name'], ['admin', 'editor'], true);
+    }
+
+    /**
+     * Strict gate (SH-06): ONLY the full 'admin' role. Use for system-level
+     * actions — cron execution, security/global settings, user management —
+     * where an editor must not be allowed.
+     */
+    public static function isSuperAdmin()
+    {
+        $user = self::user();
+        return $user && $user['role_name'] === 'admin';
     }
 
     public static function hasPermission($permission)

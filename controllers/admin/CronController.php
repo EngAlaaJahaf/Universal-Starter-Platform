@@ -141,7 +141,7 @@ class CronController extends AdminController
 
  public function pause()
  {
- $this->postGuard();
+ $this->postGuardSystemAdmin();
  $root = dirname(dirname(dirname(__FILE__)));
  $statusFile = $root . '/storage/cron_status.json';
 
@@ -167,7 +167,7 @@ class CronController extends AdminController
 
  public function resume()
  {
- $this->postGuard();
+ $this->postGuardSystemAdmin();
  $root = dirname(dirname(dirname(__FILE__)));
  $cronFile = $root . '/cron/rss_auto_publish.php';
  $statusFile = $root . '/storage/cron_status.json';
@@ -215,7 +215,7 @@ class CronController extends AdminController
 
  public function statusJson()
  {
- if (!Auth::check() || !Auth::isAdmin()) {
+ if (!Auth::check() || !Auth::isSuperAdmin()) {
  header('Content-Type: application/json; charset=utf-8');
  http_response_code(403);
  echo json_encode(['error' => 'Unauthorized']);
@@ -287,7 +287,7 @@ class CronController extends AdminController
 
  public function stop()
  {
- $this->postGuard();
+ $this->postGuardSystemAdmin();
  $root = dirname(dirname(dirname(__FILE__)));
  $statusFile = $root . '/storage/cron_status.json';
 

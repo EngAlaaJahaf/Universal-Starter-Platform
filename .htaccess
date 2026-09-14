@@ -50,6 +50,21 @@ RewriteRule ^ index.php [QSA,L]
     Header set X-XSS-Protection "1; mode=block"
     Header set X-Frame-Options "SAMEORIGIN"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Baseline CSP (SH-06). 'unsafe-inline' is kept for the admin panel's
+    # inline styles/scripts so the working CMS is NOT broken. Tighten to a
+    # nonce/hash policy when inline script usage is refactored.
+    Header set Content-Security-Policy "default-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+
+    Header set Permissions-Policy "geolocation=(), camera=(), microphone=(), payment=(), usb=()"
+
+    # ------------------------------------------------------------------
+    # HSTS (HTTP Strict-Transport-Security): ONLY enable after the site is
+    # confirmed reachable over HTTPS with a valid cert for the whole domain
+    # (subdomains included). Forcing it too early can lock browsers out of a
+    # misconfigured installation. Recommended production value:
+    #   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    # ------------------------------------------------------------------
 </IfModule>
 
 # 6. GZIP / Deflate Compression for Speed

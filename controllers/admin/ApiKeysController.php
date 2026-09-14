@@ -4,7 +4,7 @@ class ApiKeysController extends AdminController
 {
  public function index()
  {
- $this->guardAdmin();
+ $this->guardSuperAdmin();
  $db = new Database();
 
  $keys = $db->fetchAll("SELECT * FROM api_keys ORDER BY id DESC");
@@ -30,7 +30,7 @@ class ApiKeysController extends AdminController
 
  public function store()
  {
- $this->postGuard();
+ $this->postGuardSystemAdmin();
  $data = Sanitizer::cleanArray($_POST);
 
  $name = trim($data['name'] ?? '');
@@ -80,7 +80,7 @@ class ApiKeysController extends AdminController
 
  public function update($id)
  {
- $this->postGuard();
+ $this->postGuardSystemAdmin();
  $db = new Database();
  $old = $db->fetch("SELECT * FROM api_keys WHERE id = :id", [':id' => (int) $id]);
  if (!$old) {
@@ -125,7 +125,7 @@ class ApiKeysController extends AdminController
 
  public function regenerate($id)
  {
- $this->postGuard();
+ $this->postGuardSystemAdmin();
  $db = new Database();
  $old = $db->fetch("SELECT * FROM api_keys WHERE id = :id", [':id' => (int) $id]);
  if (!$old) {
@@ -157,7 +157,7 @@ class ApiKeysController extends AdminController
 
  public function toggle($id)
  {
- $this->postGuard();
+ $this->postGuardSystemAdmin();
  $db = new Database();
  $key = $db->fetch("SELECT * FROM api_keys WHERE id = :id", [':id' => (int) $id]);
  if ($key) {
@@ -170,7 +170,7 @@ class ApiKeysController extends AdminController
 
  public function delete($id)
  {
- $this->postGuard();
+ $this->postGuardSystemAdmin();
  $db = new Database();
  $db->query("DELETE FROM api_keys WHERE id = :id", [':id' => (int) $id]);
  Session::flash('success', 'تم حذف مفتاح الـ API بنجاح.');

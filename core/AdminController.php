@@ -11,9 +11,29 @@ class AdminController extends Controller
         }
     }
 
+    /**
+     * Strict gate (SH-06): system-level admin actions — user management,
+     * DB backups, API-key management, cron control. Editors (content team)
+     * are intentionally locked out of these.
+     */
+    protected function guardSuperAdmin()
+    {
+        Auth::requireLogin();
+        if (!Auth::isSuperAdmin()) {
+            http_response_code(403);
+            exit('Forbidden');
+        }
+    }
+
     protected function postGuard()
     {
         $this->guardAdmin();
+        CSRF::verifyRequest();
+    }
+
+    protected function postGuardSystemAdmin()
+    {
+        $this->guardSuperAdmin();
         CSRF::verifyRequest();
     }
 

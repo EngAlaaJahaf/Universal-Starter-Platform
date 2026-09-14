@@ -2,6 +2,79 @@
 
 class Upload
 {
+    /**
+     * Sanitize SVG content (SH-06). SVGs are XML — a user-supplied SVG can
+     * smuggle <script>, foreignObject, or javascript: URLs and run them when
+     * served as image/svg+xml. Returns cleaned XML or null (reject).
+     */
+    protected static function sanitizeSvg($content)
+    {
+        $content = trim((string) $content);
+        if ($content === '' || stripos($content, '<svg') === false) {
+            return null;
+        }
+
+        // Drop the risky prolog pieces: XML declaration + DOCTYPE (XXE vector).
+        $content = (string) preg_replace('/<\?xml[^>]*\?>\s*/i', '', $content);
+        $content = (string) preg_replace('/<!DOCTYPE[^>]*>\s*/is', '', $content);
+        if (stripos($content, '<!ENTITY') !== false) {
+            return null;
+        }
+
+        $prev = libxml_use_internal_errors(true);
+        $dom = new DOMDocument();
+        $loaded = @$dom->loadXML($content, LIBXML_NONET | LIBXML_NOENT | LIBXML_NOERROR | LIBXML_NOWARNING);
+        if ($loaded === false) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($prev);
+            return null;
+        }
+
+        $xpath = new DOMXPath($dom);
+
+        // Remove scripting/interactive containers entirely.
+        foreach (['script', 'foreignObject', 'iframe', 'object', 'embed', 'link', 'meta', 'form', 'input', 'style'] as $tag) {
+            foreach ($xpath->query('//*[local-name() = "' . $tag . '"]') as $node) {
+                if ($node->parentNode) {
+                    $node->parentNode->removeChild($node);
+                }
+            }
+        }
+
+        // Attribute hardening on every remaining element.
+        foreach ($xpath->query('//*') as $el) {
+            foreach (iterator_to_array($el->attributes) as $attr) {
+                $name  = strtolower($attr->nodeName);
+                $value = strtolower(trim($attr->nodeValue));
+
+                // Event handlers: onload, onclick, onerror, ...
+                if (strpos($name, 'on') === 0) {
+                    $el->removeAttributeNode($attr);
+                    continue;
+                }
+                // Active content URLs.
+                if (preg_match('!^(javascript|vbscript|data|file):!i', $value)) {
+                    $el->removeAttributeNode($attr);
+                    continue;
+                }
+                // External resource links (allow same-document #fragment ids only).
+                if (in_array($name, ['href', 'xlink:href'], true) && $value !== '' && $value[0] !== '#') {
+                    $el->removeAttributeNode($attr);
+                    continue;
+                }
+                // CSS inside style= can carry url()/expression().
+                if ($name === 'style' && (stripos($attr->nodeValue, 'url(') !== false)) {
+                    $el->removeAttributeNode($attr);
+                }
+            }
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($prev);
+
+        $clean = $dom->saveXML($dom->documentElement);
+        return ($clean === false) ? null : $clean;
+    }
     protected $allowedMimes = [
         'image/jpeg'          => 'jpg',
         'image/jpg'           => 'jpg',
@@ -79,6 +152,16 @@ class Upload
         $uniqueName = uniqid('img_', true) . '.' . $ext;
         $destination = $targetDir . DIRECTORY_SEPARATOR . $uniqueName;
 
+        // SVGs are re-serialised through the sanitizer — never stored raw (SH-06).
+        if ($ext === 'svg') {
+            $raw = @file_get_contents($file['tmp_name']);
+            $clean = ($raw === false) ? null : self::sanitizeSvg($raw);
+            if ($clean === null || !@file_put_contents($destination, $clean, LOCK_EX)) {
+                return null;
+            }
+            return 'uploads/' . str_replace('\\', '/', $targetSubdir) . '/' . $uniqueName;
+        }
+
         if (!@move_uploaded_file($file['tmp_name'], $destination)) {
             if (!@copy($file['tmp_name'], $destination) && !@rename($file['tmp_name'], $destination)) {
                 return null;
@@ -111,8 +194,20 @@ class Upload
         $uniqueName = uniqid('up_', true) . '.' . $ext;
         $destination = $this->uploadDir . DIRECTORY_SEPARATOR . $uniqueName;
 
-        if (!move_uploaded_file($file['tmp_name'], $destination)) {
-            return ['success' => false, 'error' => 'فشل في حفظ الملف على الخادم.'];
+        if ($ext === 'svg') {
+            // Sanitize BEFORE writing to disk — store only the cleaned XML (SH-06).
+            $raw = @file_get_contents($file['tmp_name']);
+            $clean = ($raw === false) ? null : self::sanitizeSvg($raw);
+            if ($clean === null) {
+                return ['success' => false, 'error' => 'ملف SVG غير صالح أو يحتوي على محتوى ممنوع.'];
+            }
+            if (!@file_put_contents($destination, $clean, LOCK_EX)) {
+                return ['success' => false, 'error' => 'فشل في حفظ الملف على الخادم.'];
+            }
+        } else if (!move_uploaded_file($file['tmp_name'], $destination)) {
+            if (!@copy($file['tmp_name'], $destination)) {
+                return ['success' => false, 'error' => 'فشل في حفظ الملف على الخادم.'];
+            }
         }
 
         $relativePath = 'uploads/' . str_replace('\\', '/', $this->subdir) . '/' . $uniqueName;

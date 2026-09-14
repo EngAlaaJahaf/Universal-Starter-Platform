@@ -4,6 +4,7 @@ class UsersController extends AdminController
 {
  public function index()
  {
+ $this->guardSuperAdmin();
  $db = Database::getInstance();
  $q = trim($_GET['q'] ?? '');
  $role = trim($_GET['role'] ?? '');
@@ -50,6 +51,7 @@ class UsersController extends AdminController
 
  public function create()
  {
+ $this->guardSuperAdmin();
  $db = Database::getInstance();
  $roles = $db->query("SELECT * FROM roles ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -60,6 +62,7 @@ class UsersController extends AdminController
 
  public function store()
  {
+ $this->guardSuperAdmin();
  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
  header('Location: ' . app_url('admin/users'));
  exit;
@@ -91,6 +94,7 @@ class UsersController extends AdminController
 
  public function edit($id)
  {
+ $this->guardSuperAdmin();
  $db = Database::getInstance();
  $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
  $stmt->execute([(int) $id]);
@@ -111,6 +115,7 @@ class UsersController extends AdminController
 
  public function update($id)
  {
+ $this->guardSuperAdmin();
  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
  header('Location: ' . app_url('admin/users'));
  exit;
@@ -140,6 +145,7 @@ class UsersController extends AdminController
 
  public function ban($id)
  {
+ $this->guardSuperAdmin();
  CSRF::validate($_POST['_csrf'] ?? '');
  $db = Database::getInstance();
  $stmt = $db->prepare("UPDATE users SET status = 'banned' WHERE id = ?");
@@ -153,6 +159,7 @@ class UsersController extends AdminController
 
  public function activate($id)
  {
+ $this->guardSuperAdmin();
  CSRF::validate($_POST['_csrf'] ?? '');
  $db = Database::getInstance();
  $stmt = $db->prepare("UPDATE users SET status = 'active' WHERE id = ?");
@@ -166,6 +173,7 @@ class UsersController extends AdminController
 
  public function delete($id)
  {
+ $this->guardSuperAdmin();
  CSRF::validate($_POST['_csrf'] ?? '');
  $db = Database::getInstance();
  $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
