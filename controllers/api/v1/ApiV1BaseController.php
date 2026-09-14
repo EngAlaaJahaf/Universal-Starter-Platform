@@ -73,6 +73,22 @@ class ApiV1BaseController extends Controller
         exit;
     }
 
+    /**
+     * Emit a raw JSON payload (used by public/unauthenticated endpoints such
+     * as /api/v1/market-pulse, whose frontend expects an 'ok' envelope).
+     */
+    protected function json($data, $code = 200)
+    {
+        http_response_code($code);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: Authorization, Content-Type, Accept');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+
+        echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+
     protected function jsonError($message, $code = 400, $details = [])
     {
         http_response_code($code);
