@@ -20,6 +20,14 @@
 
 class CronGuard
 {
+    /** Test seam: force the SAPI answer (null = real php_sapi_name()). */
+    public static $sapiOverride = null;
+
+    public static function isCli()
+    {
+        return self::$sapiOverride !== null ? self::$sapiOverride : php_sapi_name() === 'cli';
+    }
+
     public static function secret()
     {
         if (defined('CRON_SECRET') && is_string(CRON_SECRET) && CRON_SECRET !== '') {
@@ -37,9 +45,19 @@ class CronGuard
         return self::secret() !== '';
     }
 
-    public static function isCli()
+    /**
+     * Pure decision logic: does the provided secret match the configured one?
+     * Fail-closed — any missing/blank side refuses the request.
+     */
+    public static function authHttp($configured, $provided)
     {
-        return php_sapi_name() === 'cli';
+        if (!is_string($configured) || !is_string($provided)) {
+            return false;
+        }
+        if ($configured === '' || $provided === '') {
+            return false;
+        }
+        return hash_equals($configured, $provided);
     }
 
     /**
@@ -53,7 +71,7 @@ class CronGuard
         }
         $configured = self::secret();
         $provided = isset($_GET['secret']) ? (string) $_GET['secret'] : '';
-        if ($configured === '' || $provided === '' || !hash_equals($configured, $provided)) {
+        if (!self::authHttp($configured, $provided)) {
             http_response_code(403);
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode(['error' => 'Forbidden']);

@@ -6,7 +6,7 @@ Options -Indexes
 RewriteEngine On
 
 # 1. Block direct access to sensitive system directories and files
-RewriteRule ^(config|core|models|controllers|storage|languages|scratch|\.git)(/|$) - [F,L,NC]
+RewriteRule ^(config|core|models|controllers|storage|languages|scratch|tests|\.git)(/|$) - [F,L,NC]
 
 # Allow PWA manifest files while blocking other sensitive JSON/env/config files
 RewriteCond %{REQUEST_URI} !^/manifest\.(json|webmanifest)$ [NC]

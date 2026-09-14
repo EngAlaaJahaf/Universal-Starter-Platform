@@ -55,6 +55,15 @@ function cli_print($msg, $color = null) {
 }
 
 switch ($command) {
+    case 'test':
+        cli_print("▶ Running test suites (tests/*_test.php) ...", 'cyan');
+        if (!is_file(APP_ROOT . '/tests/run.php')) {
+            cli_print("Error: tests/run.php not found.", 'red');
+            exit(1);
+        }
+        require APP_ROOT . '/tests/run.php'; // run.php exits with its own code
+        break;
+
     case 'serve':
         $host = $subArgs[0] ?? '127.0.0.1:8000';
         cli_print("⚡ Starting Development Server on http://{$host} ...", 'cyan');

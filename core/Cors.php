@@ -14,10 +14,41 @@
 
 class Cors
 {
+    /** Test seam: overrides the configured allowlist (null = use config/env). */
+    private static $allowlistOverride = null;
+
+    public static function setAllowlistOverride($origins)
+    {
+        self::$allowlistOverride = is_array($origins) ? $origins : null;
+    }
+
+    /**
+     * Pure allowlist parser (testable without booting the app): normalises a
+     * raw comma-separated string, drops empties/duplicates and rejects '*'.
+     */
+    public static function parseList($raw)
+    {
+        if (!is_string($raw) || $raw === '' || $raw === '*') {
+            return [];
+        }
+        $out = [];
+        foreach (explode(',', $raw) as $o) {
+            $o = rtrim(trim($o), '/');
+            if ($o !== '') {
+                $out[] = $o;
+            }
+        }
+        return array_values(array_unique($out));
+    }
+
     /** Allowed origins as a normalized array ('' → none allowed). */
     public static function allowedOrigins()
     {
+        if (self::$allowlistOverride !== null) {
+            return self::$allowlistOverride;
+        }
         $raw = defined('CORS_ALLOWED_ORIGINS') ? (string) CORS_ALLOWED_ORIGINS : (string) getenv('CORS_ALLOWED_ORIGINS');
+        return self::parseList($raw);
         if ($raw === '' || $raw === '*') {
             return [];
         }
