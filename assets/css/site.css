@@ -582,11 +582,11 @@
    TEMPLATE 2: Classic Tech-WD (مجلة عالم التقنية الكلاسيكية)
    ========================================================================== */
 [data-template="classic_techwd"] {
-  --accent-primary: #c5162a;
-  --accent-hover: #9f1222;
+  --accent-primary: #0d9488;
+  --accent-hover: #0f766e;
   --accent-secondary: #1e3a8a;
-  --accent-glow: rgba(197, 22, 42, 0.25);
-  --grad-primary: linear-gradient(135deg, #c5162a 0%, #9f1222 100%);
+  --accent-glow: rgba(13, 148, 136, 0.25);
+  --grad-primary: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
   --font-heading: 'Tajawal', 'Cairo', sans-serif;
   --font-body: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
   --radius-card: 12px;
@@ -711,7 +711,7 @@
 [data-template="digital_broadsheet"] {
   --accent-primary: #0284c7;
   --accent-hover: #0369a1;
-  --accent-secondary: #b91c1c;
+  --accent-secondary: #1e3a8a;
   --accent-glow: rgba(2, 132, 199, 0.2);
   --grad-primary: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   --font-heading: 'IBM Plex Sans Arabic', serif;
@@ -1540,7 +1540,7 @@ img {
   stroke: #3b82f6 !important;
 }
 
-/* In Classic Tech-WD red bar, icons remain crisp white */
+/* In Classic Tech-WD teal bar, icons remain crisp white */
 [data-template="classic_techwd"] .topic-pill .ui-icon {
   color: #ffffff !important;
   stroke: #ffffff !important;
@@ -2264,7 +2264,7 @@ img {
 }
 
 [data-template="classic_techwd"] .side-widget-card {
-  border-top: 3px solid #c5162a;
+  border-top: 3px solid #0d9488;
   border-radius: 12px;
 }
 
@@ -2472,14 +2472,14 @@ img {
 
 [data-template="classic_techwd"] .article-cat-badge,
 [data-template="classic_techwd"] .article-cat-pill {
-  background: rgba(197, 22, 42, 0.1);
-  color: #c5162a;
-  border-color: rgba(197, 22, 42, 0.25);
+  background: rgba(13, 148, 136, 0.1);
+  color: #0d9488;
+  border-color: rgba(13, 148, 136, 0.25);
 }
 
 [data-template="classic_techwd"] .article-cat-badge:hover,
 [data-template="classic_techwd"] .article-cat-pill:hover {
-  background: #c5162a;
+  background: #0d9488;
   color: #ffffff;
 }
 
@@ -3725,13 +3725,13 @@ body.zen-reading-mode .article-card-main {
   background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #0c4a6e 100%) !important;
 }
 
-/* 🔴 2. Classic Tech-WD (Tech-WD Classic - Crimson Red) */
+/* 🟦 2. Classic Tech-WD (Tech-WD Classic - Deep Teal) */
 [data-template="classic_techwd"] .site-footer {
-  background: linear-gradient(135deg, #c5162a 0%, #991b1b 50%, #450a0a 100%) !important;
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 50%, #042f2e 100%) !important;
 }
 
 [data-template="classic_techwd"][data-theme="light"] .site-footer {
-  background: linear-gradient(135deg, #c5162a 0%, #991b1b 45%, #7f1d1d 100%) !important;
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 45%, #134e4a 100%) !important;
 }
 
 /* 🟢 3. Minimal TechCrunch (TechCrunch Style - Emerald Green) */
@@ -4752,14 +4752,14 @@ body.zen-reading-mode .article-card-main {
   padding: 24px 0;
 }
 
-/* 4. Classic Tech-WD (Red Accents & Arabic Magazine Style) */
+/* 4. Classic Tech-WD (Teal Accents & Arabic Magazine Style) */
 [data-template="classic_techwd"] .article-card-main {
-  border-top: 4px solid #c5162a;
+  border-top: 4px solid #0d9488;
   border-radius: 12px;
 }
 
 [data-template="classic_techwd"] .article-cat-pill {
-  background: #c5162a;
+  background: #0d9488;
 }
 
 /* 5. Cyber AI Futuristic (HUD & Neon Accents) */

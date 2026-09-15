@@ -72,7 +72,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                     <div style="grid-column: span 2; position:relative; min-height:380px; border-radius:12px; overflow:hidden; background:#000; box-shadow:var(--shadow-sm)" <?= news_card_attrs($featured) ?>>
                         <img src="<?= e(app_url($featured['featured_image'])) ?>" alt="<?= e($featured['title']) ?>" style="width:100%;height:100%;object-fit:cover;opacity:0.85" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                         <div style="position:absolute;inset:0;background:linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.9) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:28px">
-                            <span class="badge-tag" style="background:#c5162a;align-self:flex-start;margin-bottom:10px;display:inline-flex;align-items:center;gap:5px">
+                            <span class="badge-tag" style="background:#0d9488;align-self:flex-start;margin-bottom:10px;display:inline-flex;align-items:center;gap:5px">
                                 <?= ui_icon('flame', '', 14) ?> <?= e($featured['category_name'] ?: 'مقال مميز') ?>
                             </span>
                             <h2 style="font-size:1.85rem;font-weight:800;color:#fff;line-height:1.4;margin-bottom:10px">
@@ -92,7 +92,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                         <div style="position:relative; min-height:180px; border-radius:12px; overflow:hidden; background:#000; flex:1; box-shadow:var(--shadow-sm)" <?= news_card_attrs($sf) ?>>
                             <img src="<?= e(app_url($sf['featured_image'])) ?>" alt="<?= e($sf['title']) ?>" style="width:100%;height:100%;object-fit:cover;opacity:0.85" onerror="this.onerror=null;this.src='<?= e(\FallbackImage::general()) ?>';">
                             <div style="position:absolute;inset:0;background:linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.9) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:16px">
-                                <span class="badge-tag" style="background:#c5162a;font-size:0.7rem;padding:3px 8px;align-self:flex-start;margin-bottom:6px;display:inline-flex;align-items:center;gap:4px">
+                                <span class="badge-tag" style="background:#0d9488;font-size:0.7rem;padding:3px 8px;align-self:flex-start;margin-bottom:6px;display:inline-flex;align-items:center;gap:4px">
                                     <?= ui_icon('general', '', 12) ?> <?= e($sf['category_name'] ?: 'مقالات') ?>
                                 </span>
                                 <h3 style="font-size:1.1rem;font-weight:700;color:#fff;line-height:1.35;margin-bottom:6px">
@@ -116,7 +116,7 @@ require_once APP_ROOT . '/views/partials/header.php';
             
             <!-- Main Horizontal News Stream -->
             <section>
-                <div class="section-head" style="border-bottom:2px solid #c5162a">
+                <div class="section-head" style="border-bottom:2px solid #0d9488">
                     <h2 class="section-title" style="font-size:1.45rem;display:flex;align-items:center;gap:8px">
                         <?= ui_icon('flame', 'text-primary', 22) ?>
                         <span>أحدث المنشورات</span>
@@ -158,7 +158,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                 <?= site_ad_slot('ad_sidebar_slot', 'side-widget-card sidebar-ad-slot text-center') ?>
 
                 <!-- Top 5 Ranked Stories -->
-                <div class="side-widget-card" style="border-top:3px solid #c5162a">
+                <div class="side-widget-card" style="border-top:3px solid #0d9488">
                     <h4 style="font-size:1.15rem;font-weight:800;color:var(--text-main);margin-bottom:16px;display:flex;align-items:center;gap:8px">
                         <?= ui_icon('flame', 'text-danger', 18) ?>
                         <span>الأكثر قراءة</span>
@@ -166,7 +166,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                     <div style="display:flex;flex-direction:column;gap:12px">
                         <?php foreach ($trending as $index => $item): ?>
                             <a href="<?= e(app_url('article/' . $item['slug'])) ?>" style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle)" <?= news_card_attrs($item) ?>>
-                                <span style="font-size:1.2rem;font-weight:900;color:#c5162a;width:24px;text-align:center"><?= $index + 1 ?></span>
+                                <span style="font-size:1.2rem;font-weight:900;color:#0d9488;width:24px;text-align:center"><?= $index + 1 ?></span>
                                 <div>
                                     <h5 style="font-size:0.92rem;font-weight:700;line-height:1.45;color:var(--text-main);margin-bottom:4px"><?= e($item['title']) ?></h5>
                                     <small style="color:var(--text-muted);font-size:0.75rem;display:inline-flex;align-items:center;gap:4px">
@@ -180,7 +180,7 @@ require_once APP_ROOT . '/views/partials/header.php';
 
                 <!-- Newsletter Subscription -->
                 <?php if (Settings::get('enable_newsletter', '1') == '1'): ?>
-                    <div class="side-widget-card" style="border-top:3px solid #c5162a">
+                    <div class="side-widget-card" style="border-top:3px solid #0d9488">
                         <h4 style="display:flex;align-items:center;gap:8px">
                             <?= ui_icon('comments', 'text-primary', 18) ?>
                             <span>النشرة البريدية</span>
@@ -189,7 +189,7 @@ require_once APP_ROOT . '/views/partials/header.php';
                         <form action="<?= e(app_url('newsletter/subscribe')) ?>" method="post" style="display:flex;flex-direction:column;gap:10px">
                             <?= CSRF::field() ?>
                             <input type="email" name="email" required placeholder="بريدك الإلكتروني..." style="background:var(--bg-surface-elevated);border:1px solid var(--border-subtle);padding:10px 14px;border-radius:6px;font-size:0.88rem;color:var(--text-main)">
-                            <button type="submit" class="btn-primary-glow" style="background:#c5162a;justify-content:center;padding:10px;border-radius:6px">اشتراك مجاني</button>
+                            <button type="submit" class="btn-primary-glow" style="background:#0d9488;justify-content:center;padding:10px;border-radius:6px">اشتراك مجاني</button>
                         </form>
                     </div>
                 <?php endif; ?>
