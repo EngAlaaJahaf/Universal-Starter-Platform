@@ -12,6 +12,10 @@ class Controller
             throw new RuntimeException('View not found: ' . $view);
         }
 
+        // SH-12b: named hook point — plugins may inspect/mutate $data before
+        // render. No listeners registered => no-op in every code path.
+        Plugin::hook('app.view', $data);
+
         extract($data, EXTR_SKIP);
         require $viewFile;
     }

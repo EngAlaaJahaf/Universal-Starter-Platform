@@ -401,6 +401,24 @@ switch ($command) {
         cli_print('  Auth::can() layers super-admin + JSON grants + this matrix.', 'yellow');
         break;
 
+    case 'webhook:send':
+        // SH-12c: fire one outbound webhook from the CLI for testing.
+        $url = $subArgs[0] ?? null;
+        $event = $subArgs[1] ?? 'test';
+        if (!$url) {
+            cli_print('Usage: php craft webhook:send <url> [event] [data-json] [--secret=xxx]', 'red');
+            exit(1);
+        }
+        $secret = '';
+        foreach ($subArgs as $a) {
+            if (strpos($a, '--secret=') === 0) { $secret = substr($a, 9); }
+        }
+        $raw = $subArgs[2] ?? null;
+        $data = ($raw !== null && is_array(json_decode($raw, true))) ? json_decode($raw, true) : array();
+        $res = Webhook::deliver($url, $event, $data, $secret);
+        cli_print(json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        break;
+
     case 'help':
     default:
         cli_print("\n========================================================", 'cyan');
@@ -420,6 +438,7 @@ switch ($command) {
         cli_print("  php craft db:backup [keep]         MySQL snapshot + retention (SH-10)");
         cli_print("  php craft db:migrate [--preview]   Apply migration files with a ledger (SH-10)");
         cli_print("  php craft acl:matrix               Print role x permission matrix (SH-11)");
+        cli_print("  php craft webhook:send <url> [..]  Fire a test webhook (SH-12)");
         cli_print("  php craft help                     Show this help message\n");
         break;
 }

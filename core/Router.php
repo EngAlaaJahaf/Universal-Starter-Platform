@@ -3,6 +3,24 @@
 class Router
 {
     private $routes = array();
+    private static $current = null;
+
+    public function __construct()
+    {
+        self::$current = $this;
+    }
+
+    /** SH-12a: last-built router (index.php scope) for live doc introspection. */
+    public static function current()
+    {
+        return self::$current;
+    }
+
+    /** SH-12a: registered route triplet list: {method, pattern, handler}. */
+    public function routes()
+    {
+        return $this->routes;
+    }
 
     public function get($pattern, $handler) { return $this->add('GET', $pattern, $handler); }
     public function post($pattern, $handler) { return $this->add('POST', $pattern, $handler); }
