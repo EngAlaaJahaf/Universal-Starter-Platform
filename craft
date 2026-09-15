@@ -419,6 +419,72 @@ switch ($command) {
         cli_print(json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         break;
 
+    case 'release:check':
+        // SH-DELIVERY: one-command pre-release gate (lint sweep + tests +
+        // critical wiring). Exits non-zero on any FAIL so CI can gate on it.
+        $passCount = 0; $failCount = 0;
+        $report = function ($name, $okFlag, $detail = '') use (&$passCount, &$failCount) {
+            if ($okFlag) { $passCount++; cli_print('  [PASS] ' . $name . ($detail !== '' ? '  (' . $detail . ')' : ''), 'green'); }
+            else { $failCount++; cli_print('  [FAIL] ' . $name . ($detail !== '' ? '  (' . $detail . ')' : ''), 'red'); }
+        };
+
+        cli_print('-- release:check --', 'bold');
+
+        $report('PHP >= 8.0', PHP_MAJOR_VERSION >= 8, 'running ' . PHP_VERSION);
+
+        foreach (array('index.php', '.htaccess', '.env.example', 'config/database.php', 'routes/web.php', 'routes/admin.php', 'routes/api.php', 'tests/run.php') as $f) {
+            $report('file present: ' . $f, is_file(APP_ROOT . '/' . $f));
+        }
+
+        @include_once APP_ROOT . '/config/database.php';
+        $report('config defines CACHE_DRIVER', defined('CACHE_DRIVER'), defined('CACHE_DRIVER') ? CACHE_DRIVER : 'missing');
+        $report('config defines UPTIME_HEARTBEAT_URL', defined('UPTIME_HEARTBEAT_URL'), '');
+        $report('secret CRON_SECRET refused-by-default', !defined('CRON_SECRET') || CRON_SECRET === '' || CRON_SECRET === 'CHANGE_ME', defined('CRON_SECRET') && CRON_SECRET !== '' && CRON_SECRET !== 'CHANGE_ME' ? 'set' : 'unset/refused');
+
+        $env = @file_get_contents(APP_ROOT . '/.env.example');
+        $report('.env.example documents CACHE_DRIVER', is_string($env) && strpos($env, 'CACHE_DRIVER') !== false);
+        $report('.env.example documents TRUST_PROXY', is_string($env) && strpos($env, 'TRUST_PROXY') !== false);
+        $report('.env.example documents UPTIME_HEARTBEAT_URL', is_string($env) && strpos($env, 'UPTIME_HEARTBEAT_URL') !== false);
+
+        $ht = @file_get_contents(APP_ROOT . '/.htaccess');
+        $blockOk = is_string($ht) && preg_match('/\^\(config\\\|core\\\|[^)]*\\\|routes\\\|\.git\)\//i', $ht) === 1;
+        $report('.htaccess blocks core|routes dirs', $blockOk);
+
+        // Full PHP lint sweep.
+        $lintFail = 0; $lintTotal = 0; $lintMsg = array();
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(APP_ROOT, FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $file) {
+            if ($file->getExtension() !== 'php' || strpos($file->getPathname(), APP_ROOT . DIRECTORY_SEPARATOR . 'storage') === 0) { continue; }
+            $lintTotal++;
+            exec(escapeshellarg(PHP_BINARY) . ' -l ' . escapeshellarg($file->getPathname()) . ' 2>&1', $lintOut, $lintCode);
+            if ($lintCode !== 0) { $lintFail++; $lintMsg[] = basename($file->getPathname()); }
+        }
+        $report("php -l sweep ({$lintTotal} files)", $lintFail === 0, $lintFail === 0 ? 'clean' : implode(', ', array_slice($lintMsg, 0, 5)));
+
+        // Migration files all parse into statements.
+        $migFiles = DbMigrations::files();
+        $migOk = count($migFiles) >= 3;
+        foreach ($migFiles as $mf) {
+            if (count(DbMigrations::splitStatements((string) @file_get_contents(DbMigrations::dir() . '/' . $mf))) === 0) { $migOk = false; }
+        }
+        $report('migration files parse (' . count($migFiles) . ' files)', $migOk);
+
+        // Full test suite via tests/run.php (exits 0/1).
+        exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(APP_ROOT . '/tests/run.php') . ' 2>&1', $testOut, $testCode);
+        $last = 'unknown';
+        foreach ($testOut as $line) {
+            if (strpos($line, 'ALL TEST SUITES PASSED') !== false || strpos($line, 'SUITES FAILED') !== false) {
+                $last = trim($line);
+            }
+        }
+        $report('test suite', $testCode === 0, str_replace(array('  ', "\t"), ' ', $last));
+
+        cli_print('', '');
+        cli_print($failCount === 0
+            ? "  RELEASE READY — {$passCount} checks passed."
+            : "  NOT RELEASABLE — {$failCount} check(s) failed (of " . ($passCount + $failCount) . ").", $failCount === 0 ? 'green' : 'red');
+        exit($failCount === 0 ? 0 : 1);
+
     case 'help':
     default:
         cli_print("\n========================================================", 'cyan');
@@ -439,6 +505,7 @@ switch ($command) {
         cli_print("  php craft db:migrate [--preview]   Apply migration files with a ledger (SH-10)");
         cli_print("  php craft acl:matrix               Print role x permission matrix (SH-11)");
         cli_print("  php craft webhook:send <url> [..]  Fire a test webhook (SH-12)");
+        cli_print("  php craft release:check           Pre-release gate: lint + tests + wiring");
         cli_print("  php craft help                     Show this help message\n");
         break;
 }
