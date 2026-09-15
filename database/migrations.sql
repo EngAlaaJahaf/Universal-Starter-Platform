@@ -115,10 +115,20 @@ ALTER TABLE `rss_sources` ADD COLUMN IF NOT EXISTS `new_items_last_at` datetime 
 
 -- 8. Align menus schema with the admin MenusController / AdminSimpleController
 --    (code expects: menus.name + menus.status; menu_items.title_ar/title_en/status/item_type/target_id)
---    MariaDB 10.4+ syntax changes column definition + name atomically.
-ALTER TABLE `menus` CHANGE COLUMN `title` `name` varchar(150) NOT NULL;
+--    Legacy databases (original dev schema) used menus.title / menu_items.title;
+--    rename those only if the legacy columns exist — canonical schema.sql already
+--    ships the final names, so these statements are no-ops on fresh installs.
+SET @has_menus_title := (SELECT COUNT(*) = 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'menus' AND COLUMN_NAME = 'title');
+SET @menus_align := IF(@has_menus_title, 'ALTER TABLE `menus` CHANGE COLUMN `title` `name` varchar(150) NOT NULL', 'SELECT 1');
+PREPARE menus_align_stmt FROM @menus_align;
+EXECUTE menus_align_stmt;
+DEALLOCATE PREPARE menus_align_stmt;
 ALTER TABLE `menus` ADD COLUMN IF NOT EXISTS `status` varchar(20) NOT NULL DEFAULT 'active';
-ALTER TABLE `menu_items` CHANGE COLUMN `title` `title_ar` varchar(190) NOT NULL;
+SET @has_items_title := (SELECT COUNT(*) = 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'menu_items' AND COLUMN_NAME = 'title');
+SET @items_align := IF(@has_items_title, 'ALTER TABLE `menu_items` CHANGE COLUMN `title` `title_ar` varchar(190) NOT NULL', 'SELECT 1');
+PREPARE items_align_stmt FROM @items_align;
+EXECUTE items_align_stmt;
+DEALLOCATE PREPARE items_align_stmt;
 ALTER TABLE `menu_items` ADD COLUMN IF NOT EXISTS `title_en` varchar(190) DEFAULT NULL;
 ALTER TABLE `menu_items` ADD COLUMN IF NOT EXISTS `status` varchar(20) NOT NULL DEFAULT 'active';
 ALTER TABLE `menu_items` ADD COLUMN IF NOT EXISTS `item_type` varchar(40) NOT NULL DEFAULT 'custom';

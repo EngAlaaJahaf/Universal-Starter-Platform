@@ -70,17 +70,19 @@ class Auth
         $role = $db->fetch("SELECT id FROM roles WHERE name IN ('user', 'member', 'reader') ORDER BY id DESC LIMIT 1");
         $roleId = $role ? (int)$role['id'] : 3;
         $status = !empty($data['status']) ? $data['status'] : 'active';
+        $hash   = password_hash($data['password'], PASSWORD_DEFAULT);
 
         $db->query(
-            'INSERT INTO users (username, email, password, role_id, status, full_name, created_at) 
-             VALUES (:username, :email, :password, :role_id, :status, :full_name, NOW())',
+            'INSERT INTO users (username, email, password, password_hash, role_id, status, full_name, created_at) 
+             VALUES (:username, :email, :password, :password_hash, :role_id, :status, :full_name, NOW())',
             [
-                ':username'  => trim($data['username']),
-                ':email'     => strtolower(trim($data['email'])),
-                ':password'  => password_hash($data['password'], PASSWORD_DEFAULT),
-                ':role_id'   => $roleId,
-                ':status'    => $status,
-                ':full_name' => trim($data['full_name'] ?? ($data['username'] ?? ''))
+                ':username'      => trim($data['username']),
+                ':email'         => strtolower(trim($data['email'])),
+                ':password'      => $hash,
+                ':password_hash' => $hash,
+                ':role_id'       => $roleId,
+                ':status'        => $status,
+                ':full_name'     => trim($data['full_name'] ?? ($data['username'] ?? ''))
             ]
         );
 
